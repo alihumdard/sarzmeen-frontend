@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Footer() {
@@ -7,8 +8,14 @@ export default function Footer() {
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div>
-            <Link href="/" className="text-2xl font-bold text-white">
-              SARZMEEN<span className="text-[var(--color-primary)]">.com</span>
+            <Link href="/" className="inline-block">
+              <Image
+                src="/logos/sarzmeen-logo.png"
+                alt="Sarzameen.com"
+                width={1254}
+                height={1254}
+                className="h-12 w-auto"
+              />
             </Link>
 
             <p className="mt-4 max-w-sm text-sm leading-6 text-gray-300">

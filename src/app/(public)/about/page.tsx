@@ -1,8 +1,33 @@
+import type { Metadata } from "next";
+import AboutStats from "@/components/about/AboutStats";
+import TeamSection from "@/components/about/TeamSection";
+import WhoWeAre from "@/components/about/WhoWeAre";
+import WhyChooseSarzameen from "@/components/about/WhyChooseSarzameen";
+import PageBanner from "@/components/layout/PageBanner";
+import StayUpdatedStrip from "@/components/layout/StayUpdatedStrip";
+
+export const metadata: Metadata = {
+  title: "About Us",
+  description:
+    "Sarzameen.com is Pakistan's most trusted real estate platform, committed to simplifying the property journey for buyers, sellers, renters and investors.",
+};
+
 export default function AboutPage() {
   return (
-    <main className="mx-auto max-w-[var(--container-width)] px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold text-[var(--color-heading)]">About</h1>
-      <p className="mt-3 text-[var(--color-text)]">This page is not built yet.</p>
+    <main>
+      <PageBanner
+        title="About Sarzameen.com"
+        subtitle="Pakistan's most trusted real estate platform"
+        description="We are committed to simplifying the property journey for buyers, sellers, renters and investors through transparency, innovation and unmatched expertise."
+        crumbs={[{ label: "Home", href: "/" }, { label: "About Us" }]}
+        image="/images/interior-1.jpg"
+      />
+
+      <WhoWeAre />
+      <AboutStats />
+      <WhyChooseSarzameen />
+      <TeamSection />
+      <StayUpdatedStrip theme="dark" background="white" />
     </main>
   );
 }
