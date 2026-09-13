@@ -1,0 +1,50 @@
+/**
+ * Header navigation.
+ *
+ * Edit the labels/links here and both the desktop nav and the mobile menu
+ * update together — the Header component never hardcodes a menu item.
+ */
+
+export type NavChild = {
+  name: string;
+  href: string;
+};
+
+export type NavItem = {
+  name: string;
+  href: string;
+  children?: NavChild[];
+};
+
+export const mainNavigation: NavItem[] = [
+  {
+    name: "Buy",
+    href: "/properties?purpose=buy",
+    children: [
+      { name: "Homes for Sale", href: "/properties?purpose=buy&type=home" },
+      { name: "Plots for Sale", href: "/properties?purpose=buy&type=plot" },
+      {
+        name: "Commercial for Sale",
+        href: "/properties?purpose=buy&type=commercial",
+      },
+    ],
+  },
+  {
+    name: "Rent",
+    href: "/properties?purpose=rent",
+    children: [
+      { name: "Homes for Rent", href: "/properties?purpose=rent&type=home" },
+      {
+        name: "Commercial for Rent",
+        href: "/properties?purpose=rent&type=commercial",
+      },
+    ],
+  },
+  { name: "Projects", href: "/projects" },
+  { name: "Blogs", href: "/blog" },
+  { name: "About Us", href: "/about" },
+  { name: "Contact Us", href: "/contact" },
+];
+
+/** Sales/support number used by the floating WhatsApp button. */
+export const whatsappNumber = "923001234567";

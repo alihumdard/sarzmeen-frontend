@@ -1,8 +1,36 @@
+import type { Metadata } from "next";
+import BlogList from "@/components/blog/BlogList";
+import BlogSearch from "@/components/blog/BlogSearch";
+import BlogSidebar from "@/components/blog/BlogSidebar";
+import PageBanner from "@/components/layout/PageBanner";
+import StayUpdatedStrip from "@/components/layout/StayUpdatedStrip";
+import { latestPosts, totalBlogCount } from "@/constants/mockBlogs";
+
+export const metadata: Metadata = {
+  title: "Our Blogs",
+  description:
+    "Stay updated with the latest real estate news, market trends, investment tips and property guides from across Pakistan.",
+};
+
 export default function BlogPage() {
   return (
-    <main className="mx-auto max-w-[var(--container-width)] px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold text-[var(--color-heading)]">Blog</h1>
-      <p className="mt-3 text-[var(--color-text)]">This page is not built yet.</p>
+    <main>
+      <PageBanner
+        title="Our Blogs"
+        description="Stay updated with the latest real estate news, market trends, investment tips and property guides."
+        crumbs={[{ label: "Home", href: "/" }, { label: "Blogs" }]}
+      >
+        <BlogSearch />
+      </PageBanner>
+
+      <section className="bg-surface py-10">
+        <div className="container-page grid items-start gap-6 lg:grid-cols-[250px_1fr]">
+          <BlogSidebar />
+          <BlogList posts={latestPosts} total={totalBlogCount} />
+        </div>
+      </section>
+
+      <StayUpdatedStrip />
     </main>
   );
 }

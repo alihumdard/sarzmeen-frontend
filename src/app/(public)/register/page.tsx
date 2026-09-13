@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
+import AuthLayout from "@/components/auth/AuthLayout";
+
+export const metadata: Metadata = {
+  title: "Register",
+  description:
+    "Create your free Sarzameen.com account to save properties, get alerts and manage your inquiries.",
+};
+
 export default function RegisterPage() {
   return (
-    <main className="mx-auto max-w-[var(--container-width)] px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-bold text-[var(--color-heading)]">Register</h1>
-      <p className="mt-3 text-[var(--color-text)]">This page is not built yet.</p>
-    </main>
+    <AuthLayout
+      eyebrow="Get Started!"
+      title="Create Your Account"
+      description="Save properties, get instant alerts and manage all your inquiries in one place."
+    />
   );
 }

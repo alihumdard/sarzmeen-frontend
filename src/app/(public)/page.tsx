@@ -1,13 +1,21 @@
+import CtaStrip from "@/components/home/CtaStrip";
+import FeaturedProperties from "@/components/home/FeaturedProperties";
+import Hero from "@/components/home/Hero";
+import LatestBlogs from "@/components/home/LatestBlogs";
+import PopularProjects from "@/components/home/PopularProjects";
+import SellRentBanner from "@/components/home/SellRentBanner";
+import WhyChooseAndCities from "@/components/home/WhyChooseAndCities";
+
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white p-10">
-      <h1 className="text-4xl font-bold text-[var(--color-primary)]">
-        Sarzmeen.com
-      </h1>
-
-      <p className="mt-4 text-[var(--color-text)]">
-        Pakistan Real Estate Marketplace
-      </p>
+    <main>
+      <Hero />
+      <FeaturedProperties />
+      <SellRentBanner />
+      <PopularProjects />
+      <WhyChooseAndCities />
+      <LatestBlogs />
+      <CtaStrip />
     </main>
   );
 }
