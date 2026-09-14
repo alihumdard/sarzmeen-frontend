@@ -46,28 +46,30 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white shadow-[0_1px_3px_rgba(17,37,31,0.06)]">
-      <div className="container-page flex h-[70px] items-center justify-between gap-4">
-        {/* Logo */}
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-white">
+      <div className="container-page grid h-[76px] grid-cols-[auto_1fr_auto] items-center gap-4 xl:grid-cols-[1fr_auto_1fr]">
+        {/* Logo — cropped asset (sarzmeen-logo-cropped.png) trims the large
+            transparent margin the source square had above the icon, so it
+            can just fill the header height directly. */}
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-2"
+          className="flex shrink-0 items-center"
           onClick={closeMobileMenu}
         >
           <Image
-            src="/logos/sarzmeen-logo.png"
+            src="/logos/sarzmeen-logo-cropped.png"
             alt="Sarzameen.com"
-            width={1254}
-            height={1254}
+            width={1155}
+            height={955}
             priority
-            className="h-14 w-auto sm:h-16"
+            className="h-[58px] w-auto sm:h-[64px]"
           />
         </Link>
 
         {/* Desktop navigation */}
         <nav
           ref={navRef}
-          className="hidden items-center gap-6 xl:flex"
+          className="hidden items-center gap-1 xl:flex"
           aria-label="Main navigation"
         >
           {mainNavigation.map((item) =>
@@ -82,7 +84,7 @@ export default function Header() {
                       openDropdown === item.name ? null : item.name,
                     )
                   }
-                  className="flex items-center gap-1 text-[13px] font-semibold text-heading transition-colors hover:text-primary"
+                  className="flex items-center gap-1 rounded-md px-3.5 py-2 text-[13.5px] font-semibold text-heading transition-colors hover:bg-surface hover:text-primary"
                 >
                   {item.name}
                   <ChevronDownIcon
@@ -93,7 +95,7 @@ export default function Header() {
                 </button>
 
                 {openDropdown === item.name && (
-                  <div className="absolute left-0 top-full z-50 mt-3 w-56 overflow-hidden rounded-md border border-border bg-white py-1.5 shadow-lg">
+                  <div className="absolute left-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-lg border border-border bg-white py-1.5 shadow-lg">
                     {item.children.map((child) => (
                       <Link
                         key={child.name}
@@ -111,7 +113,7 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-[13px] font-semibold text-heading transition-colors hover:text-primary"
+                className="rounded-md px-3.5 py-2 text-[13.5px] font-semibold text-heading transition-colors hover:bg-surface hover:text-primary"
               >
                 {item.name}
               </Link>
@@ -120,20 +122,20 @@ export default function Header() {
         </nav>
 
         {/* Desktop actions */}
-        <div className="hidden shrink-0 items-center gap-4 xl:flex">
-          <Link
-            href="/properties/add"
-            className="rounded-md border-[1.5px] border-primary px-5 py-2 text-[13px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
-          >
-            Add Property
-          </Link>
-
+        <div className="hidden shrink-0 items-center justify-self-end gap-3 xl:flex">
           <Link
             href="/login"
-            className="flex items-center gap-2 text-[13px] font-semibold text-heading transition-colors hover:text-primary"
+            className="flex items-center gap-1.5 px-2 text-[13.5px] font-semibold text-heading transition-colors hover:text-primary"
           >
             <UserCircleIcon className="h-5 w-5" />
             Login / Register
+          </Link>
+
+          <Link
+            href="/properties/add"
+            className="rounded-md bg-primary px-5 py-2.5 text-[13.5px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark"
+          >
+            Add Property
           </Link>
         </div>
 
@@ -212,7 +214,7 @@ export default function Header() {
               <Link
                 href="/properties/add"
                 onClick={closeMobileMenu}
-                className="rounded-md border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
+                className="rounded-md bg-primary px-4 py-2.5 text-center text-sm font-semibold text-white"
               >
                 Add Property
               </Link>
@@ -220,7 +222,7 @@ export default function Header() {
               <Link
                 href="/login"
                 onClick={closeMobileMenu}
-                className="flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-center text-sm font-semibold text-white"
+                className="flex items-center justify-center gap-2 rounded-md border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
               >
                 <UserCircleIcon className="h-5 w-5" />
                 Login / Register

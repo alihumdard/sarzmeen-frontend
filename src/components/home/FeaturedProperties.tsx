@@ -5,21 +5,21 @@ import { featuredProperties } from "@/constants/mockProperties";
 
 export default function FeaturedProperties() {
   return (
-    <section className="bg-white py-14">
+    <section className="bg-white py-10 sm:py-12">
       <div className="container-page">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="text-[26px] font-bold text-heading">
+            <h2 className="text-[26px] font-bold text-heading sm:text-[30px]">
               Featured Properties
             </h2>
-            <p className="mt-1 text-[13px] text-muted">
+            <p className="mt-1.5 text-sm text-muted">
               Handpicked properties by our team
             </p>
           </div>
 
           <Link
             href="/properties"
-            className="rounded-md border border-primary px-4 py-2 text-[12px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
+            className="rounded-md border-2 border-primary px-5 py-2.5 text-[13px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
           >
             View All Properties
           </Link>

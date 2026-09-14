@@ -7,8 +7,8 @@ import WhyChooseUs from "@/components/home/WhyChooseUs";
  */
 export default function WhyChooseAndCities() {
   return (
-    <section className="bg-surface pb-14">
-      <div className="container-page grid items-stretch gap-6 lg:grid-cols-2">
+    <section className="bg-surface pb-6 sm:pb-8">
+      <div className="container-page grid items-stretch gap-8 lg:grid-cols-2">
         <WhyChooseUs />
         <SearchByCity />
       </div>

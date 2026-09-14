@@ -4,19 +4,15 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import HeroSelect from "@/components/home/HeroSelect";
 import { SearchIcon } from "@/components/ui/Icons";
-import {
-  areaOptions,
-  bedOptions,
-  cities,
-  priceRanges,
-  propertyTypes,
-} from "@/constants/searchOptions";
+import { priceRanges, propertyTypes } from "@/constants/searchOptions";
 
-type Purpose = "buy" | "rent" | "projects";
+/** Only city covered at launch — search defaults to it instead of asking. */
+const DEFAULT_CITY = "lahore";
+
+type Purpose = "buy" | "projects";
 
 const tabs: { label: string; value: Purpose }[] = [
-  { label: "Buy", value: "buy" },
-  { label: "Rent", value: "rent" },
+  { label: "Buy/Sell", value: "buy" },
   { label: "Projects", value: "projects" },
 ];
 
@@ -52,57 +48,49 @@ export default function HeroSearch() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[860px]">
-      {/* Tabs */}
-      <div className="flex justify-center">
-        <div className="inline-flex rounded-lg bg-white p-1.5 shadow-lg">
-          {tabs.map((tab) => {
-            const isActive = purpose === tab.value;
+    <div className="w-full max-w-[900px]">
+      {/* Purpose toggle — a standalone segmented control, not a tab strip */}
+      <div className="mb-3 inline-flex rounded-full bg-white/95 p-1 shadow-lg">
+        {tabs.map((tab) => {
+          const isActive = purpose === tab.value;
 
-            return (
-              <button
-                key={tab.value}
-                type="button"
-                aria-pressed={isActive}
-                onClick={() => setPurpose(tab.value)}
-                className={`rounded-md px-7 py-2.5 text-[14px] font-semibold transition-colors sm:px-10 ${
-                  isActive
-                    ? "bg-primary-light text-primary"
-                    : "text-heading hover:text-primary"
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
+          return (
+            <button
+              key={tab.value}
+              type="button"
+              aria-pressed={isActive}
+              onClick={() => setPurpose(tab.value)}
+              className={`rounded-full px-6 py-2 text-[13px] font-semibold transition-colors sm:px-8 ${
+                isActive
+                  ? "bg-primary text-white"
+                  : "text-heading hover:text-primary"
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Filters */}
       <form
         onSubmit={handleSubmit}
-        className="mt-4 rounded-lg bg-white p-3.5 shadow-xl sm:p-4"
+        className="rounded-lg bg-white p-3.5 shadow-xl sm:p-4"
       >
-        {/* Row 1 — where and what */}
-        <div className="grid gap-3 lg:grid-cols-[1fr_1.6fr_1fr]">
-          <HeroSelect
-            name="city"
-            placeholder="Select City"
-            options={cities}
-            icon="pin"
-          />
+        <input type="hidden" name="city" value={DEFAULT_CITY} />
 
+        <div className="grid gap-3 lg:grid-cols-[2.2fr_1.3fr_1.3fr_1.2fr]">
           <div className="relative min-w-0">
             <label htmlFor="hero-location" className="sr-only">
               Search by location
             </label>
-            <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted" />
+            <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted" />
             <input
               id="hero-location"
               name="location"
               type="search"
-              placeholder="Search by Location"
-              className="h-[46px] w-full rounded-md border border-border bg-white pl-11 pr-4 text-[14px] text-heading outline-none transition-colors placeholder:text-muted hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/15"
+              placeholder="Search by Location, Area or Society"
+              className="h-[46px] w-full rounded-md border border-border bg-white pl-12 pr-4 text-[15px] text-heading outline-none transition-colors placeholder:text-muted hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/15"
             />
           </div>
 
@@ -111,28 +99,19 @@ export default function HeroSearch() {
             placeholder="Property Type"
             options={propertyTypes}
           />
-        </div>
 
-        {/* Row 2 — narrowing filters and submit */}
-        <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_1fr_1fr_1.15fr]">
-          <HeroSelect
-            name="area"
-            placeholder="Area (Marla)"
-            options={areaOptions}
-          />
-          <HeroSelect name="beds" placeholder="Beds" options={bedOptions} />
           <HeroSelect
             name="price"
-            placeholder="Price (PKR)"
+            placeholder="Price Range"
             options={priceRanges}
           />
 
           <button
             type="submit"
-            className="flex h-[46px] items-center justify-center gap-2 rounded-md bg-primary text-[14px] font-semibold text-white transition-colors hover:bg-primary-dark"
+            className="flex h-[46px] items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-5 text-[14px] font-semibold text-white transition-colors hover:bg-primary-dark"
           >
             <SearchIcon className="h-4 w-4 text-white" />
-            Search
+            Search Property
           </button>
         </div>
       </form>

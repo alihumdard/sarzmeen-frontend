@@ -25,7 +25,6 @@ const MAX_PRICE = 500000000;
  */
 export default function PropertyFilters() {
   const [types, setTypes] = useState<string[]>([]);
-  const [purpose, setPurpose] = useState<"sale" | "rent" | null>("sale");
   const [maxPrice, setMaxPrice] = useState(MAX_PRICE);
   const [beds, setBeds] = useState<string | null>(null);
   const [baths, setBaths] = useState<string | null>(null);
@@ -41,7 +40,6 @@ export default function PropertyFilters() {
 
   function handleReset() {
     setTypes([]);
-    setPurpose(null);
     setMaxPrice(MAX_PRICE);
     setBeds(null);
     setBaths(null);
@@ -103,27 +101,6 @@ export default function PropertyFilters() {
             {showAllTypes ? "- Show Less" : "+ Show More"}
           </button>
         )}
-      </FilterSection>
-
-      <FilterSection title="Purpose">
-        <div className="flex flex-col gap-2.5">
-          {(["sale", "rent"] as const).map((value) => (
-            <label
-              key={value}
-              className="flex cursor-pointer items-center gap-2.5"
-            >
-              <input
-                type="checkbox"
-                checked={purpose === value}
-                onChange={() => setPurpose(purpose === value ? null : value)}
-                className="h-3.5 w-3.5 shrink-0 cursor-pointer accent-[var(--color-primary)]"
-              />
-              <span className="text-[11px] text-text">
-                {value === "sale" ? "For Sale" : "For Rent"}
-              </span>
-            </label>
-          ))}
-        </div>
       </FilterSection>
 
       <FilterSection title="Location">

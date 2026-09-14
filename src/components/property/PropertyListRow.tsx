@@ -31,7 +31,6 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
     slug,
     title,
     location,
-    purpose,
     price,
     area,
     beds,
@@ -76,7 +75,7 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
         )}
 
         <span className="pointer-events-none absolute right-3 top-3 z-20 rounded bg-heading/85 px-2.5 py-1 text-[10px] font-semibold text-white">
-          {purpose === "sale" ? "For Sale" : "For Rent"}
+          For Sale
         </span>
 
         <button
@@ -149,7 +148,7 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
         <div className="flex shrink-0 flex-col items-start gap-3 border-border sm:w-[190px] sm:border-l sm:pl-5">
           <div>
             <p className="text-[15px] font-bold text-primary">
-              {formatListingPrice(price, purpose)}
+              {formatListingPrice(price)}
             </p>
             {listedAgo && (
               <p className="mt-1 text-[11px] text-muted">{listedAgo}</p>

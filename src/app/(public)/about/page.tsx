@@ -9,7 +9,7 @@ import StayUpdatedStrip from "@/components/layout/StayUpdatedStrip";
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Sarzameen.com is Pakistan's most trusted real estate platform, committed to simplifying the property journey for buyers, sellers, renters and investors.",
+    "Sarzameen.com is Pakistan's most trusted real estate platform, committed to simplifying the property journey for buyers, sellers and investors.",
 };
 
 export default function AboutPage() {
@@ -18,7 +18,7 @@ export default function AboutPage() {
       <PageBanner
         title="About Sarzameen.com"
         subtitle="Pakistan's most trusted real estate platform"
-        description="We are committed to simplifying the property journey for buyers, sellers, renters and investors through transparency, innovation and unmatched expertise."
+        description="We are committed to simplifying the property journey for buyers, sellers and investors through transparency, innovation and unmatched expertise."
         crumbs={[{ label: "Home", href: "/" }, { label: "About Us" }]}
         image="/images/interior-1.jpg"
       />

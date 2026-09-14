@@ -27,7 +27,7 @@ export default function SellRentStrip() {
           <div className="flex flex-col gap-5 px-6 py-7 sm:px-8 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="text-[19px] font-bold text-white">
-                Want to Sell or Rent Your Property?
+                Want to Sell Your Property?
               </h2>
               <p className="mt-1.5 text-[12px] text-white/80">
                 Join thousands of successful agents and list your property on

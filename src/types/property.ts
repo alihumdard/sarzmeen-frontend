@@ -5,7 +5,7 @@
  * data for a real response later should not require touching the components.
  */
 
-export type PropertyPurpose = "sale" | "rent";
+export type PropertyPurpose = "sale";
 
 export type Agent = {
   id: string;
@@ -28,7 +28,7 @@ export type Property = {
   /** Display location, e.g. "DHA Phase 6, Lahore". */
   location: string;
   purpose: PropertyPurpose;
-  /** Price in PKR. Rent prices are per month. */
+  /** Price in PKR. */
   price: number;
   /** Plot/covered area as displayed, e.g. "1 Kanal", "1200 Sqft". */
   area: string;

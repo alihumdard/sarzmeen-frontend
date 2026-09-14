@@ -25,8 +25,7 @@ type PropertyCardProps = {
 export default function PropertyCard({ property }: PropertyCardProps) {
   const [saved, setSaved] = useState(false);
 
-  const { slug, title, location, purpose, price, area, beds, baths, agent } =
-    property;
+  const { slug, title, location, price, area, beds, baths, agent } = property;
 
   const specs = [
     { Icon: AreaIcon, label: area },
@@ -62,7 +61,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         )}
 
         <span className="pointer-events-none absolute right-3 top-3 z-20 rounded bg-heading/85 px-2.5 py-1 text-[11px] font-semibold text-white">
-          {purpose === "sale" ? "For Sale" : "For Rent"}
+          For Sale
         </span>
 
         <button
@@ -92,7 +91,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         <p className="mt-1 truncate text-xs text-muted">{location}</p>
 
         <p className="mt-2.5 text-[15px] font-bold text-primary">
-          {formatListingPrice(price, purpose)}
+          {formatListingPrice(price)}
         </p>
 
         {/* Specs */}

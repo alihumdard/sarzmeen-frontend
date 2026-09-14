@@ -12,9 +12,9 @@ import {
 import { cities } from "@/constants/searchOptions";
 
 export const metadata: Metadata = {
-  title: "Properties for Sale & Rent",
+  title: "Properties for Sale",
   description:
-    "Browse verified houses, plots, flats and commercial properties for sale and rent across all major cities of Pakistan.",
+    "Browse verified houses, plots, flats and commercial properties for sale across all major cities of Pakistan.",
 };
 
 type PropertiesPageProps = {
@@ -32,12 +32,11 @@ export default async function PropertiesPage({
 }: PropertiesPageProps) {
   const params = await searchParams;
 
-  const purposeLabel = params.purpose === "rent" ? "for Rent" : "for Sale";
   const cityName = resolveCityName(params.city);
 
   const title = cityName
-    ? `Properties ${purposeLabel} in ${cityName}`
-    : `Properties ${purposeLabel}`;
+    ? `Properties for Sale in ${cityName}`
+    : "Properties for Sale";
 
   return (
     <main>

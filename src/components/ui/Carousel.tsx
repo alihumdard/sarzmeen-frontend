@@ -74,20 +74,20 @@ export default function Carousel({
 
   return (
     <>
-      <div className="relative mt-7">
+      <div className="relative mt-8">
         <button
           type="button"
           aria-label={`Previous ${label}`}
           onClick={() => scrollToPage(page - 1)}
           disabled={page === 0}
-          className={`${arrowClasses} -left-3`}
+          className={`${arrowClasses} -left-5`}
         >
           <ChevronLeftIcon className="h-4 w-4" />
         </button>
 
         <div
           ref={trackRef}
-          className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-0.5 pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {children}
         </div>
@@ -97,14 +97,14 @@ export default function Carousel({
           aria-label={`Next ${label}`}
           onClick={() => scrollToPage(page + 1)}
           disabled={page >= pageCount - 1}
-          className={`${arrowClasses} -right-3`}
+          className={`${arrowClasses} -right-5`}
         >
           <ChevronRightIcon className="h-4 w-4" />
         </button>
       </div>
 
       {showDots && pageCount > 1 && (
-        <div className="mt-6 flex items-center justify-center gap-2">
+        <div className="mt-8 flex items-center justify-center gap-2">
           {Array.from({ length: pageCount }).map((_, index) => (
             <button
               key={index}

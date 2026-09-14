@@ -15,7 +15,6 @@ export const metadata: Metadata = {
         "Pakistan real estate",
         "properties in Pakistan",
         "houses for sale",
-        "houses for rent",
         "real estate projects",
         "Sarzmeen",
     ],

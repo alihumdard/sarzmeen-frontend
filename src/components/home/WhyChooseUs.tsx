@@ -34,7 +34,7 @@ const features = [
 
 export default function WhyChooseUs() {
   return (
-    <div className="h-full rounded-lg border border-border bg-white p-6 sm:p-7">
+    <div className="h-full rounded-lg border-2 border-primary/20 bg-white p-6 sm:p-7">
       <h2 className="text-[22px] font-bold text-heading">
         Why Choose Sarzameen?
       </h2>

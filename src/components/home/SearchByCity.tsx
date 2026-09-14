@@ -4,7 +4,7 @@ import { popularCities } from "@/constants/mockProjects";
 
 export default function SearchByCity() {
   return (
-    <div className="h-full rounded-lg border border-border bg-white p-6 sm:p-7">
+    <div className="h-full rounded-lg border-2 border-primary/20 bg-white p-6 sm:p-7">
       <h2 className="text-[22px] font-bold text-heading">
         Property Search by City
       </h2>
@@ -45,7 +45,7 @@ export default function SearchByCity() {
 
       <Link
         href="/locations"
-        className="mt-6 block rounded-md border border-primary py-2.5 text-center text-[12px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
+        className="mt-6 block rounded-md border-2 border-primary py-2.5 text-center text-[12px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
       >
         View All Cities
       </Link>

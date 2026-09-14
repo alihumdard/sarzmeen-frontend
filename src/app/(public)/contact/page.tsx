@@ -120,7 +120,7 @@ const faqs = [
     a: "Create an account, go to \"Add Property\" and fill in your listing details. Our team reviews and publishes it within 24 hours.",
   },
   {
-    q: "How long does it take to sell or rent a property?",
+    q: "How long does it take to sell a property?",
     a: "It varies by location and price, but verified listings on Sarzameen.com typically get inquiries within the first week.",
   },
   {
@@ -230,7 +230,6 @@ export default function ContactPage() {
                       Select an option
                     </option>
                     <option>Buying a property</option>
-                    <option>Renting a property</option>
                     <option>Selling a property</option>
                     <option>Project investment</option>
                     <option>General support</option>

@@ -29,17 +29,6 @@ export const mainNavigation: NavItem[] = [
       },
     ],
   },
-  {
-    name: "Rent",
-    href: "/properties?purpose=rent",
-    children: [
-      { name: "Homes for Rent", href: "/properties?purpose=rent&type=home" },
-      {
-        name: "Commercial for Rent",
-        href: "/properties?purpose=rent&type=commercial",
-      },
-    ],
-  },
   { name: "Projects", href: "/projects" },
   { name: "Blogs", href: "/blog" },
   { name: "About Us", href: "/about" },

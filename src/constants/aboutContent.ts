@@ -7,7 +7,7 @@ export const whoWeAre = {
   eyebrow: "WHO WE ARE",
   heading: "Your Trusted Partner in Real Estate",
   paragraphs: [
-    "Sarzameen.com is a leading real estate platform in Pakistan that connects people with the right properties and projects. Whether you're looking to buy, rent, or invest, we provide verified listings, expert guidance and a seamless experience from search to closing.",
+    "Sarzameen.com is a leading real estate platform in Pakistan that connects people with the right properties and projects. Whether you're looking to buy or invest, we provide verified listings, expert guidance and a seamless experience from search to closing.",
     "Our mission is to bring transparency and trust to the real estate market by empowering our users with the right information and tools.",
   ],
 };

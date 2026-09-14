@@ -7,14 +7,10 @@ export function formatPrice(amount: number): string {
 }
 
 /**
- * Price as shown on a listing card. Rent is quoted per month, sale is not.
+ * Price as shown on a listing card.
  */
-export function formatListingPrice(
-  amount: number,
-  purpose: "sale" | "rent",
-): string {
-  const price = formatPrice(amount);
-  return purpose === "rent" ? `${price} / Month` : price;
+export function formatListingPrice(amount: number): string {
+  return formatPrice(amount);
 }
 
 /**

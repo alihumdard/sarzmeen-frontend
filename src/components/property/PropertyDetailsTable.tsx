@@ -24,10 +24,7 @@ export default function PropertyDetailsTable({
     { label: "Floors", value: String(property.floors) },
     { label: "Furnishing", value: property.furnishing },
     { label: "Property Type", value: property.propertyType },
-    {
-      label: "Purpose",
-      value: property.purpose === "sale" ? "For Sale" : "For Rent",
-    },
+    { label: "Purpose", value: "For Sale" },
     { label: "Property Status", value: property.propertyStatus },
     { label: "Listed By", value: property.listedBy },
     { label: "Listed On", value: formatPostDate(property.listedOn) },
