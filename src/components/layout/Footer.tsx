@@ -88,12 +88,13 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Copyright */}
+      {/* Copyright — links wrap to their own line on mobile so they never
+          sit under the fixed WhatsApp button that floats over this corner. */}
       <div className="border-t border-white/10">
-        <div className="container-page flex flex-col gap-2 py-5 text-sm text-white/50 md:flex-row md:items-center md:justify-between">
+        <div className="container-page flex flex-col gap-3 py-5 text-sm text-white/50 md:flex-row md:items-center md:justify-between">
           <p>© {new Date().getFullYear()} Sarzmeen.com. All rights reserved.</p>
 
-          <div className="flex gap-5">
+          <div className="flex flex-wrap gap-x-5 gap-y-1">
             <Link href="/privacy" className="transition-colors hover:text-white">
               Privacy Policy
             </Link>

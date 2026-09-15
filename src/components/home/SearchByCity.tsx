@@ -6,17 +6,17 @@ export default function SearchByCity() {
   return (
     <div className="h-full rounded-lg border-2 border-primary/20 bg-white p-6 sm:p-7">
       <h2 className="text-[22px] font-bold text-heading">
-        Property Search by City
+        Search by Area in Lahore
       </h2>
       <p className="mt-1.5 text-[12px] text-muted">
-        Find properties in top cities of Pakistan
+        Find properties in Lahore&apos;s most popular towns and societies
       </p>
 
       <ul className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-3">
         {popularCities.map((city) => (
           <li key={city.id}>
             <Link
-              href={`/properties?city=${city.slug}`}
+              href={`/properties?area=${city.slug}`}
               className="group relative block h-[105px] overflow-hidden rounded-md"
             >
               <Image
@@ -47,7 +47,7 @@ export default function SearchByCity() {
         href="/locations"
         className="mt-6 block rounded-md border-2 border-primary py-2.5 text-center text-[12px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
       >
-        View All Cities
+        View All Areas
       </Link>
     </div>
   );

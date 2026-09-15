@@ -47,7 +47,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-white">
-      <div className="container-page grid h-[76px] grid-cols-[auto_1fr_auto] items-center gap-4 xl:grid-cols-[1fr_auto_1fr]">
+      <div className="container-page flex h-[76px] items-center justify-between gap-4 xl:grid xl:grid-cols-[auto_1fr_auto]">
         {/* Logo — cropped asset (sarzmeen-logo-cropped.png) trims the large
             transparent margin the source square had above the icon, so it
             can just fill the header height directly. */}
@@ -69,7 +69,7 @@ export default function Header() {
         {/* Desktop navigation */}
         <nav
           ref={navRef}
-          className="hidden items-center gap-1 xl:flex"
+          className="hidden items-center justify-self-center gap-1 xl:flex"
           aria-label="Main navigation"
         >
           {mainNavigation.map((item) =>

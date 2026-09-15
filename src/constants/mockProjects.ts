@@ -76,48 +76,51 @@ export const popularProjects: Project[] = [
   },
 ];
 
-/** Cities shown in the "Property Search by City" grid. */
+/**
+ * Popular towns/areas within Lahore, shown in the "Search by Area" grid.
+ * Only Lahore is covered at launch, so this replaces a multi-city list.
+ */
 export const popularCities: City[] = [
   {
     id: "c1",
-    slug: "lahore",
-    name: "Lahore",
-    propertyCount: "12,500+ Properties",
+    slug: "bahria-town",
+    name: "Bahria Town",
+    propertyCount: "4,200+ Properties",
     image: CITY_IMAGE,
   },
   {
     id: "c2",
-    slug: "islamabad",
-    name: "Islamabad",
-    propertyCount: "8,750+ Properties",
+    slug: "dha",
+    name: "DHA Lahore",
+    propertyCount: "5,800+ Properties",
     image: CITY_IMAGE,
   },
   {
     id: "c3",
-    slug: "karachi",
-    name: "Karachi",
-    propertyCount: "15,200+ Properties",
+    slug: "johar-town",
+    name: "Johar Town",
+    propertyCount: "3,100+ Properties",
     image: CITY_IMAGE,
   },
   {
     id: "c4",
-    slug: "rawalpindi",
-    name: "Rawalpindi",
-    propertyCount: "6,300+ Properties",
+    slug: "gulberg",
+    name: "Gulberg",
+    propertyCount: "2,600+ Properties",
     image: CITY_IMAGE,
   },
   {
     id: "c5",
-    slug: "faisalabad",
-    name: "Faisalabad",
-    propertyCount: "3,300+ Properties",
+    slug: "model-town",
+    name: "Model Town",
+    propertyCount: "1,900+ Properties",
     image: CITY_IMAGE,
   },
   {
     id: "c6",
-    slug: "multan",
-    name: "Multan",
-    propertyCount: "2,800+ Properties",
+    slug: "askari",
+    name: "Askari",
+    propertyCount: "1,400+ Properties",
     image: CITY_IMAGE,
   },
 ];

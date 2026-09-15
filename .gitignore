@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# stray screenshots / scratch scripts (debugging artifacts, never intentional
+# project assets — real images live under public/ with descriptive names)
+/screenshot*.png
+/screenshot*.jpg
+/*.tmp.*
+/scratch/
+/tmp/
