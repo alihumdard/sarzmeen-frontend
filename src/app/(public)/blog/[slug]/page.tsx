@@ -82,7 +82,7 @@ export default async function BlogDetailPage({
           </h1>
 
           <p className="mt-3 text-sm text-muted">
-            The blog post you're looking for does not exist.
+            The blog post you&apos;re looking for does not exist.
           </p>
 
           <Link

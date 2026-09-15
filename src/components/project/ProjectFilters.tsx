@@ -27,6 +27,9 @@ const statusOptions = [
 const categoryOptions = [
   "Residential Project",
   "Commercial Project",
+  "Mixed-Use Project",
+  "Farmhouse Society",
+  "Overseas Housing Scheme",
 ];
 
 export default function ProjectFilters() {
