@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { LocationPinIcon } from "@/components/ui/Icons";
+import { LocationPinIcon, VerifiedTickIcon } from "@/components/ui/Icons";
 import type { Project } from "@/types/project";
 
 type ProjectCardProps = {
@@ -9,12 +9,13 @@ type ProjectCardProps = {
 
 /** Project card used on the home page carousel and the projects listing. */
 export default function ProjectCard({ project }: ProjectCardProps) {
-  const { slug, name, city, category, image } = project;
+  const { slug, name, city, category, image, status, priceFrom, verified, featured } =
+    project;
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-white transition-shadow hover:shadow-lg">
+    <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-white transition-all hover:-translate-y-0.5 hover:shadow-lg">
       {/* Fixed height keeps the frame from collapsing inside the flex column. */}
-      <div className="relative h-[145px] shrink-0 overflow-hidden">
+      <div className="relative h-[160px] shrink-0 overflow-hidden">
         <Image
           src={image}
           alt={name}
@@ -28,21 +29,42 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           aria-label={name}
           className="absolute inset-0 z-10"
         />
+
+        {featured && (
+          <span className="pointer-events-none absolute left-3 top-3 z-20 rounded-full bg-primary px-3 py-1 text-[11px] font-semibold text-white">
+            Featured
+          </span>
+        )}
+
+        <span className="pointer-events-none absolute right-3 top-3 z-20 rounded-full bg-heading/85 px-3 py-1 text-[11px] font-semibold text-white">
+          {status}
+        </span>
       </div>
 
       <div className="flex flex-1 flex-col p-4">
-        <h3 className="truncate text-[14px] font-semibold text-heading">
+        <h3 className="flex items-center gap-1.5 truncate text-[15px] font-semibold text-heading">
           <Link
             href={`/projects/${slug}`}
-            className="transition-colors hover:text-primary"
+            className="truncate transition-colors hover:text-primary"
           >
             {name}
           </Link>
+
+          {verified && (
+            <VerifiedTickIcon
+              className="h-3.5 w-3.5 shrink-0 text-primary"
+              aria-label="Verified project"
+            />
+          )}
         </h3>
 
-        <p className="mt-1 truncate text-[12px] text-muted">{city}</p>
+        <p className="mt-1.5 truncate text-xs text-muted">{city}</p>
 
-        <p className="mt-auto flex items-center gap-1.5 border-t border-border pt-3 text-[11px] text-muted">
+        <p className="mt-2.5 truncate text-[14px] font-bold text-primary">
+          {priceFrom}
+        </p>
+
+        <p className="mt-3 flex items-center gap-1.5 border-t border-border pt-3 text-[11px] text-muted">
           <LocationPinIcon className="h-3.5 w-3.5 shrink-0" />
           <span className="truncate">{category}</span>
         </p>

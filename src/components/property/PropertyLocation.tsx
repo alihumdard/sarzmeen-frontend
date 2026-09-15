@@ -1,8 +1,10 @@
 import { PlaneIcon, RoadIcon, ShopIcon, TreeIcon } from "@/components/ui/Icons";
-import type { NearbyPlace, PropertyDetail } from "@/types/property";
+import type { NearbyPlace } from "@/types/property";
 
 type PropertyLocationProps = {
-  property: PropertyDetail;
+  /** Shared by the property and project detail pages, both of which carry
+   * the same fullLocation + nearbyPlaces shape. */
+  property: { fullLocation: string; nearbyPlaces: NearbyPlace[] };
 };
 
 const placeIcons: Record<NearbyPlace["kind"], typeof TreeIcon> = {

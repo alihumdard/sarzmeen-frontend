@@ -71,7 +71,7 @@ export default async function PropertyDetailPage({
               title={property.title}
               photoCount={property.photoCount}
               featured={property.featured}
-              purpose={property.purpose}
+              statusLabel="For Sale"
             />
 
             <div className="flex flex-col gap-5">

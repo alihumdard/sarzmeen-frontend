@@ -14,18 +14,27 @@ type PropertyGalleryProps = {
   /** Total photos on the listing, which can exceed the loaded slides. */
   photoCount: number;
   featured: boolean;
-  purpose: "sale" | "rent";
+  /**
+   * Second badge next to Featured, e.g. "For Sale" on a property or a
+   * project's status ("Under Construction"). Omit to hide the badge.
+   */
+  statusLabel?: string;
 };
 
 /** Thumbnails shown before the "+N More Photos" tile. */
 const THUMBNAIL_LIMIT = 5;
 
+/**
+ * Photo gallery shared by the property and project detail pages — same
+ * layout and interactions, with only the second badge's text varying by
+ * caller.
+ */
 export default function PropertyGallery({
   images,
   title,
   photoCount,
   featured,
-  purpose,
+  statusLabel,
 }: PropertyGalleryProps) {
   const [active, setActive] = useState(0);
   const [saved, setSaved] = useState(false);
@@ -64,9 +73,15 @@ export default function PropertyGallery({
           </span>
         )}
 
-        <span className="pointer-events-none absolute left-[104px] top-4 z-20 rounded-full bg-heading/85 px-3.5 py-1.5 text-[11px] font-semibold text-white">
-          {purpose === "sale" ? "For Sale" : "For Rent"}
-        </span>
+        {statusLabel && (
+          <span
+            className={`pointer-events-none absolute top-4 z-20 rounded-full bg-heading/85 px-3.5 py-1.5 text-[11px] font-semibold text-white ${
+              featured ? "left-[104px]" : "left-4"
+            }`}
+          >
+            {statusLabel}
+          </span>
+        )}
 
         <button
           type="button"

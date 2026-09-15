@@ -43,6 +43,8 @@ export type Property = {
   title: string;
   /** Display location, e.g. "DHA Phase 6, Lahore". */
   location: string;
+  /** Slug of the Project this listing sits inside, if any (see types/project). */
+  project?: string;
   purpose: PropertyPurpose;
   /** Price in PKR. */
   price: number;
