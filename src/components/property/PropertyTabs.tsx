@@ -56,10 +56,14 @@ export default function PropertyTabs({ property }: PropertyTabsProps) {
 
       <div role="tabpanel" className="p-5">
         {active === "Overview" && (
-          <div className="grid gap-8 lg:grid-cols-3">
+          <div className="grid gap-8 lg:grid-cols-3 lg:divide-x lg:divide-border lg:gap-0">
             <PropertyDescription property={property} />
-            <PropertyDetailsTable property={property} />
-            <PropertyLocation property={property} />
+            <div className="lg:px-6">
+              <PropertyDetailsTable property={property} />
+            </div>
+            <div className="lg:pl-6">
+              <PropertyLocation property={property} />
+            </div>
           </div>
         )}
 

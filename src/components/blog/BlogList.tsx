@@ -3,11 +3,8 @@
 import { useState } from "react";
 import BlogCard from "@/components/blog/BlogCard";
 import BlogListRow from "@/components/blog/BlogListRow";
-import {
-  ChevronDownIcon,
-  GridViewIcon,
-  ListViewIcon,
-} from "@/components/ui/Icons";
+import { GridViewIcon, ListViewIcon } from "@/components/ui/Icons";
+import Dropdown from "@/components/ui/Dropdown";
 import Pagination from "@/components/ui/Pagination";
 import type { BlogPost } from "@/types/blog";
 
@@ -74,29 +71,15 @@ export default function BlogList({ posts, total }: BlogListProps) {
         </p>
 
         <div className="flex items-center gap-3">
-          <label
-            htmlFor="blog-sort"
-            className="text-[12px] text-muted"
-          >
-            Sort by:
-          </label>
+          <span className="text-[12px] text-muted">Sort by:</span>
 
-          <div className="relative">
-            <select
-              id="blog-sort"
-              value={sort}
-              onChange={(event) => setSort(event.target.value)}
-              className="cursor-pointer appearance-none rounded-md border border-border bg-white py-2 pl-3 pr-8 text-[12px] text-heading outline-none transition-colors hover:border-primary focus:border-primary"
-            >
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-
-            <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
-          </div>
+          <Dropdown
+            label="Sort by"
+            options={sortOptions}
+            value={sort}
+            onChange={setSort}
+            triggerClassName="flex items-center justify-between gap-2 rounded-md border border-border bg-white py-2 pl-3 pr-2.5 text-[12px] text-heading outline-none transition-colors hover:border-primary focus:border-primary"
+          />
 
           <div className="flex items-center gap-2">
             <button

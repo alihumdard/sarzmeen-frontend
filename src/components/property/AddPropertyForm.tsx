@@ -3,9 +3,9 @@
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { PlusCircleIcon, UploadIcon } from "@/components/ui/Icons";
+import Dropdown from "@/components/ui/Dropdown";
 import {
   areaOptions,
-  cities,
   locations,
   propertyTypes,
 } from "@/constants/searchOptions";
@@ -38,6 +38,9 @@ export default function AddPropertyForm() {
   const searchParams = useSearchParams();
   const initialType = searchParams.get("type") ?? "";
   const [submitted, setSubmitted] = useState(false);
+  const [type, setType] = useState(initialType);
+  const [area, setArea] = useState("");
+  const [size, setSize] = useState("");
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -90,83 +93,59 @@ export default function AddPropertyForm() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <FieldLabel htmlFor="type">Property Type</FieldLabel>
-            <select
-              id="type"
+            <Dropdown
               name="type"
-              defaultValue={initialType}
               required
-              className={inputClasses}
-            >
-              <option value="" disabled>
-                Select property type
-              </option>
-              {propertyTypes.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              label="Property Type"
+              placeholder="Select property type"
+              options={propertyTypes}
+              value={type}
+              onChange={setType}
+              triggerClassName={inputClasses}
+            />
           </div>
 
           <div className="space-y-2">
             <FieldLabel htmlFor="city">City</FieldLabel>
-            <select
+            <input
               id="city"
               name="city"
-              defaultValue="lahore"
-              required
-              className={inputClasses}
-            >
-              {cities
-                .filter((option) => option.value === "lahore")
-                .map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-            </select>
+              type="text"
+              value="Lahore"
+              readOnly
+              disabled
+              className={`${inputClasses} cursor-not-allowed bg-surface text-muted`}
+            />
           </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <FieldLabel htmlFor="area">Area / Society</FieldLabel>
-            <select
-              id="area"
+            <Dropdown
               name="area"
-              defaultValue=""
               required
-              className={inputClasses}
-            >
-              <option value="" disabled>
-                Select area
-              </option>
-              {locations.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              label="Area / Society"
+              placeholder="Select area"
+              options={locations}
+              value={area}
+              onChange={setArea}
+              triggerClassName={inputClasses}
+            />
           </div>
 
           <div className="space-y-2">
             <FieldLabel htmlFor="size">Plot / Covered Area</FieldLabel>
-            <select
-              id="size"
+            <Dropdown
               name="size"
-              defaultValue=""
               required
-              className={inputClasses}
-            >
-              <option value="" disabled>
-                Select size
-              </option>
-              {areaOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+              label="Plot / Covered Area"
+              placeholder="Select size"
+              options={areaOptions}
+              value={size}
+              onChange={setSize}
+              triggerClassName={inputClasses}
+            />
           </div>
         </div>
 

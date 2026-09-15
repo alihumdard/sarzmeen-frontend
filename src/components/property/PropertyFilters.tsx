@@ -108,32 +108,8 @@ export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
   const chipClasses =
     "flex h-8 min-w-8 items-center justify-center rounded border px-2.5 text-[11px] transition-colors";
 
-  const panel = (
-    <div className="overflow-hidden rounded-lg border border-border bg-white">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3.5">
-        <h2 className="text-[13px] font-bold text-heading">Filters</h2>
-
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={handleReset}
-            className="flex items-center gap-1.5 text-[11px] font-medium text-primary transition-opacity hover:opacity-75"
-          >
-            <ResetIcon className="h-3.5 w-3.5" />
-            Reset All
-          </button>
-
-          <button
-            type="button"
-            aria-label="Close filters"
-            onClick={() => setDrawerOpen(false)}
-            className="flex h-7 w-7 items-center justify-center rounded-md text-muted hover:text-heading lg:hidden"
-          >
-            <CloseIcon className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
+  const filterSections = (
+    <>
       <FilterSection title="Property Type">
         <ul className="flex flex-col gap-2.5">
           {visibleTypes.map((type) => (
@@ -289,14 +265,30 @@ export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
           </button>
         )}
       </FilterSection>
+    </>
+  );
 
-      <div className="p-4">
+  const filterHeader = (
+    <div className="flex items-center justify-between border-b border-border px-4 py-3.5">
+      <h2 className="text-[13px] font-bold text-heading">Filters</h2>
+
+      <div className="flex items-center gap-3">
         <button
           type="button"
-          onClick={() => setDrawerOpen(false)}
-          className="w-full rounded-md border border-primary py-2.5 text-[12px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
+          onClick={handleReset}
+          className="flex items-center gap-1.5 text-[11px] font-medium text-primary transition-opacity hover:opacity-75"
         >
-          Apply Filters
+          <ResetIcon className="h-3.5 w-3.5" />
+          Reset All
+        </button>
+
+        <button
+          type="button"
+          aria-label="Close filters"
+          onClick={() => setDrawerOpen(false)}
+          className="flex h-7 w-7 items-center justify-center rounded-md text-muted hover:text-heading lg:hidden"
+        >
+          <CloseIcon className="h-4 w-4" />
         </button>
       </div>
     </div>
@@ -324,10 +316,18 @@ export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
         <ChevronRightIcon className="h-4 w-4 text-muted" />
       </button>
 
-      {/* Desktop sidebar */}
-      <div className="hidden lg:block">{panel}</div>
+      {/* Desktop sidebar — the page itself scrolls here, so the whole panel
+          can just sit in normal flow with no internal scroll container. */}
+      <div className="hidden overflow-hidden rounded-lg border border-border bg-white lg:block">
+        {filterHeader}
+        {filterSections}
+      </div>
 
-      {/* Mobile/tablet drawer */}
+      {/* Mobile/tablet drawer — a fixed-height flex column so the header and
+          "Apply Filters" footer stay put while only the filter list between
+          them scrolls. `min-h-0` on the scroll area is required: without it
+          a flex child won't shrink below its content height and the drawer
+          just grows past the viewport instead of scrolling. */}
       {drawerOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
@@ -336,8 +336,22 @@ export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
             onClick={() => setDrawerOpen(false)}
             className="absolute inset-0 bg-heading/50"
           />
-          <div className="absolute inset-y-0 left-0 flex w-[86%] max-w-[340px] flex-col overflow-y-auto bg-surface shadow-xl">
-            {panel}
+          <div className="absolute inset-y-0 left-0 flex w-[86%] max-w-[340px] flex-col bg-white shadow-xl">
+            {filterHeader}
+
+            <div className="min-h-0 flex-1 overflow-y-auto bg-surface">
+              {filterSections}
+            </div>
+
+            <div className="shrink-0 border-t border-border bg-white p-4">
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(false)}
+                className="w-full rounded-md bg-primary py-2.5 text-[12px] font-semibold text-white transition-colors hover:bg-primary-dark"
+              >
+                Apply Filters
+              </button>
+            </div>
           </div>
         </div>
       )}

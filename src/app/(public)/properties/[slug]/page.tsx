@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import DetailBreadcrumb from "@/components/property/DetailBreadcrumb";
-import PropertyAgentCard from "@/components/property/PropertyAgentCard";
 import PropertyDetailHeader from "@/components/property/PropertyDetailHeader";
 import PropertyGallery from "@/components/property/PropertyGallery";
 import PropertyPriceBox from "@/components/property/PropertyPriceBox";
@@ -77,7 +76,6 @@ export default async function PropertyDetailPage({
 
             <div className="flex flex-col gap-5">
               <PropertyPriceBox property={property} />
-              <PropertyAgentCard agent={property.agent} />
             </div>
           </div>
 

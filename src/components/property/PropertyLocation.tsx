@@ -30,9 +30,11 @@ export default function PropertyLocation({ property }: PropertyLocationProps) {
 
   return (
     <div>
-      <h2 className="text-[15px] font-bold text-heading">Location</h2>
+      <h2 className="text-[16px] font-bold text-heading">Location</h2>
 
-      <p className="mt-2 text-[11px] text-muted">{property.fullLocation}</p>
+      <p className="mt-2 text-[12px] font-medium text-muted">
+        {property.fullLocation}
+      </p>
 
       <div className="mt-3 overflow-hidden rounded-lg border border-border">
         <div className="relative h-[190px] bg-surface">
@@ -57,25 +59,27 @@ export default function PropertyLocation({ property }: PropertyLocationProps) {
         </div>
       </div>
 
-      <ul className="mt-4 flex flex-col gap-3">
-        {property.nearbyPlaces.map((place) => {
+      <ul className="mt-4 flex flex-col gap-2 rounded-md border border-border p-2">
+        {property.nearbyPlaces.map((place, index) => {
           const Icon = placeIcons[place.kind];
 
           return (
             <li
               key={place.name}
-              className="flex items-center justify-between gap-3"
+              className={`flex items-center justify-between gap-3 rounded px-2 py-2 ${
+                index % 2 === 0 ? "bg-surface" : "bg-white"
+              }`}
             >
               <span className="flex min-w-0 items-center gap-2.5">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
                   <Icon className="h-3.5 w-3.5" />
                 </span>
-                <span className="truncate text-[11px] text-text">
+                <span className="truncate text-[12px] font-medium text-heading">
                   {place.name}
                 </span>
               </span>
 
-              <span className="shrink-0 text-[11px] text-muted">
+              <span className="shrink-0 text-[11px] font-semibold text-primary">
                 {place.distance}
               </span>
             </li>

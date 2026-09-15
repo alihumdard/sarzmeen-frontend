@@ -3,11 +3,8 @@
 import { useState } from "react";
 import PropertyCard from "@/components/property/PropertyCard";
 import PropertyListRow from "@/components/property/PropertyListRow";
-import {
-  ChevronDownIcon,
-  GridViewIcon,
-  ListViewIcon,
-} from "@/components/ui/Icons";
+import { GridViewIcon, ListViewIcon } from "@/components/ui/Icons";
+import Dropdown from "@/components/ui/Dropdown";
 import Pagination from "@/components/ui/Pagination";
 import type { Property } from "@/types/property";
 
@@ -104,29 +101,18 @@ export default function PropertyResults({
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
-            <label
-              htmlFor="property-sort"
-              className="hidden text-[11px] text-muted sm:inline"
-            >
+            <span className="hidden text-[11px] text-muted sm:inline">
               Sort by:
-            </label>
+            </span>
 
-            <div className="relative">
-              <select
-                id="property-sort"
-                value={sort}
-                onChange={(event) => setSort(event.target.value)}
-                className="w-[92px] cursor-pointer appearance-none truncate rounded-md border border-border bg-white py-2 pl-2.5 pr-7 text-[11px] text-heading outline-none transition-colors hover:border-primary focus:border-primary sm:w-auto sm:pl-3 sm:pr-8"
-              >
-                {sortOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-
-              <ChevronDownIcon className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted sm:right-2.5" />
-            </div>
+            <Dropdown
+              label="Sort by"
+              options={sortOptions}
+              value={sort}
+              onChange={setSort}
+              className="w-[100px] sm:w-[168px]"
+              triggerClassName="flex w-full items-center justify-between gap-2 rounded-md border border-border bg-white py-2 pl-2.5 pr-2 text-[11px] text-heading outline-none transition-colors hover:border-primary focus:border-primary sm:pl-3"
+            />
           </div>
         </div>
       </div>

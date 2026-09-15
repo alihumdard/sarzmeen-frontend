@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import ContactForm from "@/components/contact/ContactForm";
 import PageBanner from "@/components/layout/PageBanner";
 import StayUpdatedStrip from "@/components/layout/StayUpdatedStrip";
 import {
@@ -12,7 +13,6 @@ import {
   LinkedInIcon,
   LocationPinIcon,
   PhoneIcon,
-  SendIcon,
   ShieldCheckIcon,
   SupportIcon,
   UsersIcon,
@@ -141,19 +141,6 @@ const faqs = [
   },
 ];
 
-function FieldLabel({
-  htmlFor,
-  children,
-}: {
-  htmlFor: string;
-  children: string;
-}) {
-  return (
-    <label htmlFor={htmlFor} className="text-[12px] font-semibold text-heading">
-      {children}
-    </label>
-  );
-}
 
 export default function ContactPage() {
   return (
@@ -180,81 +167,7 @@ export default function ContactPage() {
                 </p>
               </div>
 
-              <form className="mt-6 space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <FieldLabel htmlFor="name">Your Name</FieldLabel>
-                    <input
-                      id="name"
-                      name="name"
-                      type="text"
-                      placeholder="Your Name"
-                      className="w-full rounded-md border border-border bg-white px-4 py-3 text-[13px] text-heading outline-none transition-colors placeholder:text-muted focus:border-primary"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <FieldLabel htmlFor="email">Your Email</FieldLabel>
-                    <input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="Your Email"
-                      className="w-full rounded-md border border-border bg-white px-4 py-3 text-[13px] text-heading outline-none transition-colors placeholder:text-muted focus:border-primary"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <FieldLabel htmlFor="phone">Phone Number</FieldLabel>
-                  <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    placeholder="Phone Number"
-                    className="w-full rounded-md border border-border bg-white px-4 py-3 text-[13px] text-heading outline-none transition-colors placeholder:text-muted focus:border-primary"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <FieldLabel htmlFor="interest">
-                    I&apos;m interested in
-                  </FieldLabel>
-                  <select
-                    id="interest"
-                    name="interest"
-                    defaultValue=""
-                    className="w-full rounded-md border border-border bg-white px-4 py-3 text-[13px] text-heading outline-none transition-colors focus:border-primary"
-                  >
-                    <option value="" disabled>
-                      Select an option
-                    </option>
-                    <option>Buying a property</option>
-                    <option>Selling a property</option>
-                    <option>Project investment</option>
-                    <option>General support</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <FieldLabel htmlFor="message">Your Message</FieldLabel>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={5}
-                    placeholder="Type your message here..."
-                    className="w-full resize-y rounded-md border border-border bg-white px-4 py-3 text-[13px] text-heading outline-none transition-colors placeholder:text-muted focus:border-primary"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-[13px] font-semibold text-white shadow-[0_10px_22px_rgba(31,122,77,0.24)] transition-colors hover:bg-primary-dark"
-                >
-                  <SendIcon className="h-4 w-4" />
-                  Send Message
-                </button>
-              </form>
+              <ContactForm />
             </section>
 
             {/* Get In Touch */}

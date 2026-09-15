@@ -32,16 +32,20 @@ export default function PropertyDetailsTable({
 
   return (
     <div>
-      <h2 className="text-[15px] font-bold text-heading">Property Details</h2>
+      <h2 className="text-[16px] font-bold text-heading">Property Details</h2>
 
-      <dl className="mt-3">
-        {rows.map((row) => (
+      <dl className="mt-3.5 overflow-hidden rounded-md border border-border">
+        {rows.map((row, index) => (
           <div
             key={row.label}
-            className="flex items-center justify-between gap-3 border-b border-border py-2.5 last:border-b-0"
+            className={`flex items-center justify-between gap-3 px-3 py-2.5 ${
+              index % 2 === 0 ? "bg-surface" : "bg-white"
+            }`}
           >
-            <dt className="text-[11px] text-muted">{row.label}</dt>
-            <dd className="truncate text-[11px] font-medium text-heading">
+            <dt className="text-[12px] font-medium text-muted">
+              {row.label}
+            </dt>
+            <dd className="truncate text-[12px] font-semibold text-heading">
               {row.value}
             </dd>
           </div>

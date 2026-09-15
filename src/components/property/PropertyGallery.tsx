@@ -59,12 +59,12 @@ export default function PropertyGallery({
         />
 
         {featured && (
-          <span className="pointer-events-none absolute left-4 top-4 z-20 rounded bg-primary px-3 py-1.5 text-[11px] font-semibold text-white">
+          <span className="pointer-events-none absolute left-4 top-4 z-20 rounded-full bg-primary px-3.5 py-1.5 text-[11px] font-semibold text-white">
             Featured
           </span>
         )}
 
-        <span className="pointer-events-none absolute left-[104px] top-4 z-20 rounded bg-heading/85 px-3 py-1.5 text-[11px] font-semibold text-white">
+        <span className="pointer-events-none absolute left-[104px] top-4 z-20 rounded-full bg-heading/85 px-3.5 py-1.5 text-[11px] font-semibold text-white">
           {purpose === "sale" ? "For Sale" : "For Rent"}
         </span>
 
@@ -102,7 +102,7 @@ export default function PropertyGallery({
           </>
         )}
 
-        <span className="pointer-events-none absolute bottom-4 left-4 z-20 rounded bg-heading/80 px-3 py-1.5 text-[11px] font-medium text-white">
+        <span className="pointer-events-none absolute bottom-4 left-4 z-20 rounded-full bg-heading/80 px-3.5 py-1.5 text-[11px] font-medium text-white">
           {active + 1} / {photoCount}
         </span>
       </div>
