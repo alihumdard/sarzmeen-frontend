@@ -8,7 +8,7 @@ import type { Property } from "@/types/property";
  * property brings its own image/avatar URL and these constants go away.
  */
 const PROPERTY_IMAGE = "/images/property-1.jpg";
-const AGENT_AVATAR = "/images/agent-1.jpg";
+const AGENT_AVATAR = "/images/team-1.jpg";
 
 const AGENT_PHONE = "+92 300 1234567";
 const AGENT_WHATSAPP = "923001234567";
@@ -34,11 +34,20 @@ export const featuredProperties: Property[] = [
     features: ["Lawn", "Garage", "Servant Quarter", "CCTV"],
     agent: {
       id: "a1",
+      slug: "ali-hassan",
       name: "Ali Hassan",
       title: "Property Expert",
       avatar: AGENT_AVATAR,
       phone: AGENT_PHONE,
       whatsapp: AGENT_WHATSAPP,
+      bio:
+        "Ali Hassan has helped hundreds of families find their dream homes across Lahore, specializing in DHA and premium residential properties.",
+      yearsExperience: 8,
+      dealsClosed: 240,
+      email: "ali.hassan@sarzmeen.com",
+      officeAddress: "DHA Phase 6, Lahore",
+      specializations: ["Residential", "Luxury Homes"],
+      languages: ["English", "Urdu"],
     },
   },
   {
@@ -59,11 +68,20 @@ export const featuredProperties: Property[] = [
     features: ["Parking", "Gym", "Lift", "Security"],
     agent: {
       id: "a2",
+      slug: "usman-tariq",
       name: "Usman Tariq",
       title: "Property Expert",
       avatar: AGENT_AVATAR,
       phone: AGENT_PHONE,
       whatsapp: AGENT_WHATSAPP,
+      bio:
+        "Usman Tariq focuses on apartments and secure gated communities, guiding buyers through every step of the purchase process.",
+      yearsExperience: 5,
+      dealsClosed: 150,
+      email: "usman.tariq@sarzmeen.com",
+      officeAddress: "Bahria Town, Karachi",
+      specializations: ["Apartments", "Residential"],
+      languages: ["English", "Urdu"],
     },
   },
   {
@@ -84,11 +102,20 @@ export const featuredProperties: Property[] = [
     features: ["Possession", "Electricity", "Water", "Gas"],
     agent: {
       id: "a3",
+      slug: "ayesha-malik",
       name: "Ayesha Malik",
       title: "Property Expert",
       avatar: AGENT_AVATAR,
       phone: AGENT_PHONE,
       whatsapp: AGENT_WHATSAPP,
+      bio:
+        "Ayesha Malik is a plot and land specialist with deep knowledge of Lahore's fastest-growing residential societies.",
+      yearsExperience: 6,
+      dealsClosed: 190,
+      email: "ayesha.malik@sarzmeen.com",
+      officeAddress: "DHA Phase 9, Lahore",
+      specializations: ["Plots", "Residential"],
+      languages: ["English", "Urdu"],
     },
   },
   {
@@ -109,11 +136,20 @@ export const featuredProperties: Property[] = [
     features: ["Garage", "Lawn", "Water", "Tiled Flooring"],
     agent: {
       id: "a4",
+      slug: "zain-abbas",
       name: "Zain Abbas",
       title: "Property Expert",
       avatar: AGENT_AVATAR,
       phone: AGENT_PHONE,
       whatsapp: AGENT_WHATSAPP,
+      bio:
+        "Zain Abbas brings a client-first approach to residential sales, known for quick closings and honest guidance.",
+      yearsExperience: 4,
+      dealsClosed: 110,
+      email: "zain.abbas@sarzmeen.com",
+      officeAddress: "Raiwind Road, Lahore",
+      specializations: ["Residential", "Houses"],
+      languages: ["English", "Urdu", "Punjabi"],
     },
   },
   {
@@ -134,11 +170,20 @@ export const featuredProperties: Property[] = [
     features: ["Elevator", "Parking", "Power Backup", "Security"],
     agent: {
       id: "a5",
+      slug: "hamza-raza",
       name: "Hamza Raza",
       title: "Property Expert",
       avatar: AGENT_AVATAR,
       phone: AGENT_PHONE,
       whatsapp: AGENT_WHATSAPP,
+      bio:
+        "Hamza Raza specializes in commercial real estate, from retail plazas to office space, across Lahore's business districts.",
+      yearsExperience: 9,
+      dealsClosed: 210,
+      email: "hamza.raza@sarzmeen.com",
+      officeAddress: "Gulberg, Lahore",
+      specializations: ["Commercial", "Plazas"],
+      languages: ["English", "Urdu"],
     },
   },
   {
@@ -159,11 +204,20 @@ export const featuredProperties: Property[] = [
     features: ["Separate Entrance", "Parking", "Backup"],
     agent: {
       id: "a6",
+      slug: "sara-khan",
       name: "Sara Khan",
       title: "Property Expert",
       avatar: AGENT_AVATAR,
       phone: AGENT_PHONE,
       whatsapp: AGENT_WHATSAPP,
+      bio:
+        "Sara Khan has built a reputation for finding the right property fast, with a focus on portions and family homes.",
+      yearsExperience: 5,
+      dealsClosed: 165,
+      email: "sara.khan@sarzmeen.com",
+      officeAddress: "Gulberg, Islamabad",
+      specializations: ["Portions", "Residential"],
+      languages: ["English", "Urdu"],
     },
   },
   {
@@ -184,11 +238,20 @@ export const featuredProperties: Property[] = [
     features: ["Lawn", "Garage", "Servant Quarter"],
     agent: {
       id: "a7",
+      slug: "bilal-ahmed",
       name: "Bilal Ahmed",
       title: "Property Expert",
       avatar: AGENT_AVATAR,
       phone: AGENT_PHONE,
       whatsapp: AGENT_WHATSAPP,
+      bio:
+        "Bilal Ahmed covers Rawalpindi and twin-city listings, helping buyers navigate housing schemes with confidence.",
+      yearsExperience: 7,
+      dealsClosed: 195,
+      email: "bilal.ahmed@sarzmeen.com",
+      officeAddress: "Bahria Town, Rawalpindi",
+      specializations: ["Residential", "Houses"],
+      languages: ["English", "Urdu"],
     },
   },
   {
@@ -209,11 +272,20 @@ export const featuredProperties: Property[] = [
     features: ["Lift", "Parking", "Furnished", "Security"],
     agent: {
       id: "a8",
+      slug: "fatima-noor",
       name: "Fatima Noor",
       title: "Property Expert",
       avatar: AGENT_AVATAR,
       phone: AGENT_PHONE,
       whatsapp: AGENT_WHATSAPP,
+      bio:
+        "Fatima Noor specializes in commercial office space, matching businesses with the right location for growth.",
+      yearsExperience: 6,
+      dealsClosed: 130,
+      email: "fatima.noor@sarzmeen.com",
+      officeAddress: "Blue Area, Islamabad",
+      specializations: ["Commercial", "Office Space"],
+      languages: ["English", "Urdu"],
     },
   },
 ];

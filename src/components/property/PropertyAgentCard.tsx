@@ -15,8 +15,11 @@ type PropertyAgentCardProps = {
 export default function PropertyAgentCard({ agent }: PropertyAgentCardProps) {
   return (
     <div className="rounded-lg border border-border bg-white p-5">
-      <div className="flex items-center gap-3.5">
-        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full">
+      <Link
+        href={`/agents/${agent.slug}`}
+        className="flex items-center gap-3.5 transition-opacity hover:opacity-80"
+      >
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full ring-2 ring-primary-light">
           <Image
             src={agent.avatar}
             alt={agent.name}
@@ -42,7 +45,7 @@ export default function PropertyAgentCard({ agent }: PropertyAgentCardProps) {
             {agent.title}
           </p>
         </div>
-      </div>
+      </Link>
 
       <div className="mt-5 flex flex-col gap-3">
         {agent.phone && (
@@ -69,8 +72,8 @@ export default function PropertyAgentCard({ agent }: PropertyAgentCardProps) {
       </div>
 
       <Link
-        href={`/properties?agent=${agent.id}`}
-        className="mt-5 block rounded-md border border-border py-2.5 text-center text-[12px] font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
+        href={`/agents/${agent.slug}`}
+        className="mt-5 block rounded-md border border-primary py-2.5 text-center text-[12px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
       >
         View All Properties
       </Link>

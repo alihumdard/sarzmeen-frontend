@@ -6,7 +6,7 @@ import type { PropertyDetail } from "@/types/property";
  * wired in each property brings its own image URLs.
  */
 const PROPERTY_IMAGE = "/images/property-1.jpg";
-const AGENT_AVATAR = "/images/agent-1.jpg";
+const AGENT_AVATAR = "/images/team-1.jpg";
 
 /**
  * Mock detail record — replaced by the Laravel API in Phase 4.
@@ -68,6 +68,7 @@ export const propertyDetail: PropertyDetail = {
   features: ["Lawn", "Garage", "Servant Quarter", "CCTV"],
   agent: {
     id: "a1",
+    slug: "ali-hassan",
     name: "Ali Hassan",
     title: "Property Expert",
     avatar: AGENT_AVATAR,

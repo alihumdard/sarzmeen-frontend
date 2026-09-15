@@ -6,7 +6,6 @@ import SearchSelect from "@/components/ui/SearchSelect";
 import { ResetIcon } from "@/components/ui/Icons";
 import {
   areaUnits,
-  cities,
   locations,
   propertyFeatureFilters,
   propertyTypeFilters,
@@ -18,13 +17,40 @@ import { formatPrice } from "@/lib/utils/format";
 const MAX_PRICE = 500000000;
 
 /**
+ * Maps the hero-search `type` value (from constants/searchOptions'
+ * propertyTypes) to its matching sidebar checkbox value (propertyTypeFilters)
+ * so a hero-search selection shows as pre-checked here too.
+ */
+const HERO_TYPE_TO_FILTER: Record<string, string> = {
+  house: "house",
+  flat: "flat",
+  "upper-portion": "house",
+  "lower-portion": "house",
+  "farm-house": "house",
+  "residential-plot": "plot",
+  "commercial-plot": "commercial",
+  shop: "commercial",
+  office: "commercial",
+};
+
+type PropertyFiltersProps = {
+  /** Pre-checks the matching sidebar type, e.g. from the hero search. */
+  initialType?: string;
+};
+
+/**
  * Filter sidebar for the properties listing.
  *
  * V1 keeps every selection in local state - nothing is applied to the results
  * until the Laravel API is wired up and the listing reads real query params.
+ * The one exception is the initial Property Type checkbox, which mirrors
+ * whatever type the hero search or listing search bar was submitted with.
  */
-export default function PropertyFilters() {
-  const [types, setTypes] = useState<string[]>([]);
+export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
+  const [types, setTypes] = useState<string[]>(() => {
+    const mapped = initialType ? HERO_TYPE_TO_FILTER[initialType] : undefined;
+    return mapped ? [mapped] : [];
+  });
   const [maxPrice, setMaxPrice] = useState(MAX_PRICE);
   const [beds, setBeds] = useState<string | null>(null);
   const [baths, setBaths] = useState<string | null>(null);
@@ -105,11 +131,6 @@ export default function PropertyFilters() {
 
       <FilterSection title="Location">
         <div className="flex flex-col gap-3">
-          <SearchSelect
-            name="filter-city"
-            placeholder="Select City"
-            options={cities}
-          />
           <SearchSelect
             name="filter-area"
             placeholder="Select Area"

@@ -8,6 +8,8 @@ import {
   BathIcon,
   BedIcon,
   HeartIcon,
+  PhoneIcon,
+  WhatsAppIcon,
 } from "@/components/ui/Icons";
 import { formatListingPrice } from "@/lib/utils/format";
 import type { Property } from "@/types/property";
@@ -29,15 +31,15 @@ export default function PropertyCard({ property }: PropertyCardProps) {
 
   const specs = [
     { Icon: AreaIcon, label: area },
-    { Icon: BedIcon, label: beds === null ? "– Beds" : `${beds} Beds` },
-    { Icon: BathIcon, label: baths === null ? "– Baths" : `${baths} Baths` },
+    ...(beds !== null ? [{ Icon: BedIcon, label: `${beds} Beds` }] : []),
+    ...(baths !== null ? [{ Icon: BathIcon, label: `${baths} Baths` }] : []),
   ];
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-white transition-shadow hover:shadow-lg">
+    <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-white transition-all hover:-translate-y-0.5 hover:shadow-lg">
       {/* Image with the two corner badges and the favourite button.
           `shrink-0` keeps the fixed height intact inside the flex column. */}
-      <div className="relative h-[190px] shrink-0 overflow-hidden">
+      <div className="relative h-[200px] shrink-0 overflow-hidden">
         <Image
           src={property.image}
           alt={title}
@@ -55,12 +57,12 @@ export default function PropertyCard({ property }: PropertyCardProps) {
 
         {/* Badges and the favourite button sit above the link overlay. */}
         {property.featured && (
-          <span className="pointer-events-none absolute left-3 top-3 z-20 rounded bg-primary px-2.5 py-1 text-[11px] font-semibold text-white">
+          <span className="pointer-events-none absolute left-3 top-3 z-20 rounded-full bg-primary px-3 py-1 text-[11px] font-semibold text-white">
             Featured
           </span>
         )}
 
-        <span className="pointer-events-none absolute right-3 top-3 z-20 rounded bg-heading/85 px-2.5 py-1 text-[11px] font-semibold text-white">
+        <span className="pointer-events-none absolute right-3 top-3 z-20 rounded-full bg-heading/85 px-3 py-1 text-[11px] font-semibold text-white">
           For Sale
         </span>
 
@@ -88,39 +90,68 @@ export default function PropertyCard({ property }: PropertyCardProps) {
           </Link>
         </h3>
 
-        <p className="mt-1 truncate text-xs text-muted">{location}</p>
+        <p className="mt-1.5 truncate text-xs text-muted">{location}</p>
 
-        <p className="mt-2.5 text-[15px] font-bold text-primary">
+        <p className="mt-2.5 text-[17px] font-bold text-primary">
           {formatListingPrice(price)}
         </p>
 
         {/* Specs */}
-        <ul className="mt-3 flex items-center gap-3 border-t border-border pt-3 text-[11px] text-muted">
+        <ul className="mt-3 flex items-center gap-3 border-t border-border pt-3 text-[11px] font-medium text-text">
           {specs.map(({ Icon, label }) => (
             <li key={label} className="flex min-w-0 items-center gap-1.5">
-              <Icon className="h-3.5 w-3.5 shrink-0" />
+              <Icon className="h-3.5 w-3.5 shrink-0 text-primary" />
               <span className="truncate">{label}</span>
             </li>
           ))}
         </ul>
 
-        {/* Agent. `fill` inside a fixed square keeps any source aspect ratio
-            cropping to a circle instead of squashing it. */}
-        <div className="mt-auto flex items-center gap-2.5 border-t border-border pt-3">
-          <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
-            <Image
-              src={agent.avatar}
-              alt={agent.name}
-              fill
-              sizes="32px"
-              className="object-cover"
-            />
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-xs font-semibold text-heading">
-              {agent.name}
-            </p>
-            <p className="truncate text-[11px] text-muted">{agent.title}</p>
+        {/* Agent + contact actions. `relative z-20` lifts this above the
+            card's full-bleed photo link. */}
+        <div className="relative z-20 mt-auto flex items-center justify-between gap-2 border-t border-border pt-3">
+          <Link
+            href={`/agents/${agent.slug}`}
+            className="flex min-w-0 items-center gap-2.5 transition-opacity hover:opacity-80"
+          >
+            <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full ring-2 ring-primary-light">
+              <Image
+                src={agent.avatar}
+                alt={agent.name}
+                fill
+                sizes="32px"
+                className="object-cover"
+              />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-xs font-semibold text-heading">
+                {agent.name}
+              </p>
+              <p className="truncate text-[11px] text-muted">{agent.title}</p>
+            </div>
+          </Link>
+
+          <div className="flex shrink-0 items-center gap-1.5">
+            {agent.phone && (
+              <a
+                href={`tel:${agent.phone.replace(/\s/g, "")}`}
+                aria-label={`Call ${agent.name}`}
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-primary text-primary transition-colors hover:bg-primary hover:text-white"
+              >
+                <PhoneIcon className="h-3.5 w-3.5" />
+              </a>
+            )}
+
+            {agent.whatsapp && (
+              <a
+                href={`https://wa.me/${agent.whatsapp}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`WhatsApp ${agent.name}`}
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-[#25D366] bg-[#25D366] text-white transition-opacity hover:opacity-90"
+              >
+                <WhatsAppIcon className="h-4 w-4" />
+              </a>
+            )}
           </div>
         </div>
       </div>

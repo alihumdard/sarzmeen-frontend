@@ -51,7 +51,7 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
   ];
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-lg border border-border bg-white transition-shadow hover:shadow-md lg:flex-row">
+    <article className="group flex flex-col overflow-hidden rounded-lg border border-border bg-white transition-all hover:-translate-y-0.5 hover:shadow-lg lg:flex-row">
       {/* Photo */}
       <div className="relative h-[200px] shrink-0 overflow-hidden lg:h-auto lg:w-[240px]">
         <Image
@@ -69,12 +69,12 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
         />
 
         {featured && (
-          <span className="pointer-events-none absolute left-3 top-3 z-20 rounded bg-primary px-2.5 py-1 text-[10px] font-semibold text-white">
+          <span className="pointer-events-none absolute left-3 top-3 z-20 rounded-full bg-primary px-3 py-1 text-[10px] font-semibold text-white">
             Featured
           </span>
         )}
 
-        <span className="pointer-events-none absolute right-3 top-3 z-20 rounded bg-heading/85 px-2.5 py-1 text-[10px] font-semibold text-white">
+        <span className="pointer-events-none absolute right-3 top-3 z-20 rounded-full bg-heading/85 px-3 py-1 text-[10px] font-semibold text-white">
           For Sale
         </span>
 
@@ -94,7 +94,7 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
       {/* Details */}
       <div className="flex flex-1 flex-col gap-4 p-4 sm:flex-row sm:p-5">
         <div className="min-w-0 flex-1">
-          <h3 className="flex items-center gap-1.5 text-[15px] font-semibold text-heading">
+          <h3 className="flex items-center gap-1.5 text-[16px] font-semibold text-heading">
             <Link
               href={`/properties/${slug}`}
               className="truncate transition-colors hover:text-primary"
@@ -115,10 +115,10 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
             <span className="truncate">{location}</span>
           </p>
 
-          <ul className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-text">
+          <ul className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] font-medium text-text">
             {specs.map(({ Icon, label }) => (
               <li key={label} className="flex items-center gap-1.5">
-                <Icon className="h-3.5 w-3.5 shrink-0 text-muted" />
+                <Icon className="h-3.5 w-3.5 shrink-0 text-primary" />
                 {label}
               </li>
             ))}
@@ -131,11 +131,11 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
           )}
 
           {features && features.length > 0 && (
-            <ul className="mt-3 flex flex-wrap gap-2">
+            <ul className="mt-3 flex flex-wrap gap-1.5">
               {features.map((feature) => (
                 <li
                   key={feature}
-                  className="rounded border border-border px-2.5 py-1 text-[10px] text-muted"
+                  className="rounded-full border border-border bg-surface px-2.5 py-1 text-[10px] font-medium text-text"
                 >
                   {feature}
                 </li>
@@ -145,9 +145,9 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
         </div>
 
         {/* Price and agent */}
-        <div className="flex shrink-0 flex-col items-start gap-3 border-border sm:w-[190px] sm:border-l sm:pl-5">
+        <div className="flex shrink-0 flex-col items-start gap-3.5 border-border sm:w-[190px] sm:border-l sm:pl-5">
           <div>
-            <p className="text-[15px] font-bold text-primary">
+            <p className="text-[17px] font-bold text-primary">
               {formatListingPrice(price)}
             </p>
             {listedAgo && (
@@ -155,8 +155,11 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
             )}
           </div>
 
-          <div className="flex items-center gap-2.5">
-            <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full">
+          <Link
+            href={`/agents/${agent.slug}`}
+            className="flex items-center gap-2.5 rounded-md py-1 transition-opacity hover:opacity-80"
+          >
+            <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-primary-light">
               <Image
                 src={agent.avatar}
                 alt={agent.name}
@@ -172,14 +175,14 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
               </p>
               <p className="truncate text-[10px] text-muted">{agent.title}</p>
             </div>
-          </div>
+          </Link>
 
-          <div className="flex items-center gap-2">
+          <div className="flex w-full items-center gap-2">
             {agent.phone && (
               <a
                 href={`tel:${agent.phone.replace(/\s/g, "")}`}
                 aria-label={`Call ${agent.name}`}
-                className="flex h-9 w-9 items-center justify-center rounded-md border border-primary text-primary transition-colors hover:bg-primary hover:text-white"
+                className="flex h-9 flex-1 items-center justify-center rounded-md border border-primary text-primary transition-colors hover:bg-primary hover:text-white"
               >
                 <PhoneIcon className="h-4 w-4" />
               </a>
@@ -191,7 +194,7 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`WhatsApp ${agent.name}`}
-                className="flex h-9 w-9 items-center justify-center rounded-md bg-[#25D366] text-white transition-opacity hover:opacity-90"
+                className="flex h-9 flex-1 items-center justify-center rounded-md bg-[#25D366] text-white transition-opacity hover:opacity-90"
               >
                 <WhatsAppIcon className="h-4 w-4" />
               </a>

@@ -13,7 +13,7 @@ export default function PopularSearches() {
         <Link
           key={item.label}
           href={item.href}
-          className="rounded border border-white/25 px-2.5 py-1 text-[11px] text-white/85 transition-colors hover:border-white hover:text-white"
+          className="rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-[11px] font-medium text-white/85 transition-colors hover:border-white hover:bg-white/15 hover:text-white"
         >
           {item.label}
         </Link>

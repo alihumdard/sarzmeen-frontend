@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { ChevronRightIcon, HomeStatIcon } from "@/components/ui/Icons";
 
 export type Crumb = {
   label: string;
@@ -45,7 +46,7 @@ export default function PageBanner({
    */
   const overlay = subtitle
     ? "bg-[linear-gradient(95deg,rgba(9,32,25,0.96)_0%,rgba(9,32,25,0.9)_38%,rgba(9,32,25,0.55)_72%,rgba(9,32,25,0.35)_100%)]"
-    : "bg-[linear-gradient(180deg,rgba(10,32,26,0.88)_0%,rgba(10,32,26,0.78)_100%)]";
+    : "bg-[linear-gradient(100deg,rgba(9,25,20,0.76)_0%,rgba(9,25,20,0.55)_55%,rgba(9,25,20,0.32)_100%)]";
 
   return (
     <section className="relative isolate overflow-hidden">
@@ -65,11 +66,18 @@ export default function PageBanner({
           subtitle ? "py-12 sm:py-16" : "py-10 sm:py-12"
         }`}
       >
-        <nav aria-label="Breadcrumb">
-          <ol className="flex flex-wrap items-center gap-2 text-[12px] text-white/75">
+        <nav
+          aria-label="Breadcrumb"
+          className="inline-flex items-center rounded-full bg-white/10 px-3.5 py-1.5 ring-1 ring-white/15"
+        >
+          <ol className="flex flex-wrap items-center gap-1.5 text-[12px] font-medium text-white/80">
             {crumbs.map((crumb, index) => (
-              <li key={crumb.label} className="flex items-center gap-2">
-                {index > 0 && <span aria-hidden="true">&gt;</span>}
+              <li key={crumb.label} className="flex items-center gap-1.5">
+                {index > 0 ? (
+                  <ChevronRightIcon className="h-3 w-3 shrink-0 text-white/50" />
+                ) : (
+                  <HomeStatIcon className="h-3.5 w-3.5 shrink-0 text-primary-light" />
+                )}
 
                 {crumb.href ? (
                   <Link
@@ -79,14 +87,16 @@ export default function PageBanner({
                     {crumb.label}
                   </Link>
                 ) : (
-                  <span className="text-white">{crumb.label}</span>
+                  <span className="font-semibold text-white">
+                    {crumb.label}
+                  </span>
                 )}
               </li>
             ))}
           </ol>
         </nav>
 
-        <h1 className="mt-4 text-[30px] font-bold text-white sm:text-[34px]">
+        <h1 className="mt-5 text-[32px] font-bold leading-tight text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.45)] sm:text-[38px]">
           {title}
         </h1>
 
@@ -98,7 +108,7 @@ export default function PageBanner({
 
         {description && (
           <p
-            className={`text-[13px] leading-relaxed text-white/80 ${
+            className={`text-[14px] font-medium leading-relaxed text-white/90 ${
               subtitle ? "mt-4 max-w-[440px]" : "mt-2.5 max-w-[720px]"
             }`}
           >

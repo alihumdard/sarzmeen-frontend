@@ -5,11 +5,9 @@ import PopularSearches from "@/components/property/PopularSearches";
 import PropertyFilters from "@/components/property/PropertyFilters";
 import PropertyResults from "@/components/property/PropertyResults";
 import PageBanner from "@/components/layout/PageBanner";
-import {
-  featuredProperties,
-  totalPropertyCount,
-} from "@/constants/mockProperties";
+import { featuredProperties } from "@/constants/mockProperties";
 import { cities } from "@/constants/searchOptions";
+import { filterProperties } from "@/lib/utils/filterProperties";
 
 export const metadata: Metadata = {
   title: "Properties for Sale",
@@ -18,7 +16,13 @@ export const metadata: Metadata = {
 };
 
 type PropertiesPageProps = {
-  searchParams: Promise<{ purpose?: string; city?: string }>;
+  searchParams: Promise<{
+    purpose?: string;
+    city?: string;
+    location?: string;
+    type?: string;
+    price?: string;
+  }>;
 };
 
 /** Turns a city slug from the URL into its display name. */
@@ -38,13 +42,16 @@ export default async function PropertiesPage({
     ? `Properties for Sale in ${cityName}`
     : "Properties for Sale";
 
+  const results = filterProperties(featuredProperties, params);
+
   return (
     <main>
       <PageBanner
         title={title}
-        description={`${totalPropertyCount.toLocaleString("en-US")}+ properties available`}
+        description={`${results.length.toLocaleString("en-US")} ${results.length === 1 ? "property" : "properties"} available`}
         crumbs={[{ label: "Home", href: "/" }, { label: "Properties" }]}
         contentMaxWidth="720px"
+        image="/images/city-1.jpg"
       >
         <ListingSearchBar />
         <PopularSearches />
@@ -52,11 +59,8 @@ export default async function PropertiesPage({
 
       <section className="bg-surface py-8">
         <div className="container-page grid items-start gap-6 lg:grid-cols-[250px_1fr]">
-          <PropertyFilters />
-          <PropertyResults
-            properties={featuredProperties}
-            total={totalPropertyCount}
-          />
+          <PropertyFilters initialType={params.type} />
+          <PropertyResults properties={results} total={results.length} />
         </div>
       </section>
 

@@ -47,7 +47,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-white">
-      <div className="container-page flex h-[70px] items-center justify-between gap-4 xl:grid xl:grid-cols-[auto_1fr_auto] xl:pl-[calc(2rem+10px)]">
+      <div className="container-page flex h-[67px] items-center justify-between gap-4 xl:grid xl:grid-cols-[auto_1fr_auto] xl:pl-[calc(2rem+10px)]">
         {/* Logo — icon + HTML wordmark, matching the footer brand mark
             (the source PNG bakes ".com" in near-black, which is fine on
             white here, but pairing it separately keeps both header and
@@ -88,7 +88,7 @@ export default function Header() {
                       openDropdown === item.name ? null : item.name,
                     )
                   }
-                  className="flex items-center gap-1 rounded-md px-3.5 py-2 text-[13.5px] font-semibold text-heading transition-colors hover:bg-surface hover:text-primary"
+                  className="flex items-center gap-1 rounded-md px-3.5 py-2 text-[14px] font-semibold text-heading transition-colors hover:bg-surface hover:text-primary"
                 >
                   {item.name}
                   <ChevronDownIcon
@@ -117,7 +117,7 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="rounded-md px-3.5 py-2 text-[13.5px] font-semibold text-heading transition-colors hover:bg-surface hover:text-primary"
+                className="rounded-md px-3.5 py-2 text-[14px] font-semibold text-heading transition-colors hover:bg-surface hover:text-primary"
               >
                 {item.name}
               </Link>
@@ -129,7 +129,7 @@ export default function Header() {
         <div className="hidden shrink-0 items-center justify-self-end gap-3 xl:flex">
           <Link
             href="/login"
-            className="flex items-center gap-1.5 px-2 text-[13.5px] font-semibold text-heading transition-colors hover:text-primary"
+            className="flex items-center gap-1.5 px-2 text-[14px] font-semibold text-heading transition-colors hover:text-primary"
           >
             <UserCircleIcon className="h-5 w-5" />
             Login / Register
@@ -137,7 +137,7 @@ export default function Header() {
 
           <Link
             href="/properties/add"
-            className="rounded-md bg-primary px-5 py-2.5 text-[13.5px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark"
+            className="rounded-md bg-primary px-5 py-2.5 text-[14px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark"
           >
             Add Property
           </Link>
@@ -163,7 +163,7 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="border-t border-border bg-white xl:hidden">
           <nav
-            className="container-page flex max-h-[calc(100vh-70px)] flex-col overflow-y-auto py-2"
+            className="container-page flex max-h-[calc(100vh-67px)] flex-col overflow-y-auto py-2"
             aria-label="Mobile navigation"
           >
             {mainNavigation.map((item) =>

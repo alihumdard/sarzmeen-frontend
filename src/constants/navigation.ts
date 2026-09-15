@@ -18,7 +18,7 @@ export type NavItem = {
 
 export const mainNavigation: NavItem[] = [
   {
-    name: "Buy",
+    name: "Buy Properties",
     href: "/properties?purpose=buy",
     children: [
       { name: "Homes for Sale", href: "/properties?purpose=buy&type=home" },
