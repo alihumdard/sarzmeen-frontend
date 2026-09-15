@@ -80,7 +80,7 @@ export default function Hero() {
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-3.5 rounded-xl border border-white/15 bg-white/10 px-6 py-4 backdrop-blur-md">
+          <div className="flex w-full items-center gap-3.5 rounded-xl border border-white/15 bg-white/10 px-6 py-4 backdrop-blur-md lg:w-auto lg:shrink-0">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/20">
               <ShieldCheckIcon className="h-6 w-6 text-[#3DBB6E]" />
             </div>

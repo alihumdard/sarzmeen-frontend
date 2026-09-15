@@ -49,8 +49,10 @@ export default function HeroSearch() {
 
   return (
     <div className="w-full max-w-[900px]">
-      {/* Purpose toggle — a standalone segmented control, not a tab strip */}
-      <div className="mb-3 inline-flex rounded-full bg-white/95 p-1 shadow-lg">
+      {/* Purpose toggle — a standalone segmented control, not a tab strip.
+          Full width on mobile so it matches the search card below it;
+          shrinks back to a compact pill from sm: up. */}
+      <div className="mb-3 flex w-full rounded-full bg-white/95 p-1 shadow-lg sm:inline-flex sm:w-auto">
         {tabs.map((tab) => {
           const isActive = purpose === tab.value;
 
@@ -60,7 +62,7 @@ export default function HeroSearch() {
               type="button"
               aria-pressed={isActive}
               onClick={() => setPurpose(tab.value)}
-              className={`rounded-full px-6 py-2 text-[13px] font-semibold transition-colors sm:px-8 ${
+              className={`flex-1 rounded-full px-6 py-2 text-[13px] font-semibold transition-colors sm:flex-initial sm:px-8 ${
                 isActive
                   ? "bg-primary text-white"
                   : "text-heading hover:text-primary"

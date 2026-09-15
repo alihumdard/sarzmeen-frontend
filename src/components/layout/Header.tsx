@@ -47,23 +47,27 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-white">
-      <div className="container-page flex h-[76px] items-center justify-between gap-4 xl:grid xl:grid-cols-[auto_1fr_auto]">
-        {/* Logo — cropped asset (sarzmeen-logo-cropped.png) trims the large
-            transparent margin the source square had above the icon, so it
-            can just fill the header height directly. */}
+      <div className="container-page flex h-[70px] items-center justify-between gap-4 xl:grid xl:grid-cols-[auto_1fr_auto] xl:pl-[calc(2rem+10px)]">
+        {/* Logo — icon + HTML wordmark, matching the footer brand mark
+            (the source PNG bakes ".com" in near-black, which is fine on
+            white here, but pairing it separately keeps both header and
+            footer visually consistent). */}
         <Link
           href="/"
-          className="flex shrink-0 items-center"
+          className="flex shrink-0 items-end gap-0.5"
           onClick={closeMobileMenu}
         >
           <Image
-            src="/logos/sarzmeen-logo-cropped.png"
-            alt="Sarzameen.com"
-            width={1155}
-            height={955}
+            src="/logos/sarzmeen-icon.png"
+            alt=""
+            width={590}
+            height={799}
             priority
-            className="h-[58px] w-auto sm:h-[64px]"
+            className="mr-[-4px] h-8 w-auto sm:mr-[-5px] sm:h-9"
           />
+          <span className="text-xl font-bold text-heading sm:text-2xl">
+            Sarzmeen<span className="text-primary">.com</span>
+          </span>
         </Link>
 
         {/* Desktop navigation */}
