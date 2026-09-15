@@ -48,13 +48,13 @@ const contactChannels = [
     detail: "We'll respond within 24 hours",
     href: "mailto:info@sarzameen.com",
   },
-  {
-    Icon: LocationPinIcon,
-    title: "Visit Us",
-    value: "123 Main Boulevard, Lahore",
-    detail: "Punjab, Pakistan",
-    href: "https://maps.google.com/?q=123%20Main%20Boulevard%20Lahore",
-  },
+{
+  Icon: LocationPinIcon,
+  title: "Our Location",
+  value: "Lahore, Punjab, Pakistan",
+  detail: "Serving clients across Lahore",
+  href: "https://www.google.com/maps/search/?api=1&query=31.5204,74.3587",
+},
 ];
 
 const socialLinks = [
@@ -384,7 +384,6 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <StayUpdatedStrip theme="dark" background="white" />
     </main>
   );
 }

@@ -27,7 +27,7 @@ export default function AboutPage() {
       <AboutStats />
       <WhyChooseSarzameen />
       <TeamSection />
-      <StayUpdatedStrip theme="dark" background="white" />
+      {/* <StayUpdatedStrip theme="dark" background="white" /> */}
     </main>
   );
 }

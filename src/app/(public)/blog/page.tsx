@@ -3,7 +3,6 @@ import BlogList from "@/components/blog/BlogList";
 import BlogSearch from "@/components/blog/BlogSearch";
 import BlogSidebar from "@/components/blog/BlogSidebar";
 import PageBanner from "@/components/layout/PageBanner";
-import StayUpdatedStrip from "@/components/layout/StayUpdatedStrip";
 import { latestPosts, totalBlogCount } from "@/constants/mockBlogs";
 
 export const metadata: Metadata = {
@@ -29,8 +28,6 @@ export default function BlogPage() {
           <BlogList posts={latestPosts} total={totalBlogCount} />
         </div>
       </section>
-
-      <StayUpdatedStrip />
     </main>
   );
 }

@@ -85,7 +85,7 @@ export default function AuthLayout({
 
       <AuthBenefits />
 
-      <StayUpdatedStrip theme="dark" />
+      {/* <StayUpdatedStrip theme="dark" /> */}
     </main>
   );
 }
