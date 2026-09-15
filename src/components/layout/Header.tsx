@@ -54,7 +54,7 @@ export default function Header() {
             footer visually consistent). */}
         <Link
           href="/"
-          className="flex shrink-0 items-end gap-0.5"
+          className="flex shrink-0 items-center gap-1.5"
           onClick={closeMobileMenu}
         >
           <Image
@@ -63,7 +63,7 @@ export default function Header() {
             width={590}
             height={799}
             priority
-            className="mr-[-4px] h-8 w-auto sm:mr-[-5px] sm:h-9"
+            className="h-8 w-auto sm:h-9"
           />
           <span className="text-xl font-bold text-heading sm:text-2xl">
             Sarzmeen<span className="text-primary">.com</span>

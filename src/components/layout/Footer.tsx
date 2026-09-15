@@ -130,11 +130,11 @@ export default function Footer() {
 
       {/* Columns */}
       <div className="container-page py-12">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-9 sm:gap-x-8 lg:flex lg:flex-nowrap lg:justify-between lg:gap-x-8">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-9 sm:gap-x-8 xl:flex xl:flex-nowrap xl:justify-between xl:gap-x-8">
           {/* Brand — the full logo file bakes ".com" in near-black, which
               disappears on this dark background, so the icon and wordmark
               are paired separately here instead. */}
-          <div className="col-span-2 lg:w-[320px] lg:shrink-0">
+          <div className="col-span-2 xl:w-[320px] xl:shrink-0">
             <Link href="/" className="inline-flex items-end gap-1">
               <Image
                 src="/logos/sarzmeen-icon.png"
@@ -170,20 +170,20 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="lg:shrink-0">
+          <div className="xl:shrink-0">
             <LinkColumn title="Quick Links" links={quickLinks} />
           </div>
 
-          <div className="lg:shrink-0">
+          <div className="xl:shrink-0">
             <LinkColumn title="Properties" links={propertyLinks} />
           </div>
 
-          <div className="lg:shrink-0">
+          <div className="xl:shrink-0">
             <LinkColumn title="Popular Areas" links={areaLinks} />
           </div>
 
           {/* Contact */}
-          <div className="lg:w-[300px] lg:shrink-0">
+          <div className="xl:w-[300px] xl:shrink-0">
             <h3 className="text-[13px] font-semibold uppercase tracking-wide text-white">
               Contact Info
             </h3>
@@ -198,10 +198,11 @@ export default function Footer() {
                 info@sarzmeen.com
               </p>
               <p className="flex items-start gap-2">
-                <LocationPinIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary-light" />
-                <span>123 Main Boulevard,
+                <LocationPinIcon className="h-3.5 w-3.5 shrink-0 text-primary-light" />
+                <span>
+                  123 Main Boulevard, Lahore,
                   <br />
-                  Lahore, Pakistan
+                  Pakistan
                 </span>
               </p>
             </div>
