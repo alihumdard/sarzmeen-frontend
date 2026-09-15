@@ -70,7 +70,10 @@ export default function PropertyResults({
         </p>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Grid vs list only matters once there's room for multiple
+              columns — on phones the two layouts look nearly identical, so
+              the toggle is hidden and list view (the default) is used. */}
+          <div className="hidden items-center gap-2 sm:flex">
             <button
               type="button"
               aria-pressed={view === "grid"}
@@ -128,15 +131,21 @@ export default function PropertyResults({
         </div>
       </div>
 
-      {/* Listings */}
-      {view === "list" ? (
-        <div className="mt-5 flex flex-col gap-4">
-          {sorted.map((property) => (
-            <PropertyListRow key={property.id} property={property} />
-          ))}
-        </div>
-      ) : (
-        <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      {/* Listings — below `sm:` this always renders as the list layout
+          regardless of `view`, since a grid/list toggle has little to show
+          for on a single-column phone width. */}
+      <div
+        className={
+          view === "grid" ? "mt-5 flex flex-col gap-4 sm:hidden" : "mt-5 flex flex-col gap-4"
+        }
+      >
+        {sorted.map((property) => (
+          <PropertyListRow key={property.id} property={property} />
+        ))}
+      </div>
+
+      {view === "grid" && (
+        <div className="hidden gap-5 sm:mt-5 sm:grid sm:grid-cols-2 xl:grid-cols-3">
           {sorted.map((property) => (
             <PropertyCard key={property.id} property={property} />
           ))}

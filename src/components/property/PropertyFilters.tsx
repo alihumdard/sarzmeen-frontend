@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FilterSection from "@/components/property/FilterSection";
 import SearchSelect from "@/components/ui/SearchSelect";
 import {
@@ -70,6 +70,18 @@ export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
     (beds ? 1 : 0) +
     (baths ? 1 : 0) +
     (maxPrice < MAX_PRICE ? 1 : 0);
+
+  // Lock the page behind the drawer so only the drawer itself scrolls.
+  useEffect(() => {
+    if (!drawerOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [drawerOpen]);
 
   function toggle(list: string[], value: string) {
     return list.includes(value)

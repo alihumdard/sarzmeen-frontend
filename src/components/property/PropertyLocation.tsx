@@ -1,10 +1,4 @@
-import {
-  LocationPinIcon,
-  PlaneIcon,
-  RoadIcon,
-  ShopIcon,
-  TreeIcon,
-} from "@/components/ui/Icons";
+import { PlaneIcon, RoadIcon, ShopIcon, TreeIcon } from "@/components/ui/Icons";
 import type { NearbyPlace, PropertyDetail } from "@/types/property";
 
 type PropertyLocationProps = {
@@ -19,15 +13,20 @@ const placeIcons: Record<NearbyPlace["kind"], typeof TreeIcon> = {
 };
 
 /**
- * Right column of the Overview tab: a map preview and nearby landmarks.
+ * Right column of the Overview tab: a live map preview and nearby landmarks.
  *
- * V1 shows a stylised static map — wiring a live embed needs a Google Maps
- * key, which is a Phase 4 concern.
+ * Uses the key-less Google Maps embed endpoint (maps.google.com/maps?...
+ * &output=embed) so the real location renders without an API key; the
+ * "View on Google Maps" link opens the same query in a full tab.
  */
 export default function PropertyLocation({ property }: PropertyLocationProps) {
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     property.fullLocation,
   )}`;
+
+  const embedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
+    property.fullLocation,
+  )}&z=14&output=embed`;
 
   return (
     <div>
@@ -36,35 +35,14 @@ export default function PropertyLocation({ property }: PropertyLocationProps) {
       <p className="mt-2 text-[11px] text-muted">{property.fullLocation}</p>
 
       <div className="mt-3 overflow-hidden rounded-lg border border-border">
-        {/* Stylised street grid standing in for the live map. */}
-        <div className="relative h-[150px] bg-[#e8ede9]">
-          <svg
-            viewBox="0 0 320 150"
-            aria-hidden="true"
-            className="absolute inset-0 h-full w-full"
-          >
-            <rect width="320" height="150" fill="#eaefeb" />
-            <path
-              d="M0 46h320M0 104h320M74 0v150M188 0v150M258 0v150"
-              stroke="#ffffff"
-              strokeWidth="7"
-            />
-            <path
-              d="M0 74h320M130 0v150"
-              stroke="#ffffff"
-              strokeWidth="4"
-            />
-            <rect x="14" y="10" width="46" height="26" fill="#dfe6e1" />
-            <rect x="90" y="12" width="30" height="24" fill="#dfe6e1" />
-            <rect x="200" y="14" width="44" height="22" fill="#dfe6e1" />
-            <rect x="18" y="114" width="42" height="24" fill="#dfe6e1" />
-            <rect x="146" y="112" width="30" height="26" fill="#dfe6e1" />
-            <rect x="272" y="56" width="36" height="40" fill="#d7e4da" />
-          </svg>
-
-          <span className="absolute left-1/2 top-1/2 flex h-9 w-9 -translate-x-1/2 -translate-y-full items-center justify-center rounded-full bg-primary text-white shadow-lg">
-            <LocationPinIcon className="h-5 w-5" />
-          </span>
+        <div className="relative h-[190px] bg-surface">
+          <iframe
+            title={`Map showing ${property.fullLocation}`}
+            src={embedUrl}
+            className="h-full w-full border-0"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
         </div>
 
         <div className="border-t border-border p-3">
