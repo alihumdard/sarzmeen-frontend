@@ -217,7 +217,7 @@ export default async function AgentPage({ params }: AgentPageProps) {
                     href={`https://wa.me/${agent.whatsapp}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 rounded-md bg-[#25D366] py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
+                    className="flex items-center justify-center gap-2 rounded-md border border-[#0f8a3e] bg-[#25D366] py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
                   >
                     <WhatsAppIcon className="h-4 w-4" />
                     Chat on WhatsApp

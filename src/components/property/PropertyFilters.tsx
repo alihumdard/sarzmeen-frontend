@@ -3,7 +3,12 @@
 import { useState } from "react";
 import FilterSection from "@/components/property/FilterSection";
 import SearchSelect from "@/components/ui/SearchSelect";
-import { ResetIcon } from "@/components/ui/Icons";
+import {
+  ChevronRightIcon,
+  CloseIcon,
+  FilterIcon,
+  ResetIcon,
+} from "@/components/ui/Icons";
 import {
   areaUnits,
   locations,
@@ -57,6 +62,14 @@ export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
   const [features, setFeatures] = useState<string[]>([]);
   const [showAllTypes, setShowAllTypes] = useState(false);
   const [showAllFeatures, setShowAllFeatures] = useState(false);
+  /** Below `lg:` the sidebar lives in a slide-in drawer instead of the page flow. */
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const activeCount =
+    types.length +
+    features.length +
+    (beds ? 1 : 0) +
+    (baths ? 1 : 0) +
+    (maxPrice < MAX_PRICE ? 1 : 0);
 
   function toggle(list: string[], value: string) {
     return list.includes(value)
@@ -83,19 +96,30 @@ export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
   const chipClasses =
     "flex h-8 min-w-8 items-center justify-center rounded border px-2.5 text-[11px] transition-colors";
 
-  return (
+  const panel = (
     <div className="overflow-hidden rounded-lg border border-border bg-white">
       <div className="flex items-center justify-between border-b border-border px-4 py-3.5">
         <h2 className="text-[13px] font-bold text-heading">Filters</h2>
 
-        <button
-          type="button"
-          onClick={handleReset}
-          className="flex items-center gap-1.5 text-[11px] font-medium text-primary transition-opacity hover:opacity-75"
-        >
-          <ResetIcon className="h-3.5 w-3.5" />
-          Reset All
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="flex items-center gap-1.5 text-[11px] font-medium text-primary transition-opacity hover:opacity-75"
+          >
+            <ResetIcon className="h-3.5 w-3.5" />
+            Reset All
+          </button>
+
+          <button
+            type="button"
+            aria-label="Close filters"
+            onClick={() => setDrawerOpen(false)}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-muted hover:text-heading lg:hidden"
+          >
+            <CloseIcon className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       <FilterSection title="Property Type">
@@ -257,11 +281,54 @@ export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
       <div className="p-4">
         <button
           type="button"
+          onClick={() => setDrawerOpen(false)}
           className="w-full rounded-md border border-primary py-2.5 text-[12px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
         >
           Apply Filters
         </button>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      {/* Mobile/tablet toggle — the panel itself lives in a slide-in drawer
+          below `lg:`, since the full filter list is too long to sit inline
+          above the results without pushing them far down the page. */}
+      <button
+        type="button"
+        onClick={() => setDrawerOpen(true)}
+        className="flex w-full items-center justify-between gap-2 rounded-lg border border-border bg-white px-4 py-3 text-[13px] font-semibold text-heading lg:hidden"
+      >
+        <span className="flex items-center gap-2">
+          <FilterIcon className="h-4 w-4 text-primary" />
+          Filters
+          {activeCount > 0 && (
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-white">
+              {activeCount}
+            </span>
+          )}
+        </span>
+        <ChevronRightIcon className="h-4 w-4 text-muted" />
+      </button>
+
+      {/* Desktop sidebar */}
+      <div className="hidden lg:block">{panel}</div>
+
+      {/* Mobile/tablet drawer */}
+      {drawerOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <button
+            type="button"
+            aria-label="Close filters"
+            onClick={() => setDrawerOpen(false)}
+            className="absolute inset-0 bg-heading/50"
+          />
+          <div className="absolute inset-y-0 left-0 flex w-[86%] max-w-[340px] flex-col overflow-y-auto bg-surface shadow-xl">
+            {panel}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

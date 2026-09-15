@@ -194,7 +194,7 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`WhatsApp ${agent.name}`}
-                className="flex h-9 flex-1 items-center justify-center rounded-md bg-[#25D366] text-white transition-opacity hover:opacity-90"
+                className="flex h-9 flex-1 items-center justify-center rounded-md border border-[#0f8a3e] bg-[#25D366] text-white transition-opacity hover:opacity-90"
               >
                 <WhatsAppIcon className="h-4 w-4" />
               </a>

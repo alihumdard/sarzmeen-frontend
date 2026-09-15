@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import AddPropertyForm from "@/components/property/AddPropertyForm";
 import PageBanner from "@/components/layout/PageBanner";
 import { ShieldCheckIcon, SupportIcon, UsersIcon } from "@/components/ui/Icons";
@@ -43,7 +44,13 @@ export default function AddPropertyPage() {
 
       <section className="bg-surface py-8 sm:py-10">
         <div className="container-page grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
-          <AddPropertyForm />
+          <Suspense
+            fallback={
+              <div className="h-[600px] animate-pulse rounded-lg border border-border bg-white" />
+            }
+          >
+            <AddPropertyForm />
+          </Suspense>
 
           <aside className="space-y-4">
             <div className="rounded-lg border border-border bg-white p-5 shadow-[0_12px_34px_rgba(15,35,28,0.08)] sm:p-6">

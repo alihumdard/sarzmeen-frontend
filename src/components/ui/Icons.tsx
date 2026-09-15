@@ -96,6 +96,23 @@ export function CloseIcon({ className }: IconProps) {
   );
 }
 
+export function FilterIcon({ className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.7}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 6h16M7 12h10M10.5 18h3" />
+    </svg>
+  );
+}
+
 /** Hero trust strip — "Verified Properties" */
 export function VerifiedBadgeIcon({ className }: IconProps) {
   return (

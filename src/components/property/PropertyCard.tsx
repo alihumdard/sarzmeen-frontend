@@ -147,7 +147,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`WhatsApp ${agent.name}`}
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-[#25D366] bg-[#25D366] text-white transition-opacity hover:opacity-90"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-[#0f8a3e] bg-[#25D366] text-white transition-opacity hover:opacity-90"
               >
                 <WhatsAppIcon className="h-4 w-4" />
               </a>

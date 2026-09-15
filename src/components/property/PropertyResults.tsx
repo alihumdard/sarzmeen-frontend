@@ -53,21 +53,24 @@ export default function PropertyResults({
   }
 
   const toggleClasses =
-    "flex items-center gap-1.5 rounded-md border px-3 py-2 text-[11px] font-medium transition-colors";
+    "flex items-center gap-1.5 rounded-md border px-2.5 py-2 text-[11px] font-medium transition-colors sm:px-3";
 
   return (
-    <div>
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-border bg-white px-4 py-3">
-        <p className="text-[12px] text-text">
+    <div className="min-w-0">
+      {/* Toolbar — stays on one line at every width: the count is the only
+          part allowed to truncate, since Grid/List/Sort are the controls
+          people actually need to reach without scrolling. */}
+      <div className="flex items-center justify-between gap-2 rounded-lg border border-border bg-white px-3 py-2.5 sm:gap-4 sm:px-4 sm:py-3">
+        <p className="min-w-0 shrink truncate text-[11px] text-text sm:text-[12px]">
           <span className="font-semibold text-heading">
             {total.toLocaleString("en-US")}
           </span>{" "}
-          Properties Found
+          <span className="hidden sm:inline">Properties Found</span>
+          <span className="sm:hidden">Found</span>
         </p>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               aria-pressed={view === "grid"}
@@ -79,7 +82,7 @@ export default function PropertyResults({
               }`}
             >
               <GridViewIcon className="h-3.5 w-3.5" />
-              Grid
+              <span className="hidden sm:inline">Grid</span>
             </button>
 
             <button
@@ -93,12 +96,15 @@ export default function PropertyResults({
               }`}
             >
               <ListViewIcon className="h-3.5 w-3.5" />
-              List
+              <span className="hidden sm:inline">List</span>
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
-            <label htmlFor="property-sort" className="text-[11px] text-muted">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <label
+              htmlFor="property-sort"
+              className="hidden text-[11px] text-muted sm:inline"
+            >
               Sort by:
             </label>
 
@@ -107,7 +113,7 @@ export default function PropertyResults({
                 id="property-sort"
                 value={sort}
                 onChange={(event) => setSort(event.target.value)}
-                className="cursor-pointer appearance-none rounded-md border border-border bg-white py-2 pl-3 pr-8 text-[11px] text-heading outline-none transition-colors hover:border-primary focus:border-primary"
+                className="w-[92px] cursor-pointer appearance-none truncate rounded-md border border-border bg-white py-2 pl-2.5 pr-7 text-[11px] text-heading outline-none transition-colors hover:border-primary focus:border-primary sm:w-auto sm:pl-3 sm:pr-8"
               >
                 {sortOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -116,7 +122,7 @@ export default function PropertyResults({
                 ))}
               </select>
 
-              <ChevronDownIcon className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" />
+              <ChevronDownIcon className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted sm:right-2.5" />
             </div>
           </div>
         </div>
