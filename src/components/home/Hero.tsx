@@ -1,7 +1,6 @@
 import Image from "next/image";
 import HeroSearch from "@/components/home/HeroSearch";
 import {
-  EasySecureIcon,
   ShieldCheckIcon,
   TrustedAgentIcon,
   VerifiedBadgeIcon,
@@ -10,41 +9,20 @@ import {
 /** Hero background photo — replace the file at this path to change it. */
 const heroBackground = "/images/hero-bg.jpg";
 
-const trustItems = [
-  {
-    Icon: VerifiedBadgeIcon,
-    title: "Verified Properties",
-    description: "Only verified & trusted listings",
-  },
-  {
-    Icon: TrustedAgentIcon,
-    title: "Trusted Agents",
-    description: "Connect with genuine agents",
-  },
-  {
-    Icon: EasySecureIcon,
-    title: "Easy & Secure",
-    description: "Simple and secure process",
-  },
-  {
-    Icon: ShieldCheckIcon,
-    title: "Best Investment",
-    description: "Find the best deals",
-  },
-];
-
 export default function Hero() {
   return (
-    <section className="relative isolate overflow-hidden">
-      {/* Background photo — see heroBackground above to swap the file. */}
-      <Image
-        src={heroBackground}
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="-z-20 object-cover"
-      />
+    <section className="relative isolate">
+      {/* Background photo container with overflow-hidden */}
+      <div className="absolute inset-0 -z-20 overflow-hidden">
+        <Image
+          src={heroBackground}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+      </div>
 
       {/* Moderate wash for text contrast, heaviest on the left. */}
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(9,25,20,0.76)_0%,rgba(9,25,20,0.55)_55%,rgba(9,25,20,0.32)_100%)]" />
@@ -97,25 +75,6 @@ export default function Hero() {
 
         <div className="mt-7 lg:mt-9">
           <HeroSearch />
-        </div>
-
-        {/* Trust strip */}
-        <div className="mt-6 rounded-lg border border-white/15 bg-white/10 px-5 py-5 backdrop-blur-sm sm:px-8">
-          <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {trustItems.map(({ Icon, title, description }) => (
-              <li key={title} className="flex items-center gap-3">
-                <Icon className="h-7 w-7 shrink-0 text-[#3DBB6E]" />
-                <div className="min-w-0">
-                  <p className="text-[13px] font-semibold text-white">
-                    {title}
-                  </p>
-                  <p className="mt-0.5 text-[11px] leading-snug text-white/70">
-                    {description}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
     </section>
