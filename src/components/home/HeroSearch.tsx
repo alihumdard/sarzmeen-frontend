@@ -564,7 +564,7 @@ export default function HeroSearch() {
               </button>
 
               {activeDropdown === "propertyType" && (
-                <div className="absolute left-0 top-full z-50 mt-1.5 w-[390px] max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-white p-3 shadow-2xl">
+                <div className="absolute left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 top-full z-50 mt-1.5 w-[390px] max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-white p-3 shadow-2xl">
                   {/* Top Tabs: Homes | Plots | Commercial | Projects */}
                   <div className="flex rounded-lg bg-surface p-1 mb-3">
                     {propertyCategoriesData.map((cat) => {
