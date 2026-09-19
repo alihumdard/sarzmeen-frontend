@@ -176,7 +176,6 @@ const categories = [
 
 export default function BrowsePropertiesByCategory() {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [activeDot, setActiveDot] = useState(0);
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -185,29 +184,6 @@ export default function BrowsePropertiesByCategory() {
       left: direction === "left" ? -300 : 300,
       behavior: "smooth",
     });
-  };
-
-  const handleScroll = () => {
-    if (!scrollRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-    const scrollableWidth = scrollWidth - clientWidth;
-    if (scrollableWidth <= 0) {
-      setActiveDot(0);
-      return;
-    }
-    const ratio = scrollLeft / scrollableWidth;
-    setActiveDot(ratio > 0.5 ? 1 : 0);
-  };
-
-  const scrollToDot = (dotIndex: number) => {
-    if (!scrollRef.current) return;
-    const { scrollWidth, clientWidth } = scrollRef.current;
-    const scrollableWidth = scrollWidth - clientWidth;
-    scrollRef.current.scrollTo({
-      left: dotIndex === 0 ? 0 : scrollableWidth,
-      behavior: "smooth",
-    });
-    setActiveDot(dotIndex);
   };
 
   return (
@@ -264,17 +240,15 @@ export default function BrowsePropertiesByCategory() {
           </div>
         </div>
 
-        {/* Mobile: 2 rows grid with horizontal scroll */}
+        {/* Mobile: 4 rows grid (2 columns) without scrollbar */}
         <div
-          ref={scrollRef}
-          onScroll={handleScroll}
-          className="scrollbar-hide grid grid-flow-col grid-rows-2 gap-2.5 overflow-x-auto pt-2 pb-2 snap-x snap-mandatory sm:hidden"
+          className="grid grid-cols-2 gap-2.5 sm:hidden"
         >
           {categories.map(({ title, icon: Icon }) => (
             <button
               key={title}
               type="button"
-              className="group flex w-[175px] shrink-0 snap-start flex-col items-center justify-center rounded-lg border border-gray-100 bg-white px-3 py-3 shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-[#3DBB6E]/30 hover:shadow-[0_5px_18px_rgba(61,187,110,0.12)]"
+              className="group flex w-full flex-col items-center justify-center rounded-lg border border-gray-100 bg-white px-3 py-3 shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-[#3DBB6E]/30 hover:shadow-[0_5px_18px_rgba(61,187,110,0.12)]"
             >
               <Icon className="h-7 w-7 text-[#3DBB6E] transition-transform duration-200 group-hover:scale-105" />
 
@@ -291,6 +265,7 @@ export default function BrowsePropertiesByCategory() {
 
         {/* Desktop: original flex row */}
         <div
+          ref={scrollRef}
           className="scrollbar-hide hidden sm:flex gap-3 overflow-x-auto pt-2 pb-3"
         >
           {categories.map(({ title, icon: Icon }) => (
@@ -309,23 +284,6 @@ export default function BrowsePropertiesByCategory() {
                 For Sale / Rent
               </span>
             </button>
-          ))}
-        </div>
-
-        {/* Mobile Dots Navigation */}
-        <div className="mt-3 flex items-center justify-center gap-1.5 sm:hidden">
-          {[0, 1].map((dotIndex) => (
-            <button
-              key={dotIndex}
-              type="button"
-              onClick={() => scrollToDot(dotIndex)}
-              aria-label={`Go to slide ${dotIndex + 1}`}
-              className={`h-2 rounded-full transition-all ${
-                activeDot === dotIndex
-                  ? "w-5 bg-[#3DBB6E]"
-                  : "w-2 bg-gray-300"
-              }`}
-            />
           ))}
         </div>
       </div>
