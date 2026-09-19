@@ -187,10 +187,10 @@ export default function BrowsePropertiesByCategory() {
   };
 
   return (
-    <section className="bg-white py-8 sm:py-10">
+    <section className="bg-white pt-10 sm:pt-12 pb-4 sm:pb-6">
       <div className="container-page">
         {/* Header */}
-        <div className="mb-5 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between">
           <div>
             <h2 className="text-[20px] font-bold leading-tight text-[#17201B] sm:text-[24px]">
               Browse Properties{" "}
@@ -243,7 +243,7 @@ export default function BrowsePropertiesByCategory() {
         {/* Category Cards */}
         <div
           ref={scrollRef}
-          className="scrollbar-hide flex gap-2.5 overflow-x-auto pb-2 sm:gap-3"
+          className="scrollbar-hide flex gap-2.5 overflow-x-auto pt-2 pb-3 sm:gap-3"
         >
           {categories.map(({ title, icon: Icon }) => (
             <button

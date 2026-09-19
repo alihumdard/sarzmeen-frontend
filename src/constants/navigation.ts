@@ -30,6 +30,7 @@ export const mainNavigation: NavItem[] = [
     ],
   },
   { name: "Projects", href: "/projects" },
+  { name: "Agents", href: "/agents" },
   { name: "Blogs", href: "/blog" },
   { name: "About Us", href: "/about" },
   { name: "Contact Us", href: "/contact" },

@@ -5,7 +5,7 @@ import { featuredProperties } from "@/constants/mockProperties";
 
 export default function FeaturedProperties() {
   return (
-    <section className="bg-white py-10 sm:py-12">
+    <section className="bg-white pt-2 sm:pt-4 pb-10 sm:pb-12">
       <div className="container-page">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
