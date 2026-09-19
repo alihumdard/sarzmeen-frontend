@@ -101,6 +101,12 @@ const buySubtypeDefaults: Record<string, { beds?: string; areaMin?: string; area
   "Building": { beds: "", areaMin: "1", areaMax: "5", areaUnit: "kanal", priceMin: "50000000", priceMax: "500000000" },
   "Warehouse": { beds: "", areaMin: "2", areaMax: "10", areaUnit: "kanal", priceMin: "30000000", priceMax: "200000000" },
   "Factory": { beds: "", areaMin: "4", areaMax: "20", areaUnit: "kanal", priceMin: "80000000", priceMax: "800000000" },
+  "All Projects": { beds: "", areaMin: "5", areaMax: "50", areaUnit: "marla", priceMin: "5000000", priceMax: "100000000" },
+  "Residential Projects": { beds: "", areaMin: "5", areaMax: "20", areaUnit: "marla", priceMin: "10000000", priceMax: "60000000" },
+  "Commercial Projects": { beds: "", areaMin: "4", areaMax: "30", areaUnit: "marla", priceMin: "20000000", priceMax: "200000000" },
+  "Apartment Projects": { beds: "", areaMin: "4", areaMax: "15", areaUnit: "marla", priceMin: "10000000", priceMax: "40000000" },
+  "Housing Projects": { beds: "", areaMin: "10", areaMax: "100", areaUnit: "marla", priceMin: "5000000", priceMax: "50000000" },
+  "Farm Housing Projects": { beds: "", areaMin: "2", areaMax: "20", areaUnit: "kanal", priceMin: "50000000", priceMax: "300000000" },
 };
 
 const rentSubtypeDefaults: Record<string, { beds?: string; areaMin?: string; areaMax?: string; areaUnit?: "marla" | "kanal" | "sqft" | "sqyd"; priceMin?: string; priceMax?: string }> = {
@@ -124,6 +130,12 @@ const rentSubtypeDefaults: Record<string, { beds?: string; areaMin?: string; are
   "Building": { beds: "", areaMin: "1", areaMax: "5", areaUnit: "kanal", priceMin: "200000", priceMax: "1500000" },
   "Warehouse": { beds: "", areaMin: "2", areaMax: "10", areaUnit: "kanal", priceMin: "100000", priceMax: "800000" },
   "Factory": { beds: "", areaMin: "4", areaMax: "20", areaUnit: "kanal", priceMin: "300000", priceMax: "2500000" },
+  "All Projects": { beds: "", areaMin: "5", areaMax: "50", areaUnit: "marla", priceMin: "30000", priceMax: "200000" },
+  "Residential Projects": { beds: "", areaMin: "5", areaMax: "20", areaUnit: "marla", priceMin: "40000", priceMax: "250000" },
+  "Commercial Projects": { beds: "", areaMin: "4", areaMax: "30", areaUnit: "marla", priceMin: "50000", priceMax: "400000" },
+  "Apartment Projects": { beds: "", areaMin: "4", areaMax: "15", areaUnit: "marla", priceMin: "30000", priceMax: "150000" },
+  "Housing Projects": { beds: "", areaMin: "10", areaMax: "100", areaUnit: "marla", priceMin: "25000", priceMax: "200000" },
+  "Farm Housing Projects": { beds: "", areaMin: "2", areaMax: "20", areaUnit: "kanal", priceMin: "150000", priceMax: "800000" },
 };
 
 type PropertySearchState = {
@@ -141,7 +153,7 @@ type PropertySearchState = {
   priceMax: string;
 };
 
-type PropertyCategoryKey = "homes" | "plots" | "commercial";
+type PropertyCategoryKey = "homes" | "plots" | "commercial" | "projects";
 
 type PropertySubTypeItem = {
   label: string;
@@ -191,6 +203,18 @@ const propertyCategoriesData: {
       { label: "Warehouse", value: "warehouse", icon: WarehouseIcon },
       { label: "Factory", value: "factory", icon: FactoryIcon },
       { label: "Commercial Plot", value: "commercial-plot", icon: CommercialPlotIcon },
+    ],
+  },
+  {
+    category: "Projects",
+    value: "projects",
+    items: [
+      { label: "All Projects", value: "all-projects", icon: BuildingIcon },
+      { label: "Residential Projects", value: "residential-projects", icon: HouseIcon },
+      { label: "Commercial Projects", value: "commercial-projects", icon: CommercialIcon },
+      { label: "Apartment Projects", value: "apartment-projects", icon: ApartmentIcon },
+      { label: "Housing Projects", value: "housing-projects", icon: ResidentialPlotIcon },
+      { label: "Farm Housing Projects", value: "farm-housing-projects", icon: FarmHouseIcon },
     ],
   },
 ];
@@ -292,7 +316,7 @@ export default function HeroSearch() {
             if (subDefaults.priceMax) nextState.priceMax = subDefaults.priceMax;
           }
         }
-        if (updates.propertyType === "plots" || updates.propertyType === "commercial") {
+        if (updates.propertyType === "plots" || updates.propertyType === "commercial" || updates.propertyType === "projects") {
           nextState.beds = "";
         }
       }
@@ -308,7 +332,7 @@ export default function HeroSearch() {
         for (const cat of propertyCategoriesData) {
           if (cat.items.some(i => i.label === subType)) {
             nextState.propertyType = cat.value;
-            if (cat.value === "plots" || cat.value === "commercial") {
+            if (cat.value === "plots" || cat.value === "commercial" || cat.value === "projects") {
               nextState.beds = "";
             }
             break;
@@ -541,7 +565,7 @@ export default function HeroSearch() {
 
               {activeDropdown === "propertyType" && (
                 <div className="absolute left-0 top-full z-50 mt-1.5 w-[390px] max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-white p-3 shadow-2xl">
-                  {/* Top Tabs: Homes | Plots | Commercial */}
+                  {/* Top Tabs: Homes | Plots | Commercial | Projects */}
                   <div className="flex rounded-lg bg-surface p-1 mb-3">
                     {propertyCategoriesData.map((cat) => {
                       const isActive = searchState.propertyType === cat.value;
@@ -550,7 +574,7 @@ export default function HeroSearch() {
                           key={cat.value}
                           type="button"
                           onClick={() => handleSearchFieldChange({ propertyType: cat.value })}
-                          className={`flex-1 py-2 text-center text-[13px] font-semibold rounded-md transition-colors ${
+                          className={`flex-1 py-2 text-center text-[11px] sm:text-[13px] font-semibold rounded-md transition-colors ${
                             isActive
                               ? "bg-primary text-white shadow-sm"
                               : "text-text hover:text-primary"
