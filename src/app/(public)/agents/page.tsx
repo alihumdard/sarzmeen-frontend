@@ -169,7 +169,7 @@ function AgentsContent() {
         onPageChange={handlePageChange}
       />
 
-      <AgenciesByCity onSelectCity={handleSelectCity} />
+      <AgenciesByCity onSelectCity={handleSelectCity} selectedCity={cityQuery} />
     </>
   );
 }

@@ -3,8 +3,9 @@ import CtaStrip from "@/components/home/CtaStrip";
 import FeaturedProperties from "@/components/home/FeaturedProperties";
 import Hero from "@/components/home/Hero";
 import LatestBlogs from "@/components/home/LatestBlogs";
+import PartnerAgencies from "@/components/home/PartnerAgencies";
 import PopularProjects from "@/components/home/PopularProjects";
-import SellRentBanner from "@/components/home/SellRentBanner";
+import Testimonials from "@/components/home/Testimonials";
 import WhyChooseAndCities from "@/components/home/WhyChooseAndCities";
 
 export default function Home() {
@@ -13,7 +14,8 @@ export default function Home() {
       <Hero />
       <BrowsePropertiesByCategory />
       <FeaturedProperties />
-      <SellRentBanner />
+      <Testimonials />
+      <PartnerAgencies />
       <PopularProjects />
       <WhyChooseAndCities />
       <LatestBlogs />

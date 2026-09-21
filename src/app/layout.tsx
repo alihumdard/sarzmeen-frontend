@@ -27,7 +27,14 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body>{children}</body>
+            {/*
+             * suppressHydrationWarning only covers this element's own attributes.
+             * It's needed here because some browser extensions (form fillers,
+             * color pickers, etc.) inject attributes like cz-shortcut-listen
+             * onto <body> before React hydrates, which is a false-positive
+             * mismatch unrelated to our code — not a signal to hide real bugs.
+             */}
+            <body suppressHydrationWarning>{children}</body>
         </html>
     );
 }

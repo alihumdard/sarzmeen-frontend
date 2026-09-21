@@ -127,3 +127,93 @@
     padding-inline: 2rem;
   }
 }
+
+/*
+ * Small motion library for hero-style entrances and CTA shine. Kept generic
+ * (not page-specific) so any section can reuse them. Always pair with the
+ * `motion-safe:` variant at the call site — these keyframes themselves
+ * don't check prefers-reduced-motion, Tailwind's variant does.
+ */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/** For gradient text fills — animates the gradient position, not layout. */
+@keyframes text-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/** Slow diagonal shine over a dark card border/edge — reviews, premium tiles. */
+@keyframes card-shine {
+  0%,
+  100% {
+    background-position: -150% -150%;
+  }
+  50% {
+    background-position: 250% 250%;
+  }
+}
+
+/** For a light bar sweeping across a solid button/card. */
+@keyframes shimmer-sweep {
+  0%,
+  15% {
+    transform: translateX(-130%) skewX(-12deg);
+  }
+  40%,
+  100% {
+    transform: translateX(220%) skewX(-12deg);
+  }
+}
+
+/*
+ * Animated gradient-border glow for dark premium cards (review cards).
+ * Apply `.shine-border` to a `relative`, rounded element — the pseudo
+ * element paints a soft moving highlight along the 1px border only
+ * (mask-composite cuts the interior out), so it reads as an edge shine
+ * rather than a wash over the whole card. Pair with `motion-safe:` on the
+ * animation utility at the call site.
+ */
+.shine-border {
+  position: relative;
+  isolation: isolate;
+}
+
+.shine-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    rgba(61, 187, 110, 0.7) 45%,
+    rgba(200, 245, 216, 0.9) 50%,
+    rgba(61, 187, 110, 0.7) 55%,
+    transparent 80%
+  );
+  background-size: 250% 250%;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.shine-border.shine-border-animated::before {
+  animation: card-shine 5s ease-in-out infinite;
+}

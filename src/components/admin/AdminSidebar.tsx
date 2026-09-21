@@ -33,6 +33,8 @@ type MenuItem = {
   label: string;
   href: string;
   icon: IconName;
+  /** True once a real page exists at `href`. False renders it inert with a "Soon" tag. */
+  implemented?: boolean;
 };
 
 type MenuGroup = {
@@ -40,6 +42,11 @@ type MenuGroup = {
   items: MenuItem[];
 };
 
+/**
+ * `implemented` is hand-maintained against the actual routes under
+ * src/app/admin/ — there's no build-time link between this list and the
+ * filesystem, so when a new admin page ships, flip its entry here too.
+ */
 const menuGroups: MenuGroup[] = [
   {
     title: "MAIN",
@@ -48,31 +55,37 @@ const menuGroups: MenuGroup[] = [
         label: "Dashboard",
         href: "/admin",
         icon: "dashboard",
+        implemented: true,
       },
       {
         label: "Properties",
         href: "/admin/properties",
         icon: "property",
+        implemented: true,
       },
       {
         label: "Projects",
         href: "/admin/projects",
         icon: "project",
+        implemented: true,
       },
       {
         label: "Locations",
         href: "/admin/locations",
         icon: "location",
+        implemented: true,
       },
       {
         label: "Agents",
         href: "/admin/agents",
         icon: "agent",
+        implemented: false,
       },
       {
         label: "Inquiries",
         href: "/admin/inquiries",
         icon: "inquiry",
+        implemented: true,
       },
     ],
   },
@@ -83,26 +96,31 @@ const menuGroups: MenuGroup[] = [
         label: "Blogs",
         href: "/admin/blogs",
         icon: "blog",
+        implemented: true,
       },
       {
         label: "Homepage CMS",
         href: "/admin/homepage",
         icon: "home",
+        implemented: false,
       },
       {
         label: "Media Library",
         href: "/admin/media",
         icon: "media",
+        implemented: true,
       },
       {
         label: "Testimonials",
         href: "/admin/testimonials",
         icon: "testimonial",
+        implemented: false,
       },
       {
         label: "FAQs",
         href: "/admin/faqs",
         icon: "faq",
+        implemented: false,
       },
     ],
   },
@@ -113,16 +131,19 @@ const menuGroups: MenuGroup[] = [
         label: "Roles & Permissions",
         href: "/admin/roles",
         icon: "roles",
+        implemented: true,
       },
       {
         label: "Admin Users",
         href: "/admin/users",
         icon: "users",
+        implemented: true,
       },
       {
         label: "Activity Logs",
         href: "/admin/activity-logs",
         icon: "activity",
+        implemented: true,
       },
     ],
   },
@@ -133,16 +154,19 @@ const menuGroups: MenuGroup[] = [
         label: "SEO Settings",
         href: "/admin/settings/seo",
         icon: "seo",
+        implemented: false,
       },
       {
         label: "Appearance",
         href: "/admin/settings/appearance",
         icon: "appearance",
+        implemented: false,
       },
       {
         label: "System Settings",
         href: "/admin/settings",
         icon: "settings",
+        implemented: true,
       },
     ],
   },
@@ -354,14 +378,31 @@ export default function AdminSidebar({
 
     const isOpen = openMenus.includes(item.label);
 
+    if (item.implemented === false) {
+      return (
+        <div
+          key={item.label}
+          title="Coming soon — this admin page hasn't been built yet"
+          aria-disabled="true"
+          className="flex min-h-[38px] cursor-not-allowed items-center gap-3 rounded-[6px] px-3 py-2.5 text-[13px] font-medium text-white/30"
+        >
+          <AdminIcon name={item.icon} className="h-[17px] w-[17px] shrink-0 text-white/25" />
+          <span className="min-w-0 flex-1 truncate">{item.label}</span>
+          <span className="shrink-0 rounded-full border border-white/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white/30">
+            Soon
+          </span>
+        </div>
+      );
+    }
+
     return (
       <div key={item.label}>
         <div
           className={[
-            "group flex min-h-[38px] items-center rounded-[6px] transition-colors",
+            "group flex min-h-[38px] items-center rounded-[6px] border-l-[3px] transition-colors",
             active
-              ? "bg-primary text-white"
-              : "text-white/70 hover:bg-white/[0.06] hover:text-white",
+              ? "border-[#3DBB6E] bg-primary text-white"
+              : "border-transparent text-white/70 hover:bg-white/[0.06] hover:text-white",
           ].join(" ")}
         >
           <Link
@@ -419,6 +460,7 @@ export default function AdminSidebar({
                   label="All Properties"
                   pathname={pathname}
                   onClose={onClose}
+                  implemented
                 />
                 <SidebarSubLink
                   href="/admin/properties/new"
@@ -431,6 +473,7 @@ export default function AdminSidebar({
                   label="Categories"
                   pathname={pathname}
                   onClose={onClose}
+                  implemented
                 />
                 <SidebarSubLink
                   href="/admin/properties/types"
@@ -454,6 +497,7 @@ export default function AdminSidebar({
                   label="All Projects"
                   pathname={pathname}
                   onClose={onClose}
+                  implemented
                 />
                 <SidebarSubLink
                   href="/admin/projects/new"
@@ -477,6 +521,7 @@ export default function AdminSidebar({
                   label="All Blogs"
                   pathname={pathname}
                   onClose={onClose}
+                  implemented
                 />
                 <SidebarSubLink
                   href="/admin/blogs/new"
@@ -489,6 +534,7 @@ export default function AdminSidebar({
                   label="Categories"
                   pathname={pathname}
                   onClose={onClose}
+                  implemented
                 />
               </>
             )}
@@ -528,7 +574,7 @@ export default function AdminSidebar({
       </div>
 
       {/* Navigation */}
-      <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-5">
+      <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-5 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.15)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/15 [&::-webkit-scrollbar-track]:bg-transparent">
         <div className="space-y-6">
           {menuGroups.map((group) => (
             <div key={group.title}>
@@ -629,13 +675,31 @@ function SidebarSubLink({
   label,
   pathname,
   onClose,
+  implemented = false,
 }: {
   href: string;
   label: string;
   pathname: string;
   onClose?: () => void;
+  /** True once a real page exists at `href`. False renders it inert. */
+  implemented?: boolean;
 }) {
   const active = isActivePath(pathname, href);
+
+  if (!implemented) {
+    return (
+      <div
+        title="Coming soon — this admin page hasn't been built yet"
+        aria-disabled="true"
+        className="flex cursor-not-allowed items-center justify-between rounded-md px-3 py-2 text-[12px] text-white/25"
+      >
+        <span className="truncate">{label}</span>
+        <span className="ml-2 shrink-0 text-[9px] font-semibold uppercase tracking-wide text-white/25">
+          Soon
+        </span>
+      </div>
+    );
+  }
 
   return (
     <Link

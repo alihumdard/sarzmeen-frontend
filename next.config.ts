@@ -10,6 +10,17 @@ const nextConfig: NextConfig = {
      * Disable the cache locally; production keeps the durable default.
      */
     minimumCacheTTL: isDev ? 0 : 14400,
+    /*
+     * i.pravatar.cc — placeholder profile photos for mock agent/agency data
+     * (src/data/agents.ts). Remove once real agency logos come from the API.
+     */
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "i.pravatar.cc",
+        pathname: "/**",
+      },
+    ],
   },
 };
 

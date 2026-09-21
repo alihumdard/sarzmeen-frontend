@@ -842,10 +842,15 @@ export default function HeroSearch() {
             {/* 7. Search Button */}
             <button
               type="submit"
-              className="flex h-[46px] items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-5 text-[14px] font-semibold text-white transition-colors hover:bg-primary-dark"
+              className="relative flex h-[46px] items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-md bg-[linear-gradient(135deg,var(--color-primary)_0%,var(--color-primary-dark)_100%)] px-5 text-[14px] font-semibold text-white shadow-[0_4px_14px_rgba(31,122,77,0.4)] transition-transform hover:scale-[1.02] hover:shadow-[0_6px_18px_rgba(31,122,77,0.5)] active:scale-[0.98]"
             >
               <SearchIcon className="h-4 w-4 text-white" />
               Search Property
+              {/* Light bar sweeping across on a loop — subtle "look here" cue on the primary CTA. */}
+              <span
+                aria-hidden="true"
+                className="motion-safe:animate-[shimmer-sweep_3.5s_ease-in-out_infinite] pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-[linear-gradient(115deg,transparent_0%,rgba(255,255,255,0.35)_50%,transparent_100%)]"
+              />
             </button>
 
           </div>

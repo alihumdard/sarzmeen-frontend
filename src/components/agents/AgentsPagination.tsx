@@ -18,7 +18,7 @@ export default function AgentsPagination({
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   const buttonBase =
-    "flex h-9 min-w-9 items-center justify-center rounded-md border px-3 text-[12px] font-medium transition-colors";
+    "flex h-9 min-w-9 items-center justify-center rounded-full border px-3 text-[12px] font-medium transition-colors";
 
   return (
     <nav aria-label="Agents Pagination" className="flex flex-col items-center gap-3 py-6">

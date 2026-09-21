@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Agent } from "@/data/agents";
 import {
-  BuildingIcon,
   EnvelopeIcon,
   PhoneIcon,
   VerifiedTickIcon,
@@ -16,13 +15,13 @@ export default function AgentCard({ agent }: AgentCardProps) {
   const phoneClean = agent.phone.replace(/\s/g, "");
 
   return (
-    <div className="flex flex-col justify-between rounded-lg border border-border bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
+    <div className="flex flex-col justify-between rounded-lg border border-border bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
       <div>
         {/* Top Header: Logo + Name & Verification + Agency Type */}
         <div className="flex items-start gap-4">
-          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md border border-border bg-surface">
+          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full ring-2 ring-white shadow-sm">
             <Image
-              src={agent.logo || "/images/agent-1.jpg"}
+              src={agent.logo}
               alt={agent.name}
               fill
               sizes="56px"
@@ -54,14 +53,19 @@ export default function AgentCard({ agent }: AgentCardProps) {
         </div>
 
         {/* Property counts */}
-        <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md bg-surface px-3 py-2 text-[12px] font-medium text-text">
-          <span className="text-heading font-bold">
-            {agent.propertiesForSale} <span className="font-normal text-muted">For Sale</span>
-          </span>
-          <span className="text-border">|</span>
-          <span className="text-heading font-bold">
-            {agent.propertiesForRent} <span className="font-normal text-muted">For Rent</span>
-          </span>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="rounded-md bg-primary-light px-3 py-2 text-center">
+            <p className="text-[15px] font-bold text-primary">
+              {agent.propertiesForSale}
+            </p>
+            <p className="text-[11px] font-medium text-primary/80">For Sale</p>
+          </div>
+          <div className="rounded-md bg-surface px-3 py-2 text-center">
+            <p className="text-[15px] font-bold text-heading">
+              {agent.propertiesForRent}
+            </p>
+            <p className="text-[11px] font-medium text-muted">For Rent</p>
+          </div>
         </div>
 
         {/* Description */}
@@ -91,7 +95,7 @@ export default function AgentCard({ agent }: AgentCardProps) {
             <a
               href={`mailto:${agent.email}`}
               aria-label={`Email ${agent.name}`}
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-text transition-colors hover:border-primary hover:text-primary"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-text transition-colors hover:border-primary hover:bg-primary-light hover:text-primary"
             >
               <EnvelopeIcon className="h-4 w-4" />
             </a>
@@ -100,7 +104,7 @@ export default function AgentCard({ agent }: AgentCardProps) {
           <a
             href={`tel:${phoneClean}`}
             aria-label={`Call ${agent.name}`}
-            className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-text transition-colors hover:border-primary hover:text-primary"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-text transition-colors hover:border-primary hover:bg-primary-light hover:text-primary"
           >
             <PhoneIcon className="h-4 w-4" />
           </a>
@@ -108,10 +112,15 @@ export default function AgentCard({ agent }: AgentCardProps) {
 
         <Link
           href={`/agents/${agent.slug}`}
-          className="flex items-center gap-1.5 rounded-md bg-primary-light px-4 py-2 text-[13px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
+          className="group flex items-center gap-1.5 rounded-md bg-primary-light px-4 py-2 text-[13px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
         >
           View Profile
-          <span aria-hidden="true">→</span>
+          <span
+            aria-hidden="true"
+            className="transition-transform group-hover:translate-x-0.5"
+          >
+            →
+          </span>
         </Link>
       </div>
     </div>

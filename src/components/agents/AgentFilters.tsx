@@ -139,7 +139,7 @@ export default function AgentFilters({
             <div className="flex items-end">
               <button
                 type="submit"
-                className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-primary px-6 text-[14px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark sm:w-auto"
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[linear-gradient(135deg,var(--color-primary)_0%,var(--color-primary-dark)_100%)] px-6 text-[14px] font-semibold text-white shadow-[0_4px_14px_rgba(31,122,77,0.35)] transition-transform hover:scale-[1.02] active:scale-[0.98] sm:w-auto"
               >
                 <SearchIcon className="h-4 w-4" />
                 Search

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { LocationPinIcon, ArrowRightIcon } from "@/components/ui/Icons";
 
 const citiesList = [
@@ -22,9 +21,14 @@ const citiesList = [
 
 type AgenciesByCityProps = {
   onSelectCity: (city: string) => void;
+  /** Highlights the city currently applied via the filter bar, if any. */
+  selectedCity?: string;
 };
 
-export default function AgenciesByCity({ onSelectCity }: AgenciesByCityProps) {
+export default function AgenciesByCity({
+  onSelectCity,
+  selectedCity,
+}: AgenciesByCityProps) {
   return (
     <section className="bg-surface py-12 border-y border-border mb-12">
       <div className="container-page">
@@ -39,47 +43,44 @@ export default function AgenciesByCity({ onSelectCity }: AgenciesByCityProps) {
 
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
           {citiesList.map((city) => {
-            const cityParam = encodeURIComponent(city.name);
-            const trendHref = `/property-trends/${city.name.toLowerCase()}`;
+            const isActive =
+              selectedCity?.toLowerCase() === city.name.toLowerCase();
 
             return (
-              <div
+              <button
                 key={city.name}
-                className="flex flex-col justify-between rounded-lg border border-border bg-white p-5 shadow-sm transition-all hover:border-primary hover:shadow-md"
+                type="button"
+                onClick={() => onSelectCity(city.name)}
+                className={`group flex flex-col rounded-lg border bg-white p-5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md ${
+                  isActive
+                    ? "border-primary ring-1 ring-primary/30"
+                    : "border-border hover:border-primary"
+                }`}
               >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-md bg-primary-light text-primary">
-                      <LocationPinIcon className="h-5 w-5" />
-                    </span>
-                    <span className="text-[12px] font-semibold text-muted">
-                      {city.count} Agencies
-                    </span>
-                  </div>
-
-                  <h3 className="mt-4 text-[16px] font-bold text-heading">
-                    {city.name}
-                  </h3>
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`flex h-10 w-10 items-center justify-center rounded-md ${
+                      isActive
+                        ? "bg-primary text-white"
+                        : "bg-primary-light text-primary"
+                    }`}
+                  >
+                    <LocationPinIcon className="h-5 w-5" />
+                  </span>
+                  <span className="text-[12px] font-semibold text-muted">
+                    {city.count} Agencies
+                  </span>
                 </div>
 
-                <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-[13px] font-semibold">
-                  <button
-                    type="button"
-                    onClick={() => onSelectCity(city.name)}
-                    className="flex items-center gap-1 text-primary hover:underline"
-                  >
-                    View Agencies
-                    <ArrowRightIcon className="h-3.5 w-3.5" />
-                  </button>
+                <h3 className="mt-4 text-[16px] font-bold text-heading">
+                  {city.name}
+                </h3>
 
-                  <Link
-                    href={trendHref}
-                    className="text-[12px] font-medium text-muted transition-colors hover:text-heading"
-                  >
-                    View Trend →
-                  </Link>
-                </div>
-              </div>
+                <span className="mt-4 flex items-center gap-1 border-t border-border pt-4 text-[13px] font-semibold text-primary">
+                  {isActive ? "Selected" : "View Agencies"}
+                  <ArrowRightIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </button>
             );
           })}
         </div>

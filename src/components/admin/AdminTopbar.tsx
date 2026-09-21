@@ -1,16 +1,100 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 type AdminTopbarProps = {
   onMenuClick?: () => void;
 };
 
-export default function AdminTopbar({
-  onMenuClick,
-}: AdminTopbarProps) {
+const mockNotifications = [
+  {
+    id: "n1",
+    title: "New inquiry received",
+    detail: "Ali Hassan asked about a 1 Kanal House in DHA Phase 6.",
+    time: "5m ago",
+    unread: true,
+  },
+  {
+    id: "n2",
+    title: "Property approved",
+    detail: "\"3 Marla House for Sale\" is now live.",
+    time: "1h ago",
+    unread: true,
+  },
+  {
+    id: "n3",
+    title: "New agent registered",
+    detail: "Capital Property Advisors signed up.",
+    time: "Yesterday",
+    unread: false,
+  },
+];
+
+const mockMessages = [
+  {
+    id: "m1",
+    name: "Usman Ghazi",
+    preview: "Is the plot in Bahria Town still available?",
+    time: "12m ago",
+  },
+  {
+    id: "m2",
+    name: "Ayesha Malik",
+    preview: "Thanks for the quick response on the listing.",
+    time: "3h ago",
+  },
+];
+
+export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
   const [profileOpen, setProfileOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [messagesOpen, setMessagesOpen] = useState(false);
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const menuRootRef = useRef<HTMLDivElement>(null);
+
+  // Ctrl/Cmd+K jumps focus to the search field, matching the shortcut hint
+  // shown next to it.
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Close whichever dropdown is open on an outside click or Escape.
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRootRef.current && !menuRootRef.current.contains(event.target as Node)) {
+        setProfileOpen(false);
+        setNotificationsOpen(false);
+        setMessagesOpen(false);
+      }
+    }
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setProfileOpen(false);
+        setNotificationsOpen(false);
+        setMessagesOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  const unreadCount = mockNotifications.filter((n) => n.unread).length;
 
   return (
     <header className="sticky top-0 z-30 h-[72px] border-b border-gray-200 bg-white">
@@ -33,6 +117,7 @@ export default function AdminTopbar({
               <SearchIcon />
 
               <input
+                ref={searchInputRef}
                 type="search"
                 placeholder="Search anything..."
                 className="min-w-0 flex-1 bg-transparent text-[12px] text-gray-700 outline-none placeholder:text-gray-400"
@@ -55,7 +140,7 @@ export default function AdminTopbar({
         </div>
 
         {/* Right Side */}
-        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+        <div ref={menuRootRef} className="flex shrink-0 items-center gap-1 sm:gap-2">
           {/* Theme */}
           <button
             type="button"
@@ -66,36 +151,130 @@ export default function AdminTopbar({
           </button>
 
           {/* Notifications */}
-          <button
-            type="button"
-            aria-label="Notifications"
-            className="relative flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
-          >
-            <BellIcon />
+          <div className="relative">
+            <button
+              type="button"
+              aria-label="Notifications"
+              aria-expanded={notificationsOpen}
+              onClick={() => {
+                setNotificationsOpen((value) => !value);
+                setMessagesOpen(false);
+                setProfileOpen(false);
+              }}
+              className="relative flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+            >
+              <BellIcon />
 
-            <span className="absolute right-1.5 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[8px] font-bold text-white">
-              12
-            </span>
-          </button>
+              {unreadCount > 0 && (
+                <span className="absolute right-1.5 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[8px] font-bold text-white">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {notificationsOpen && (
+              <div className="absolute right-0 top-full mt-2 w-[300px] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
+                <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+                  <p className="text-[12px] font-semibold text-gray-900">
+                    Notifications
+                  </p>
+                  {unreadCount > 0 && (
+                    <span className="text-[10px] font-medium text-primary">
+                      {unreadCount} new
+                    </span>
+                  )}
+                </div>
+
+                <div className="max-h-72 overflow-y-auto">
+                  {mockNotifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      className="flex items-start gap-2.5 border-b border-gray-50 px-4 py-3 last:border-0 hover:bg-gray-50"
+                    >
+                      <span
+                        className={`mt-1 h-1.5 w-1.5 shrink-0 rounded-full ${
+                          notification.unread ? "bg-primary" : "bg-transparent"
+                        }`}
+                      />
+                      <div className="min-w-0">
+                        <p className="text-[11.5px] font-semibold text-gray-900">
+                          {notification.title}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-gray-500">
+                          {notification.detail}
+                        </p>
+                        <p className="mt-1 text-[10px] text-gray-400">
+                          {notification.time}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Messages */}
-          <button
-            type="button"
-            aria-label="Messages"
-            className="relative hidden h-10 w-10 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 sm:flex"
-          >
-            <MessageIcon />
+          <div className="relative hidden sm:block">
+            <button
+              type="button"
+              aria-label="Messages"
+              aria-expanded={messagesOpen}
+              onClick={() => {
+                setMessagesOpen((value) => !value);
+                setNotificationsOpen(false);
+                setProfileOpen(false);
+              }}
+              className="relative flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+            >
+              <MessageIcon />
 
-            <span className="absolute right-1.5 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[8px] font-bold text-white">
-              4
-            </span>
-          </button>
+              {mockMessages.length > 0 && (
+                <span className="absolute right-1.5 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[8px] font-bold text-white">
+                  {mockMessages.length}
+                </span>
+              )}
+            </button>
+
+            {messagesOpen && (
+              <div className="absolute right-0 top-full mt-2 w-[280px] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
+                <div className="border-b border-gray-100 px-4 py-3">
+                  <p className="text-[12px] font-semibold text-gray-900">
+                    Messages
+                  </p>
+                </div>
+
+                <div className="max-h-72 overflow-y-auto">
+                  {mockMessages.map((message) => (
+                    <div
+                      key={message.id}
+                      className="border-b border-gray-50 px-4 py-3 last:border-0 hover:bg-gray-50"
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="text-[11.5px] font-semibold text-gray-900">
+                          {message.name}
+                        </p>
+                        <p className="text-[10px] text-gray-400">{message.time}</p>
+                      </div>
+                      <p className="mt-0.5 truncate text-[11px] text-gray-500">
+                        {message.preview}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Profile */}
           <div className="relative ml-1">
             <button
               type="button"
-              onClick={() => setProfileOpen((value) => !value)}
+              onClick={() => {
+                setProfileOpen((value) => !value);
+                setNotificationsOpen(false);
+                setMessagesOpen(false);
+              }}
               aria-expanded={profileOpen}
               className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-gray-50"
             >
@@ -133,28 +312,30 @@ export default function AdminTopbar({
                   </p>
                 </div>
 
-                <button
-                  type="button"
+                <Link
+                  href="/admin"
+                  onClick={() => setProfileOpen(false)}
                   className="flex w-full px-4 py-2.5 text-left text-[11px] text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 >
                   My Profile
-                </button>
+                </Link>
 
-                <button
-                  type="button"
+                <Link
+                  href="/admin/settings"
+                  onClick={() => setProfileOpen(false)}
                   className="flex w-full px-4 py-2.5 text-left text-[11px] text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 >
                   Account Settings
-                </button>
+                </Link>
 
                 <div className="my-1 border-t border-gray-100" />
 
-                <button
-                  type="button"
+                <Link
+                  href="/login"
                   className="flex w-full px-4 py-2.5 text-left text-[11px] text-red-500 hover:bg-red-50"
                 >
                   Logout
-                </button>
+                </Link>
               </div>
             )}
           </div>

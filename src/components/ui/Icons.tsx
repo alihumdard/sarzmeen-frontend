@@ -1417,6 +1417,20 @@ export function StarIcon({ className }: IconProps) {
   );
 }
 
+/** Solid variant of StarIcon — rating stars, e.g. on testimonial cards. */
+export function StarFilledIcon({ className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="m12 3.6 2.6 5.3 5.8.85-4.2 4.1 1 5.75L12 16.9l-5.2 2.7 1-5.75-4.2-4.1 5.8-.85z" />
+    </svg>
+  );
+}
+
 /** Auth form footer — data security note. */
 export function ShieldLockIcon({ className }: IconProps) {
   return (
