@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminFilterBar from "@/components/admin/AdminFilterBar";
@@ -28,6 +29,7 @@ type Property = {
   featured: boolean;
   views: number;
   date: string;
+  image: string;
 };
 
 const initialProperties: Property[] = [
@@ -42,6 +44,7 @@ const initialProperties: Property[] = [
     featured: true,
     views: 2450,
     date: "May 20, 2024",
+    image: "/images/property-1.jpg",
   },
   {
     id: 2,
@@ -54,6 +57,7 @@ const initialProperties: Property[] = [
     featured: false,
     views: 1890,
     date: "May 20, 2024",
+    image: "/images/interior-1.jpg",
   },
   {
     id: 3,
@@ -66,6 +70,7 @@ const initialProperties: Property[] = [
     featured: true,
     views: 1560,
     date: "May 19, 2024",
+    image: "/images/property-1.jpg",
   },
   {
     id: 4,
@@ -78,6 +83,7 @@ const initialProperties: Property[] = [
     featured: false,
     views: 1230,
     date: "May 19, 2024",
+    image: "/images/city-1.jpg",
   },
   {
     id: 5,
@@ -90,6 +96,7 @@ const initialProperties: Property[] = [
     featured: true,
     views: 1120,
     date: "May 18, 2024",
+    image: "/images/project-1.jpg",
   },
   {
     id: 6,
@@ -102,6 +109,7 @@ const initialProperties: Property[] = [
     featured: false,
     views: 890,
     date: "May 18, 2024",
+    image: "/images/interior-1.jpg",
   },
   {
     id: 7,
@@ -114,6 +122,7 @@ const initialProperties: Property[] = [
     featured: false,
     views: 650,
     date: "May 17, 2024",
+    image: "/images/project-1.jpg",
   },
   {
     id: 8,
@@ -126,6 +135,7 @@ const initialProperties: Property[] = [
     featured: false,
     views: 430,
     date: "May 17, 2024",
+    image: "/images/city-1.jpg",
   },
 ];
 
@@ -137,6 +147,7 @@ export default function PropertiesPage() {
   const [city, setCity] = useState("");
   const [category, setCategory] = useState("");
   const [page, setPage] = useState(1);
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
   const itemsPerPage = 8;
 
@@ -211,8 +222,14 @@ export default function PropertiesPage() {
       width: "25%",
       render: (property) => (
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-14 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gray-100">
-            <PropertyImageIcon />
+          <div className="relative h-10 w-14 shrink-0 overflow-hidden rounded-md bg-gray-100">
+            <Image
+              src={property.image}
+              alt={property.title}
+              fill
+              sizes="56px"
+              className="object-cover"
+            />
           </div>
 
           <div className="min-w-0">
@@ -468,6 +485,8 @@ export default function PropertiesPage() {
         ]}
         onReset={resetFilters}
         onExport={() => exportProperties(filteredProperties)}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
       <section>
@@ -568,22 +587,6 @@ function exportProperties(data: Property[]) {
   link.click();
 
   URL.revokeObjectURL(url);
-}
-
-function PropertyImageIcon() {
-  return (
-    <svg
-      className="h-7 w-7 text-gray-300"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.4"
-    >
-      <path d="m3 17 5-5 4 4 3-3 6 6" />
-      <path d="M4 19h16V5H4z" />
-      <circle cx="8" cy="9" r="1.5" />
-    </svg>
-  );
 }
 
 function BuildingIcon() {

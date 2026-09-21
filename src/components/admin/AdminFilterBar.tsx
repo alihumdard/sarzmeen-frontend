@@ -22,6 +22,9 @@ type AdminFilterBarProps = {
   onReset?: () => void;
   onExport?: () => void;
 
+  viewMode?: "list" | "grid";
+  onViewModeChange?: (mode: "list" | "grid") => void;
+
   moreFilters?: ReactNode;
   className?: string;
 };
@@ -33,6 +36,8 @@ export default function AdminFilterBar({
   filters = [],
   onReset,
   onExport,
+  viewMode,
+  onViewModeChange,
   moreFilters,
   className = "",
 }: AdminFilterBarProps) {
@@ -93,16 +98,50 @@ export default function AdminFilterBar({
         </div>
 
         {/* Export */}
-        {onExport && (
-          <button
-            type="button"
-            onClick={onExport}
-            className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-md border border-gray-200 bg-white px-4 text-[11px] font-semibold text-gray-700 transition-colors hover:border-primary hover:text-primary"
-          >
-            <DownloadIcon />
-            Export
-          </button>
-        )}
+        <div className="flex shrink-0 items-center gap-2">
+          {onExport && (
+            <button
+              type="button"
+              onClick={onExport}
+              className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-md border border-gray-200 bg-white px-4 text-[11px] font-semibold text-gray-700 transition-colors hover:border-primary hover:text-primary"
+            >
+              <DownloadIcon />
+              Export
+            </button>
+          )}
+
+          {onViewModeChange && (
+            <div className="flex h-10 shrink-0 items-center gap-0.5 rounded-md border border-gray-200 bg-white p-1">
+              <button
+                type="button"
+                aria-label="List view"
+                onClick={() => onViewModeChange("list")}
+                className={[
+                  "flex h-7 w-7 items-center justify-center rounded transition-colors",
+                  viewMode === "list"
+                    ? "bg-primary text-white"
+                    : "text-gray-400 hover:text-gray-700",
+                ].join(" ")}
+              >
+                <ListIcon />
+              </button>
+
+              <button
+                type="button"
+                aria-label="Grid view"
+                onClick={() => onViewModeChange("grid")}
+                className={[
+                  "flex h-7 w-7 items-center justify-center rounded transition-colors",
+                  viewMode === "grid"
+                    ? "bg-primary text-white"
+                    : "text-gray-400 hover:text-gray-700",
+                ].join(" ")}
+              >
+                <GridIcon />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -122,6 +161,44 @@ function SearchIcon() {
     >
       <circle cx="10.8" cy="10.8" r="6.5" />
       <path d="m16 16 4.5 4.5" />
+    </svg>
+  );
+}
+
+function ListIcon() {
+  return (
+    <svg
+      className="h-3.5 w-3.5"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M8 6h13M8 12h13M8 18h13" />
+      <path d="M3 6h.01M3 12h.01M3 18h.01" />
+    </svg>
+  );
+}
+
+function GridIcon() {
+  return (
+    <svg
+      className="h-3.5 w-3.5"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1" />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="1" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1" />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="1" />
     </svg>
   );
 }

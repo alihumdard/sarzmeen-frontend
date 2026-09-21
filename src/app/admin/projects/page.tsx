@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminFilterBar from "@/components/admin/AdminFilterBar";
@@ -27,6 +28,7 @@ type Project = {
   status: ProjectStatus;
   featured: boolean;
   date: string;
+  image: string;
 };
 
 const initialProjects: Project[] = [
@@ -40,6 +42,7 @@ const initialProjects: Project[] = [
     status: "Active",
     featured: true,
     date: "May 20, 2024",
+    image: "/images/city-1.jpg",
   },
   {
     id: 2,
@@ -51,6 +54,7 @@ const initialProjects: Project[] = [
     status: "Active",
     featured: true,
     date: "May 20, 2024",
+    image: "/images/project-1.jpg",
   },
   {
     id: 3,
@@ -62,6 +66,7 @@ const initialProjects: Project[] = [
     status: "Active",
     featured: false,
     date: "May 19, 2024",
+    image: "/images/city-1.jpg",
   },
   {
     id: 4,
@@ -73,6 +78,7 @@ const initialProjects: Project[] = [
     status: "Upcoming",
     featured: true,
     date: "May 19, 2024",
+    image: "/images/project-1.jpg",
   },
   {
     id: 5,
@@ -84,6 +90,7 @@ const initialProjects: Project[] = [
     status: "Upcoming",
     featured: false,
     date: "May 18, 2024",
+    image: "/images/city-1.jpg",
   },
   {
     id: 6,
@@ -95,6 +102,7 @@ const initialProjects: Project[] = [
     status: "Active",
     featured: false,
     date: "May 18, 2024",
+    image: "/images/project-1.jpg",
   },
   {
     id: 7,
@@ -106,6 +114,7 @@ const initialProjects: Project[] = [
     status: "Active",
     featured: true,
     date: "May 17, 2024",
+    image: "/images/city-1.jpg",
   },
   {
     id: 8,
@@ -117,6 +126,7 @@ const initialProjects: Project[] = [
     status: "Completed",
     featured: false,
     date: "May 17, 2024",
+    image: "/images/project-1.jpg",
   },
 ];
 
@@ -127,6 +137,7 @@ export default function ProjectsPage() {
   const [city, setCity] = useState("");
   const [projectType, setProjectType] = useState("");
   const [page, setPage] = useState(1);
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
   const itemsPerPage = 8;
 
@@ -191,8 +202,14 @@ export default function ProjectsPage() {
       width: "27%",
       render: (project) => (
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-14 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gray-100">
-            <ProjectImageIcon />
+          <div className="relative h-10 w-14 shrink-0 overflow-hidden rounded-md bg-gray-100">
+            <Image
+              src={project.image}
+              alt={project.title}
+              fill
+              sizes="56px"
+              className="object-cover"
+            />
           </div>
 
           <div className="min-w-0">
@@ -422,6 +439,8 @@ export default function ProjectsPage() {
         ]}
         onReset={resetFilters}
         onExport={() => exportProjects(filteredProjects)}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
       <section>
@@ -523,21 +542,6 @@ function exportProjects(data: Project[]) {
   link.click();
 
   URL.revokeObjectURL(url);
-}
-
-function ProjectImageIcon() {
-  return (
-    <svg
-      className="h-7 w-7 text-gray-300"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.4"
-    >
-      <path d="M3 21V7l9-4 9 4v14" />
-      <path d="M7 21v-8h10v8M8 10h2M14 10h2" />
-    </svg>
-  );
 }
 
 function BuildingIcon() {

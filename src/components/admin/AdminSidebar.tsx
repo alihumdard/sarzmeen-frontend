@@ -85,6 +85,11 @@ const menuGroups: MenuGroup[] = [
         icon: "blog",
       },
       {
+        label: "Homepage CMS",
+        href: "/admin/homepage",
+        icon: "home",
+      },
+      {
         label: "Media Library",
         href: "/admin/media",
         icon: "media",
@@ -98,11 +103,6 @@ const menuGroups: MenuGroup[] = [
         label: "FAQs",
         href: "/admin/faqs",
         icon: "faq",
-      },
-      {
-        label: "Homepage CMS",
-        href: "/admin/homepage",
-        icon: "home",
       },
     ],
   },
@@ -358,10 +358,10 @@ export default function AdminSidebar({
       <div key={item.label}>
         <div
           className={[
-            "group flex min-h-10 items-center rounded-md transition-colors",
+            "group flex min-h-[38px] items-center rounded-[6px] transition-colors",
             active
               ? "bg-primary text-white"
-              : "text-white/75 hover:bg-white/5 hover:text-white",
+              : "text-white/70 hover:bg-white/[0.06] hover:text-white",
           ].join(" ")}
         >
           <Link
@@ -372,8 +372,8 @@ export default function AdminSidebar({
             <AdminIcon
               name={item.icon}
               className={[
-                "h-[18px] w-[18px] shrink-0",
-                active ? "text-white" : "text-white/70",
+                "h-[17px] w-[17px] shrink-0",
+                active ? "text-white" : "text-white/60",
               ].join(" ")}
             />
 
@@ -385,7 +385,12 @@ export default function AdminSidebar({
               type="button"
               onClick={() => toggleMenu(item.label)}
               aria-label={`${isOpen ? "Collapse" : "Expand"} ${item.label}`}
-              className="mr-2 flex h-7 w-7 items-center justify-center rounded text-white/60 hover:bg-white/10 hover:text-white"
+              className={[
+                "mr-2 flex h-6 w-6 shrink-0 items-center justify-center rounded-[4px] transition-colors",
+                active
+                  ? "text-white/80 hover:bg-white/15"
+                  : "text-white/40 hover:bg-white/10 hover:text-white",
+              ].join(" ")}
             >
               <svg
                 className={[
@@ -406,7 +411,7 @@ export default function AdminSidebar({
         </div>
 
         {hasChildren && isOpen && (
-          <div className="ml-7 border-l border-white/10 pl-2">
+          <div className="ml-[27px] mt-0.5 space-y-0.5 border-l border-white/10 pl-3">
             {item.label === "Properties" && (
               <>
                 <SidebarSubLink
@@ -637,10 +642,10 @@ function SidebarSubLink({
       href={href}
       onClick={onClose}
       className={[
-        "block rounded-md px-3 py-2 text-[11px] transition-colors",
+        "block rounded-md px-3 py-2 text-[12px] transition-colors",
         active
-          ? "text-primary"
-          : "text-white/50 hover:bg-white/5 hover:text-white/80",
+          ? "font-medium text-white"
+          : "text-white/50 hover:text-white/85",
       ].join(" ")}
     >
       {label}
