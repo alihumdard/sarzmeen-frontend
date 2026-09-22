@@ -102,7 +102,7 @@ const menuGroups: MenuGroup[] = [
         label: "Homepage CMS",
         href: "/admin/homepage",
         icon: "home",
-        implemented: false,
+        implemented: true,
       },
       {
         label: "Media Library",
