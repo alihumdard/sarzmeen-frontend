@@ -5,6 +5,7 @@ import {
   SmileStatIcon,
   UsersIcon,
 } from "@/components/ui/Icons";
+import AnimatedCounter from "@/components/about/AnimatedCounter";
 import { aboutStats } from "@/constants/aboutContent";
 
 /** Icons in the same order as the stats in the content file. */
@@ -33,7 +34,7 @@ export default function AboutStats() {
 
                 <div className="min-w-0">
                   <dd className="text-[20px] font-bold leading-none text-heading">
-                    {stat.value}
+                    <AnimatedCounter value={stat.value} />
                   </dd>
                   <dt className="mt-1.5 truncate text-[11px] text-muted">
                     {stat.label}

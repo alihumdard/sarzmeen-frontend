@@ -11,6 +11,7 @@ import AdminTable, {
 import AdminPagination from "@/components/admin/AdminPagination";
 import AdminActionMenu from "@/components/admin/AdminActionMenu";
 import StatusBadge from "@/components/admin/StatusBadge";
+import AddPropertyModal from "@/components/admin/AddPropertyModal";
 
 type PropertyStatus =
   | "Published"
@@ -141,6 +142,7 @@ const initialProperties: Property[] = [
 
 export default function PropertiesPage() {
   const [properties, setProperties] = useState(initialProperties);
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [type, setType] = useState("");
@@ -374,14 +376,20 @@ export default function PropertiesPage() {
           { label: "All Properties" },
         ]}
         action={
-          <Link
-            href="/admin/properties/new"
+          <button
+            type="button"
+            onClick={() => setAddModalOpen(true)}
             className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[11px] font-semibold text-white hover:opacity-90"
           >
             <PlusIcon />
             Add New Property
-          </Link>
+          </button>
         }
+      />
+
+      <AddPropertyModal
+        open={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
       />
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">

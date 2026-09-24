@@ -1,24 +1,52 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SearchIcon } from "@/components/ui/Icons";
+
+/** Minimum characters typed before search filters the listing. */
+const MIN_SEARCH_LENGTH = 3;
 
 /**
  * Search field shown inside the blog page banner.
  *
- * Submitting pushes the term onto the URL; the listing will read it once the
- * API is wired up.
+ * Typing 3+ characters live-filters the listing below (via the `q` URL
+ * param, debounced); fewer characters clears the filter back to all posts.
+ * Submitting the form searches immediately without waiting for the debounce.
  */
 export default function BlogSearch() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const [term, setTerm] = useState(searchParams.get("q") ?? "");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  function pushTerm(value: string) {
+    const trimmed = value.trim();
+    router.push(
+      trimmed.length >= MIN_SEARCH_LENGTH
+        ? `/blog?q=${encodeURIComponent(trimmed)}`
+        : "/blog",
+    );
+  }
+
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const value = event.target.value;
+    setTerm(value);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => pushTerm(value), 300);
+  }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    const formData = new FormData(event.currentTarget);
-    const term = String(formData.get("q") ?? "").trim();
-
-    router.push(term ? `/blog?q=${encodeURIComponent(term)}` : "/blog");
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    pushTerm(term);
   }
 
   return (
@@ -36,6 +64,8 @@ export default function BlogSearch() {
         id="blog-search"
         name="q"
         type="search"
+        value={term}
+        onChange={handleChange}
         placeholder="Search blogs, categories or keywords..."
         className="min-w-0 flex-1 bg-transparent py-2 text-[13px] text-heading outline-none placeholder:text-muted"
       />

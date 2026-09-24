@@ -19,7 +19,7 @@ export default function LoginForm() {
         <p className="mt-2 text-[12px] text-muted">
           Don&apos;t have an account?{" "}
           <Link
-            href="#create-account"
+            href="/register"
             className="font-semibold text-primary hover:underline"
           >
             Create one

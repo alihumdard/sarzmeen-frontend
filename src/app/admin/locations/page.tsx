@@ -10,6 +10,7 @@ import AdminTable, {
 } from "@/components/admin/AdminTable";
 import AdminPagination from "@/components/admin/AdminPagination";
 import StatusBadge from "@/components/admin/StatusBadge";
+import AddLocationModal from "@/components/admin/AddLocationModal";
 
 type LocationType = "City" | "Area" | "Society";
 type LocationStatus = "Published" | "Draft";
@@ -158,6 +159,7 @@ const typeBadgeClasses: Record<LocationType, string> = {
 
 export default function LocationsPage() {
   const [locations, setLocations] = useState(initialLocations);
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
   const [city, setCity] = useState("");
@@ -394,14 +396,20 @@ export default function LocationsPage() {
           { label: "All Locations" },
         ]}
         action={
-          <Link
-            href="/admin/locations/new"
+          <button
+            type="button"
+            onClick={() => setAddModalOpen(true)}
             className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-primary px-4 text-[11px] font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
           >
             <PlusIcon />
             Add New Location
-          </Link>
+          </button>
         }
+      />
+
+      <AddLocationModal
+        open={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
       />
 
       {/* Stats */}

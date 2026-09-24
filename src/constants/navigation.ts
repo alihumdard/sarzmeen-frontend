@@ -32,8 +32,8 @@ export const mainNavigation: NavItem[] = [
   { name: "Projects", href: "/projects" },
   { name: "Agents", href: "/agents" },
   { name: "Blogs", href: "/blog" },
-  { name: "About Us", href: "/about" },
-  { name: "Contact Us", href: "/contact" },
+  { name: "About", href: "/about" },
+  { name: "Contact", href: "/contact" },
 ];
 
 /** Sales/support number used by the floating WhatsApp button. */

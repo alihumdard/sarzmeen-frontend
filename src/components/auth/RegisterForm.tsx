@@ -11,7 +11,7 @@ import { UserPlusIcon } from "@/components/ui/Icons";
  */
 export default function RegisterForm() {
   return (
-    <div id="create-account" className="flex flex-col scroll-mt-24">
+    <div className="flex flex-col">
       <div className="text-center">
         <h2 className="text-[19px] font-bold text-heading">
           Create New Account
@@ -19,7 +19,7 @@ export default function RegisterForm() {
         <p className="mt-2 text-[12px] text-muted">
           Already have an account?{" "}
           <Link
-            href="#"
+            href="/login"
             className="font-semibold text-primary hover:underline"
           >
             Login

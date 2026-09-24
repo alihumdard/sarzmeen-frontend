@@ -8,6 +8,7 @@ import AdminTable, {
 } from "@/components/admin/AdminTable";
 import AdminPagination from "@/components/admin/AdminPagination";
 import StatusBadge from "@/components/admin/StatusBadge";
+import CreateRoleModal from "@/components/admin/CreateRoleModal";
 
 type RoleStatus = "Active" | "Inactive";
 
@@ -154,6 +155,7 @@ const matrix: Record<string, Record<string, boolean>> = {
 };
 
 export default function RolesPage() {
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
@@ -358,14 +360,20 @@ export default function RolesPage() {
           { label: "Roles & Permissions" },
         ]}
         action={
-          <Link
-            href="/admin/roles/new"
+          <button
+            type="button"
+            onClick={() => setAddModalOpen(true)}
             className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-primary px-4 text-[11px] font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
           >
             <PlusIcon />
             Create New Role
-          </Link>
+          </button>
         }
+      />
+
+      <CreateRoleModal
+        open={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
       />
 
       {/* Stats */}

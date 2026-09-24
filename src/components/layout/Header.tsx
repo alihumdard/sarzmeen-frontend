@@ -132,7 +132,14 @@ export default function Header() {
             className="flex items-center gap-1.5 px-2 text-[14px] font-semibold text-heading transition-colors hover:text-primary"
           >
             <UserCircleIcon className="h-5 w-5" />
-            Login / Register
+            Login
+          </Link>
+
+          <Link
+            href="/register"
+            className="px-2 text-[14px] font-semibold text-heading transition-colors hover:text-primary"
+          >
+            Register
           </Link>
 
           <Link
@@ -223,14 +230,24 @@ export default function Header() {
                 Add Property
               </Link>
 
-              <Link
-                href="/login"
-                onClick={closeMobileMenu}
-                className="flex items-center justify-center gap-2 rounded-md border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
-              >
-                <UserCircleIcon className="h-5 w-5" />
-                Login / Register
-              </Link>
+              <div className="flex gap-3">
+                <Link
+                  href="/login"
+                  onClick={closeMobileMenu}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-md border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
+                >
+                  <UserCircleIcon className="h-5 w-5" />
+                  Login
+                </Link>
+
+                <Link
+                  href="/register"
+                  onClick={closeMobileMenu}
+                  className="flex flex-1 items-center justify-center rounded-md border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
+                >
+                  Register
+                </Link>
+              </div>
             </div>
           </nav>
         </div>

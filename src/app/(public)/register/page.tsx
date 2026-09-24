@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 export default function RegisterPage() {
   return (
     <AuthLayout
+      variant="register"
       eyebrow="Get Started!"
       title="Create Your Account"
       description="Save properties, get instant alerts and manage all your inquiries in one place."

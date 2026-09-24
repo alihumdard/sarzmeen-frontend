@@ -173,7 +173,7 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
             </button>
 
             {notificationsOpen && (
-              <div className="absolute right-0 top-full mt-2 w-[300px] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
+              <div className="fixed left-4 right-4 top-[72px] z-40 max-h-[70vh] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg sm:absolute sm:left-auto sm:right-0 sm:top-full sm:z-auto sm:mt-2 sm:w-[300px] sm:max-h-none">
                 <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
                   <p className="text-[12px] font-semibold text-gray-900">
                     Notifications

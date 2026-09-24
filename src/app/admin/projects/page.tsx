@@ -11,6 +11,7 @@ import AdminTable, {
 import AdminPagination from "@/components/admin/AdminPagination";
 import AdminActionMenu from "@/components/admin/AdminActionMenu";
 import StatusBadge from "@/components/admin/StatusBadge";
+import AddProjectModal from "@/components/admin/AddProjectModal";
 
 type ProjectStatus =
   | "Active"
@@ -132,6 +133,7 @@ const initialProjects: Project[] = [
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState(initialProjects);
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [city, setCity] = useState("");
@@ -344,14 +346,20 @@ export default function ProjectsPage() {
           { label: "All Projects" },
         ]}
         action={
-          <Link
-            href="/admin/projects/new"
+          <button
+            type="button"
+            onClick={() => setAddModalOpen(true)}
             className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[11px] font-semibold text-white hover:opacity-90"
           >
             <PlusIcon />
             Add New Project
-          </Link>
+          </button>
         }
+      />
+
+      <AddProjectModal
+        open={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
       />
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">

@@ -9,6 +9,7 @@ import AdminTable, {
 } from "@/components/admin/AdminTable";
 import AdminPagination from "@/components/admin/AdminPagination";
 import StatusBadge from "@/components/admin/StatusBadge";
+import AddUserModal from "@/components/admin/AddUserModal";
 
 type UserRole = "Agent" | "Employer" | "Job Seeker";
 type UserStatus = "Active" | "Pending" | "Suspended";
@@ -156,6 +157,7 @@ function getInitials(name: string) {
 type TabKey = "all" | "Agent" | "Employer" | "Job Seeker";
 
 export default function UsersPage() {
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabKey>("all");
   const [search, setSearch] = useState("");
   const [role, setRole] = useState("");
@@ -369,15 +371,21 @@ export default function UsersPage() {
               Export
             </button>
 
-            <Link
-              href="/admin/users/new"
+            <button
+              type="button"
+              onClick={() => setAddModalOpen(true)}
               className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[11px] font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
             >
               <PlusIcon />
               Add New User
-            </Link>
+            </button>
           </div>
         }
+      />
+
+      <AddUserModal
+        open={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
       />
 
       {/* Stats */}

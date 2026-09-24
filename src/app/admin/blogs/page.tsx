@@ -11,6 +11,7 @@ import AdminTable, {
 import AdminPagination from "@/components/admin/AdminPagination";
 import AdminActionMenu from "@/components/admin/AdminActionMenu";
 import StatusBadge from "@/components/admin/StatusBadge";
+import AddBlogModal from "@/components/admin/AddBlogModal";
 
 type BlogStatus = "Published" | "Draft" | "Pending" | "Expired";
 
@@ -166,6 +167,7 @@ const categoryBreakdown = [
 
 export default function BlogsManagementPage() {
   const [blogs, setBlogs] = useState(initialBlogs);
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [category, setCategory] = useState("");
@@ -415,14 +417,20 @@ export default function BlogsManagementPage() {
           { label: "All Blogs" },
         ]}
         action={
-          <Link
-            href="/admin/blogs/new"
+          <button
+            type="button"
+            onClick={() => setAddModalOpen(true)}
             className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-primary px-4 text-[11px] font-semibold text-white shadow-sm transition-opacity hover:opacity-90"
           >
             <PlusIcon />
             Add New Blog
-          </Link>
+          </button>
         }
+      />
+
+      <AddBlogModal
+        open={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
       />
 
       {/* Summary */}

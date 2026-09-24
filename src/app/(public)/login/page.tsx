@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <AuthLayout
+      variant="login"
       eyebrow="Welcome Back!"
       title="Login to Your Account"
       description="Access your saved properties, inquiries, alerts and much more."
