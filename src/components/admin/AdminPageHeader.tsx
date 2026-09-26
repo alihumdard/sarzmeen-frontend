@@ -23,6 +23,43 @@ export default function AdminPageHeader({
 }: AdminPageHeaderProps) {
   return (
     <div className={["mb-6", className].join(" ")}>
+      {/* Breadcrumb */}
+      {breadcrumbs.length > 0 && (
+        <nav aria-label="Breadcrumb" className="mb-3">
+          <ol className="flex flex-wrap items-center gap-1.5 text-[11px] sm:text-[12px]">
+            <li>
+              <Link
+                href="/admin"
+                className="text-gray-500 transition-colors hover:text-primary"
+              >
+                Dashboard
+              </Link>
+            </li>
+
+            {breadcrumbs.map((breadcrumb, index) => (
+              <li
+                key={`${breadcrumb.label}-${index}`}
+                className="flex items-center gap-1.5"
+              >
+                <ChevronIcon />
+
+                {breadcrumb.href ? (
+                  <Link
+                    href={breadcrumb.href}
+                    className="text-gray-500 transition-colors hover:text-primary"
+                  >
+                    {breadcrumb.label}
+                  </Link>
+                ) : (
+                  <span className="font-semibold text-gray-800">
+                    {breadcrumb.label}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
       {/* Top Row */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         {/* Heading */}
@@ -46,46 +83,6 @@ export default function AdminPageHeader({
         )}
       </div>
 
-      {/* Breadcrumb */}
-      {breadcrumbs.length > 0 && (
-        <nav
-          aria-label="Breadcrumb"
-          className="mt-4"
-        >
-          <ol className="flex flex-wrap items-center gap-2 text-[10px] sm:text-[11px]">
-            <li>
-              <Link
-                href="/admin"
-                className="text-gray-400 transition-colors hover:text-primary"
-              >
-                Dashboard
-              </Link>
-            </li>
-
-            {breadcrumbs.map((breadcrumb, index) => (
-              <li
-                key={`${breadcrumb.label}-${index}`}
-                className="flex items-center gap-2"
-              >
-                <ChevronIcon />
-
-                {breadcrumb.href ? (
-                  <Link
-                    href={breadcrumb.href}
-                    className="text-gray-400 transition-colors hover:text-primary"
-                  >
-                    {breadcrumb.label}
-                  </Link>
-                ) : (
-                  <span className="font-medium text-gray-600">
-                    {breadcrumb.label}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ol>
-        </nav>
-      )}
     </div>
   );
 }

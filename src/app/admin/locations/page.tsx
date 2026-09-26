@@ -391,7 +391,6 @@ export default function LocationsPage() {
       <AdminPageHeader
         title="Locations Management"
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
           { label: "Locations" },
           { label: "All Locations" },
         ]}

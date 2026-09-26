@@ -412,7 +412,6 @@ export default function BlogsManagementPage() {
       <AdminPageHeader
         title="Blogs Management"
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
           { label: "Blogs" },
           { label: "All Blogs" },
         ]}

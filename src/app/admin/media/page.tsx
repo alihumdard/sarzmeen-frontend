@@ -255,7 +255,6 @@ export default function MediaPage() {
       <AdminPageHeader
         title="Media Library"
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
           { label: "Media Library" },
           { label: "All Media" },
         ]}

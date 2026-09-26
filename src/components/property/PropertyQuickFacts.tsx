@@ -20,7 +20,7 @@ export default function PropertyQuickFacts({
     {
       Icon: TrustedAgentIcon,
       label: "Purpose",
-      value: "For Sale",
+      value: property.purpose === "rent" ? "For Rent" : "For Sale",
     },
     { Icon: AreaSizeIcon, label: "Area Size", value: property.area },
     {

@@ -8,6 +8,7 @@ import {
   ChevronDownIcon,
   CloseIcon,
   MenuIcon,
+  PlusCircleIcon,
   UserCircleIcon,
 } from "@/components/ui/Icons";
 
@@ -144,8 +145,9 @@ export default function Header() {
 
           <Link
             href="/properties/add"
-            className="rounded-md bg-primary px-5 py-2.5 text-[14px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark"
+            className="flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-[14px] font-semibold text-white shadow-[0_2px_10px_rgba(31,122,77,0.3)] transition-all hover:bg-primary-dark hover:shadow-[0_4px_14px_rgba(31,122,77,0.45)]"
           >
+            <PlusCircleIcon className="h-[18px] w-[18px]" />
             Add Property
           </Link>
         </div>
@@ -225,8 +227,9 @@ export default function Header() {
               <Link
                 href="/properties/add"
                 onClick={closeMobileMenu}
-                className="rounded-md bg-primary px-4 py-2.5 text-center text-sm font-semibold text-white"
+                className="flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-center text-sm font-semibold text-white"
               >
+                <PlusCircleIcon className="h-[18px] w-[18px]" />
                 Add Property
               </Link>
 
@@ -234,7 +237,7 @@ export default function Header() {
                 <Link
                   href="/login"
                   onClick={closeMobileMenu}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-md border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
+                  className="flex flex-1 items-center justify-center gap-2 rounded-full border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
                 >
                   <UserCircleIcon className="h-5 w-5" />
                   Login
@@ -243,7 +246,7 @@ export default function Header() {
                 <Link
                   href="/register"
                   onClick={closeMobileMenu}
-                  className="flex flex-1 items-center justify-center rounded-md border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
+                  className="flex flex-1 items-center justify-center rounded-full border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
                 >
                   Register
                 </Link>

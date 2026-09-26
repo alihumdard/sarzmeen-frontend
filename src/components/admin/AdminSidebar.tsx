@@ -76,10 +76,10 @@ const menuGroups: MenuGroup[] = [
         implemented: true,
       },
       {
-        label: "Agents",
-        href: "/admin/agents",
-        icon: "agent",
-        implemented: false,
+        label: "Users",
+        href: "/admin/users/website",
+        icon: "users",
+        implemented: true,
       },
       {
         label: "Inquiries",
@@ -114,13 +114,13 @@ const menuGroups: MenuGroup[] = [
         label: "Testimonials",
         href: "/admin/testimonials",
         icon: "testimonial",
-        implemented: false,
+        implemented: true,
       },
       {
         label: "FAQs",
         href: "/admin/faqs",
         icon: "faq",
-        implemented: false,
+        implemented: true,
       },
     ],
   },
@@ -131,12 +131,6 @@ const menuGroups: MenuGroup[] = [
         label: "Roles & Permissions",
         href: "/admin/roles",
         icon: "roles",
-        implemented: true,
-      },
-      {
-        label: "Admin Users",
-        href: "/admin/users",
-        icon: "users",
         implemented: true,
       },
       {
@@ -358,6 +352,7 @@ export default function AdminSidebar({
   const [openMenus, setOpenMenus] = useState<string[]>([
     "Properties",
     "Projects",
+    "Users",
   ]);
 
   const toggleMenu = (label: string) => {
@@ -374,6 +369,7 @@ export default function AdminSidebar({
     const hasChildren =
       item.label === "Properties" ||
       item.label === "Projects" ||
+      item.label === "Users" ||
       item.label === "Blogs";
 
     const isOpen = openMenus.includes(item.label);
@@ -463,10 +459,11 @@ export default function AdminSidebar({
                   implemented
                 />
                 <SidebarSubLink
-                  href="/admin/properties/new"
+                  href="/admin/properties/add"
                   label="Add New Property"
                   pathname={pathname}
                   onClose={onClose}
+                  implemented
                 />
                 <SidebarSubLink
                   href="/admin/categories"
@@ -480,12 +477,7 @@ export default function AdminSidebar({
                   label="Property Types"
                   pathname={pathname}
                   onClose={onClose}
-                />
-                <SidebarSubLink
-                  href="/admin/properties/listings"
-                  label="Listings"
-                  pathname={pathname}
-                  onClose={onClose}
+                  implemented
                 />
               </>
             )}
@@ -500,16 +492,51 @@ export default function AdminSidebar({
                   implemented
                 />
                 <SidebarSubLink
-                  href="/admin/projects/new"
+                  href="/admin/projects/add"
                   label="Add New Project"
                   pathname={pathname}
                   onClose={onClose}
+                  implemented
                 />
                 <SidebarSubLink
                   href="/admin/projects/categories"
                   label="Project Categories"
                   pathname={pathname}
                   onClose={onClose}
+                  implemented
+                />
+              </>
+            )}
+
+            {item.label === "Users" && (
+              <>
+                <SidebarSubLink
+                  href="/admin/users/website"
+                  label="Website Users"
+                  pathname={pathname}
+                  onClose={onClose}
+                  implemented
+                />
+                <SidebarSubLink
+                  href="/admin/users/agents"
+                  label="Agents"
+                  pathname={pathname}
+                  onClose={onClose}
+                  implemented
+                />
+                <SidebarSubLink
+                  href="/admin/users/agencies"
+                  label="Agencies"
+                  pathname={pathname}
+                  onClose={onClose}
+                  implemented
+                />
+                <SidebarSubLink
+                  href="/admin/users/admins"
+                  label="Admin Users"
+                  pathname={pathname}
+                  onClose={onClose}
+                  implemented
                 />
               </>
             )}

@@ -503,12 +503,12 @@ export default function AdminDashboardPage() {
 
           <div className="grid grid-cols-2 gap-3 p-4">
             <QuickAction
-              href="/admin/properties/new"
+              href="/admin/properties/add"
               icon={<PropertyIcon />}
               title="Add New Property"
             />
             <QuickAction
-              href="/admin/projects/new"
+              href="/admin/projects/add"
               icon={<ProjectIcon />}
               title="Add New Project"
             />

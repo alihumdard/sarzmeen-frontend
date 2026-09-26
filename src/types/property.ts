@@ -5,7 +5,7 @@
  * data for a real response later should not require touching the components.
  */
 
-export type PropertyPurpose = "sale";
+export type PropertyPurpose = "sale" | "rent";
 
 export type Agent = {
   id: string;

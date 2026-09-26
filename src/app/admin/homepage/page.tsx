@@ -192,7 +192,6 @@ export default function HomepageCmsPage() {
         title="Homepage CMS"
         description="Manage your homepage content, sections and visibility. Drag to reorder sections."
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
           { label: "Content Management" },
           { label: "Homepage CMS" },
         ]}

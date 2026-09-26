@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AuthField from "@/components/auth/AuthField";
+import RoleSelect from "@/components/auth/RoleSelect";
 import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
 import { UserPlusIcon } from "@/components/ui/Icons";
 
@@ -12,22 +13,9 @@ import { UserPlusIcon } from "@/components/ui/Icons";
 export default function RegisterForm() {
   return (
     <div className="flex flex-col">
-      <div className="text-center">
-        <h2 className="text-[19px] font-bold text-heading">
-          Create New Account
-        </h2>
-        <p className="mt-2 text-[12px] text-muted">
-          Already have an account?{" "}
-          <Link
-            href="/login"
-            className="font-semibold text-primary hover:underline"
-          >
-            Login
-          </Link>
-        </p>
-      </div>
+      <form className="flex flex-col gap-5">
+        <RoleSelect />
 
-      <form className="mt-7 flex flex-col gap-5">
         <div className="grid gap-5 sm:grid-cols-2">
           <AuthField
             label="Full Name"
@@ -107,16 +95,26 @@ export default function RegisterForm() {
 
         <button
           type="submit"
-          className="flex items-center justify-center gap-2.5 rounded-md bg-primary py-3.5 text-[13px] font-semibold text-white transition-colors hover:bg-primary-dark"
+          className="mt-1 flex items-center justify-center gap-2.5 rounded-full bg-primary py-[13px] text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark"
         >
           <UserPlusIcon className="h-[18px] w-[18px] text-white" />
-          Register
+          Create Account
         </button>
       </form>
 
       <div className="mt-7">
         <SocialAuthButtons action="Sign up" />
       </div>
+
+      <p className="mt-7 border-t border-border pt-6 text-center text-[13px] text-muted">
+        Already have an account?{" "}
+        <Link
+          href="/login"
+          className="font-semibold text-primary hover:underline"
+        >
+          Login
+        </Link>
+      </p>
     </div>
   );
 }

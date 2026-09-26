@@ -26,6 +26,7 @@ type PropertyPriceBoxProps = {
 export default function PropertyPriceBox({ property }: PropertyPriceBoxProps) {
   const {
     price,
+    purpose,
     negotiable,
     area,
     beds,
@@ -52,7 +53,7 @@ export default function PropertyPriceBox({ property }: PropertyPriceBoxProps) {
   return (
     <div className="rounded-lg border border-border bg-white p-5">
       <p className="text-[21px] font-bold text-primary">
-        {formatListingPrice(price)}
+        {formatListingPrice(price, purpose)}
       </p>
 
       {negotiable && (

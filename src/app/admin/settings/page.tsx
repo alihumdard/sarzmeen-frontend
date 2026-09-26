@@ -237,7 +237,6 @@ export default function SettingsPage() {
       <AdminPageHeader
         title="Settings & Audit"
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
           { label: "Settings" },
           { label: activeTabLabel },
         ]}

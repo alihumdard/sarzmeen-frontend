@@ -1,4 +1,5 @@
 import Header from "@/components/layout/Header";
+import NewsTicker from "@/components/layout/NewsTicker";
 import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
 
@@ -10,6 +11,8 @@ export default function PublicLayout({
     return (
         <>
             <Header />
+
+            <NewsTicker />
 
             {children}
 

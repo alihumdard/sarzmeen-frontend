@@ -1,3 +1,5 @@
+import type { PropertyPurpose } from "@/types/property";
+
 /**
  * Formats a PKR amount using the South Asian digit grouping
  * (e.g. 125000000 -> "12,50,00,000") that Pakistani listings use.
@@ -8,9 +10,16 @@ export function formatPrice(amount: number): string {
 
 /**
  * Price as shown on a listing card.
+ *
+ * Rentals are quoted monthly, so they carry a "/month" suffix; sale prices
+ * are shown as-is.
  */
-export function formatListingPrice(amount: number): string {
-  return formatPrice(amount);
+export function formatListingPrice(
+  amount: number,
+  purpose: PropertyPurpose = "sale",
+): string {
+  const price = formatPrice(amount);
+  return purpose === "rent" ? `${price}/month` : price;
 }
 
 /**

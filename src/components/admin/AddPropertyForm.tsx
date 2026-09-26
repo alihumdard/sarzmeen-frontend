@@ -1,17 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Image from "next/image";
 import {
   adminInputClass,
   adminSelectClass,
   adminTextareaClass,
 } from "@/components/admin/AdminFormField";
-
-type AddPropertyModalProps = {
-  open: boolean;
-  onClose: () => void;
-};
 
 const steps = [
   {
@@ -41,37 +37,14 @@ const steps = [
   },
 ];
 
-export default function AddPropertyModal({
-  open,
-  onClose,
-}: AddPropertyModalProps) {
+export default function AddPropertyForm() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [purpose, setPurpose] = useState<"sale" | "rent">("sale");
   const [description, setDescription] = useState("");
 
-  const handleClose = () => {
-    setStep(1);
-    onClose();
-  };
-
-  useEffect(() => {
-    if (!open) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") handleClose();
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  if (!open) return null;
+  /** Leaving the form returns to the listing page. */
+  const handleClose = () => router.push("/admin/properties");
 
   const isLastStep = step === steps.length;
 
@@ -92,51 +65,12 @@ export default function AddPropertyModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <button
-        type="button"
-        aria-label="Close modal"
-        onClick={handleClose}
-        className="absolute inset-0 bg-gray-950/50 backdrop-blur-[2px]"
-      />
-
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="add-property-title"
-        className="relative flex h-[min(720px,92vh)] w-full max-w-4xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl"
-      >
-        {/* Header */}
-        <div className="flex shrink-0 items-start justify-between border-b border-gray-100 px-6 py-5">
-          <div className="flex items-start gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <HomeIcon />
-            </span>
-
-            <div>
-              <h2 id="add-property-title" className="text-[18px] font-bold text-gray-900">
-                Add New Property
-              </h2>
-              <p className="mt-0.5 text-[12px] text-gray-500">
-                Fill in the details below to add a new property to your listings.
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleClose}
-            aria-label="Close"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
-          >
-            <CloseIcon />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="grid min-h-0 flex-1 grid-cols-1 overflow-hidden md:grid-cols-[240px_1fr]">
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+      {/* Body. On a page the columns grow with their content instead of
+          scrolling inside a fixed-height dialog. */}
+      <div className="grid grid-cols-1 md:grid-cols-[240px_1fr]">
           {/* Steps sidebar */}
-          <div className="flex min-h-0 flex-col justify-between overflow-y-auto border-b border-gray-100 bg-gray-50/60 p-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:border-b-0 md:border-r">
+          <div className="flex flex-col justify-between border-b border-gray-100 bg-gray-50/60 p-4 md:border-b-0 md:border-r">
             <div className="space-y-1">
               {steps.map((s) => {
                 const active = s.id === step;
@@ -203,7 +137,7 @@ export default function AddPropertyModal({
           </div>
 
           {/* Step content */}
-          <div className="min-h-0 overflow-y-auto p-6">
+          <div className="p-6">
             {step === 1 && (
               <div>
                 <h3 className="text-[15px] font-bold text-gray-900">
@@ -408,30 +342,29 @@ export default function AddPropertyModal({
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex shrink-0 items-center justify-between border-t border-gray-100 px-6 py-4">
+      {/* Footer */}
+      <div className="flex items-center justify-between border-t border-gray-100 px-6 py-4">
+        <button
+          type="button"
+          onClick={goBack}
+          className="inline-flex h-10 items-center rounded-md border border-gray-200 px-5 text-[12px] font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50"
+        >
+          {step === 1 ? "Cancel" : "Back"}
+        </button>
+
+        <div className="flex items-center gap-3">
+          <span className="hidden text-[11px] text-gray-400 sm:inline">
+            Step {step} of {steps.length}
+          </span>
+
           <button
             type="button"
-            onClick={goBack}
-            className="inline-flex h-10 items-center rounded-md border border-gray-200 px-5 text-[12px] font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50"
+            onClick={goNext}
+            className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-5 text-[12px] font-semibold text-white transition-opacity hover:opacity-90"
           >
-            {step === 1 ? "Cancel" : "Back"}
+            {isLastStep ? "Publish Property" : "Next Step"}
+            {!isLastStep && <ArrowRightIcon />}
           </button>
-
-          <div className="flex items-center gap-3">
-            <span className="hidden text-[11px] text-gray-400 sm:inline">
-              Step {step} of {steps.length}
-            </span>
-
-            <button
-              type="button"
-              onClick={goNext}
-              className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-5 text-[12px] font-semibold text-white transition-opacity hover:opacity-90"
-            >
-              {isLastStep ? "Publish Property" : "Next Step"}
-              {!isLastStep && <ArrowRightIcon />}
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -509,22 +442,7 @@ function PurposeOption({
   );
 }
 
-function CloseIcon() {
-  return (
-    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-      <path d="m6 6 12 12M18 6 6 18" />
-    </svg>
-  );
-}
 
-function HomeIcon() {
-  return (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 10.5 12 3l9 7.5" />
-      <path d="M5 9.5V21h14V9.5M9 21v-6h6v6" />
-    </svg>
-  );
-}
 
 function CheckIcon() {
   return (

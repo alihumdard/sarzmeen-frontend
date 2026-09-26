@@ -356,9 +356,8 @@ export default function UsersPage() {
       <AdminPageHeader
         title="Users / Agents Management"
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
           { label: "Users" },
-          { label: "All Users" },
+          { label: "Admin Users" },
         ]}
         action={
           <div className="flex items-center gap-2">

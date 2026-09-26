@@ -417,7 +417,6 @@ export default function InquiriesPage() {
       <AdminPageHeader
         title="Inquiries Management"
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
           { label: "Inquiries" },
           { label: "All Inquiries" },
         ]}

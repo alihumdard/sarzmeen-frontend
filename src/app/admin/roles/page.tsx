@@ -355,7 +355,6 @@ export default function RolesPage() {
       <AdminPageHeader
         title="Roles & Permissions"
         breadcrumbs={[
-          { label: "Dashboard", href: "/admin" },
           { label: "User Management" },
           { label: "Roles & Permissions" },
         ]}

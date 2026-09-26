@@ -12,22 +12,7 @@ import { LoginArrowIcon, ShieldLockIcon } from "@/components/ui/Icons";
 export default function LoginForm() {
   return (
     <div className="flex flex-col">
-      <div className="text-center">
-        <h2 className="text-[19px] font-bold text-heading">
-          Login to Your Account
-        </h2>
-        <p className="mt-2 text-[12px] text-muted">
-          Don&apos;t have an account?{" "}
-          <Link
-            href="/register"
-            className="font-semibold text-primary hover:underline"
-          >
-            Create one
-          </Link>
-        </p>
-      </div>
-
-      <form className="mt-7 flex flex-col gap-5">
+      <form className="flex flex-col gap-5">
         <AuthField
           label="Email Address or Phone Number"
           name="identifier"
@@ -70,7 +55,7 @@ export default function LoginForm() {
 
         <button
           type="submit"
-          className="flex items-center justify-center gap-2.5 rounded-md bg-primary py-3.5 text-[13px] font-semibold text-white transition-colors hover:bg-primary-dark"
+          className="mt-1 flex items-center justify-center gap-2.5 rounded-full bg-primary py-[13px] text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark"
         >
           <LoginArrowIcon className="h-[18px] w-[18px] text-white" />
           Login
@@ -81,12 +66,22 @@ export default function LoginForm() {
         <SocialAuthButtons action="Sign in" />
       </div>
 
-      <p className="mt-7 flex items-start justify-center gap-2 text-center text-[11px] leading-relaxed text-muted">
+      <p className="mt-6 flex items-start justify-center gap-2 text-center text-[11px] leading-relaxed text-muted">
         <ShieldLockIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
         <span className="max-w-[280px]">
           Your data is secure with us and will never be shared with third
           parties.
         </span>
+      </p>
+
+      <p className="mt-6 border-t border-border pt-6 text-center text-[13px] text-muted">
+        Don&apos;t have an account?{" "}
+        <Link
+          href="/register"
+          className="font-semibold text-primary hover:underline"
+        >
+          Create one
+        </Link>
       </p>
     </div>
   );

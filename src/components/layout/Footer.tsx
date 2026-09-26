@@ -20,7 +20,7 @@ const quickLinks = [
   { label: "About Us", href: "/about" },
   { label: "Contact Us", href: "/contact" },
   { label: "Blogs", href: "/blog" },
-  { label: "Agents", href: "/agents" },
+  { label: "Agencies", href: "/agencies" },
 ];
 
 const propertyLinks = [

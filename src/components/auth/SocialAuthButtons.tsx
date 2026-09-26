@@ -1,10 +1,4 @@
-import { AppleIcon, FacebookIcon, GoogleIcon } from "@/components/ui/Icons";
-
-const providers = [
-  { name: "Google", Icon: GoogleIcon, iconClass: "" },
-  { name: "Facebook", Icon: FacebookIcon, iconClass: "text-[#1877F2]" },
-  { name: "Apple", Icon: AppleIcon, iconClass: "text-heading" },
-];
+import { GoogleIcon } from "@/components/ui/Icons";
 
 type SocialAuthButtonsProps = {
   /** Used in the accessible label, e.g. "Sign in" or "Sign up". */
@@ -26,19 +20,14 @@ export default function SocialAuthButtons({ action }: SocialAuthButtonsProps) {
         <span className="h-px flex-1 bg-border" />
       </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-3">
-        {providers.map(({ name, Icon, iconClass }) => (
-          <button
-            key={name}
-            type="button"
-            aria-label={`${action} with ${name}`}
-            className="flex items-center justify-center gap-2 rounded-md border border-border bg-white py-2.5 text-[12px] font-medium text-heading transition-colors hover:border-primary hover:text-primary"
-          >
-            <Icon className={`h-4 w-4 shrink-0 ${iconClass}`} />
-            {name}
-          </button>
-        ))}
-      </div>
+      <button
+        type="button"
+        aria-label={`${action} with Google`}
+        className="mt-4 flex w-full items-center justify-center gap-2.5 rounded-full border border-border bg-white py-3 text-[13px] font-medium text-heading transition-colors hover:border-primary hover:text-primary"
+      >
+        <GoogleIcon className="h-[18px] w-[18px] shrink-0" />
+        Continue with Google
+      </button>
     </div>
   );
 }

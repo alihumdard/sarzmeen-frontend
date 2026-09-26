@@ -78,6 +78,9 @@ const bedsSupportedSubtypes = [
   "Room",
   "Penthouse",
   "Apartment",
+  // High Raise Projects — these two are residential, so beds still apply.
+  "Apartments",
+  "Pent House",
 ];
 
 const buySubtypeDefaults: Record<string, { beds?: string; areaMin?: string; areaMax?: string; areaUnit?: "marla" | "kanal" | "sqft" | "sqyd"; priceMin?: string; priceMax?: string }> = {
@@ -101,12 +104,10 @@ const buySubtypeDefaults: Record<string, { beds?: string; areaMin?: string; area
   "Building": { beds: "", areaMin: "1", areaMax: "5", areaUnit: "kanal", priceMin: "50000000", priceMax: "500000000" },
   "Warehouse": { beds: "", areaMin: "2", areaMax: "10", areaUnit: "kanal", priceMin: "30000000", priceMax: "200000000" },
   "Factory": { beds: "", areaMin: "4", areaMax: "20", areaUnit: "kanal", priceMin: "80000000", priceMax: "800000000" },
-  "All Projects": { beds: "", areaMin: "5", areaMax: "50", areaUnit: "marla", priceMin: "5000000", priceMax: "100000000" },
-  "Residential Projects": { beds: "", areaMin: "5", areaMax: "20", areaUnit: "marla", priceMin: "10000000", priceMax: "60000000" },
-  "Commercial Projects": { beds: "", areaMin: "4", areaMax: "30", areaUnit: "marla", priceMin: "20000000", priceMax: "200000000" },
-  "Apartment Projects": { beds: "", areaMin: "4", areaMax: "15", areaUnit: "marla", priceMin: "10000000", priceMax: "40000000" },
-  "Housing Projects": { beds: "", areaMin: "10", areaMax: "100", areaUnit: "marla", priceMin: "5000000", priceMax: "50000000" },
-  "Farm Housing Projects": { beds: "", areaMin: "2", areaMax: "20", areaUnit: "kanal", priceMin: "50000000", priceMax: "300000000" },
+  "Apartments": { beds: "2", areaMin: "4", areaMax: "15", areaUnit: "marla", priceMin: "10000000", priceMax: "40000000" },
+  "Shops": { beds: "", areaMin: "2", areaMax: "8", areaUnit: "marla", priceMin: "10000000", priceMax: "60000000" },
+  "Food Court": { beds: "", areaMin: "2", areaMax: "10", areaUnit: "marla", priceMin: "15000000", priceMax: "80000000" },
+  "Pent House": { beds: "3", areaMin: "6", areaMax: "15", areaUnit: "marla", priceMin: "25000000", priceMax: "120000000" },
 };
 
 const rentSubtypeDefaults: Record<string, { beds?: string; areaMin?: string; areaMax?: string; areaUnit?: "marla" | "kanal" | "sqft" | "sqyd"; priceMin?: string; priceMax?: string }> = {
@@ -130,12 +131,10 @@ const rentSubtypeDefaults: Record<string, { beds?: string; areaMin?: string; are
   "Building": { beds: "", areaMin: "1", areaMax: "5", areaUnit: "kanal", priceMin: "200000", priceMax: "1500000" },
   "Warehouse": { beds: "", areaMin: "2", areaMax: "10", areaUnit: "kanal", priceMin: "100000", priceMax: "800000" },
   "Factory": { beds: "", areaMin: "4", areaMax: "20", areaUnit: "kanal", priceMin: "300000", priceMax: "2500000" },
-  "All Projects": { beds: "", areaMin: "5", areaMax: "50", areaUnit: "marla", priceMin: "30000", priceMax: "200000" },
-  "Residential Projects": { beds: "", areaMin: "5", areaMax: "20", areaUnit: "marla", priceMin: "40000", priceMax: "250000" },
-  "Commercial Projects": { beds: "", areaMin: "4", areaMax: "30", areaUnit: "marla", priceMin: "50000", priceMax: "400000" },
-  "Apartment Projects": { beds: "", areaMin: "4", areaMax: "15", areaUnit: "marla", priceMin: "30000", priceMax: "150000" },
-  "Housing Projects": { beds: "", areaMin: "10", areaMax: "100", areaUnit: "marla", priceMin: "25000", priceMax: "200000" },
-  "Farm Housing Projects": { beds: "", areaMin: "2", areaMax: "20", areaUnit: "kanal", priceMin: "150000", priceMax: "800000" },
+  "Apartments": { beds: "2", areaMin: "4", areaMax: "12", areaUnit: "marla", priceMin: "30000", priceMax: "150000" },
+  "Shops": { beds: "", areaMin: "2", areaMax: "8", areaUnit: "marla", priceMin: "35000", priceMax: "300000" },
+  "Food Court": { beds: "", areaMin: "2", areaMax: "10", areaUnit: "marla", priceMin: "50000", priceMax: "350000" },
+  "Pent House": { beds: "3", areaMin: "6", areaMax: "15", areaUnit: "marla", priceMin: "90000", priceMax: "350000" },
 };
 
 type PropertySearchState = {
@@ -206,15 +205,13 @@ const propertyCategoriesData: {
     ],
   },
   {
-    category: "Projects",
+    category: "High Raise Projects",
     value: "projects",
     items: [
-      { label: "All Projects", value: "all-projects", icon: BuildingIcon },
-      { label: "Residential Projects", value: "residential-projects", icon: HouseIcon },
-      { label: "Commercial Projects", value: "commercial-projects", icon: CommercialIcon },
-      { label: "Apartment Projects", value: "apartment-projects", icon: ApartmentIcon },
-      { label: "Housing Projects", value: "housing-projects", icon: ResidentialPlotIcon },
-      { label: "Farm Housing Projects", value: "farm-housing-projects", icon: FarmHouseIcon },
+      { label: "Apartments", value: "apartments", icon: ApartmentIcon },
+      { label: "Shops", value: "shops", icon: ShopIcon },
+      { label: "Food Court", value: "food-court", icon: CommercialIcon },
+      { label: "Pent House", value: "pent-house", icon: PenthouseIcon },
     ],
   },
 ];
@@ -261,7 +258,12 @@ export default function HeroSearch() {
     };
   }, []);
 
-  const isBedsVisible = searchState.propertyType === "homes" && bedsSupportedSubtypes.includes(searchState.propertySubType);
+  // Driven by the subtype alone: "High Raise Projects" mixes residential
+  // subtypes (Apartments, Pent House) with commercial ones (Shops, Food
+  // Court), so the parent tab cannot decide this.
+  const isBedsVisible = bedsSupportedSubtypes.includes(
+    searchState.propertySubType,
+  );
 
   const toggleDropdown = (name: string) => {
     setActiveDropdown(activeDropdown === name ? null : name);
@@ -303,21 +305,35 @@ export default function HeroSearch() {
       if ("propertyType" in updates && updates.propertyType !== prev.propertyType) {
         const newCat = propertyCategoriesData.find(c => c.value === updates.propertyType);
         if (newCat && newCat.items.length > 0) {
-          const defaultSub = newCat.items.length > 1 ? newCat.items[1].label : newCat.items[0].label;
+          // Categories that open with an "All …" row default to the row after
+          // it; the rest (e.g. High Raise Projects) default to their first.
+          const startsWithAll = newCat.items[0].label.startsWith("All ");
+          const defaultSub =
+            startsWithAll && newCat.items.length > 1
+              ? newCat.items[1].label
+              : newCat.items[0].label;
           nextState.propertySubType = defaultSub;
-          
+
+          // Beds belong to the subtype, not the tab: "High Raise Projects"
+          // holds both Apartments (beds apply) and Shops (they do not).
+          if (!bedsSupportedSubtypes.includes(defaultSub)) {
+            nextState.beds = "";
+          }
+
           const subDefaults = subtypeMap[defaultSub];
           if (subDefaults) {
-            if (subDefaults.beds !== undefined) nextState.beds = subDefaults.beds;
+            if (
+              subDefaults.beds !== undefined &&
+              bedsSupportedSubtypes.includes(defaultSub)
+            ) {
+              nextState.beds = subDefaults.beds;
+            }
             if (subDefaults.areaMin) nextState.areaMin = subDefaults.areaMin;
             if (subDefaults.areaMax) nextState.areaMax = subDefaults.areaMax;
             if (subDefaults.areaUnit) nextState.areaUnit = subDefaults.areaUnit;
             if (subDefaults.priceMin) nextState.priceMin = subDefaults.priceMin;
             if (subDefaults.priceMax) nextState.priceMax = subDefaults.priceMax;
           }
-        }
-        if (updates.propertyType === "plots" || updates.propertyType === "commercial" || updates.propertyType === "projects") {
-          nextState.beds = "";
         }
       }
 
@@ -329,12 +345,11 @@ export default function HeroSearch() {
           nextState.beds = "";
         }
 
+        // Beds were already cleared above for any subtype that does not
+        // support them, so this only needs to sync the parent tab.
         for (const cat of propertyCategoriesData) {
           if (cat.items.some(i => i.label === subType)) {
             nextState.propertyType = cat.value;
-            if (cat.value === "plots" || cat.value === "commercial" || cat.value === "projects") {
-              nextState.beds = "";
-            }
             break;
           }
         }
@@ -380,7 +395,9 @@ export default function HeroSearch() {
       if (value) params.set(key, value);
     });
 
-    router.push(`/properties?${params.toString()}`);
+    // Rentals live on their own page, so the purpose picks the destination.
+    const basePath = searchState.purpose === "rent" ? "/rent" : "/properties";
+    router.push(`${basePath}?${params.toString()}`);
   }
 
   const areaUnits = [
@@ -419,9 +436,11 @@ export default function HeroSearch() {
         >
           Buy
         </button>
+        {/* Rentals have their own listing page, so this tab navigates there
+            rather than switching the form into a rent mode in place. */}
         <button
           type="button"
-          onClick={() => handleSearchFieldChange({ purpose: "rent" })}
+          onClick={() => router.push("/rent")}
           className={`flex-1 rounded-full px-6 py-2 text-[13px] font-semibold transition-all sm:flex-initial sm:px-8 ${
             searchState.purpose === "rent"
               ? "bg-primary text-white shadow-sm"
@@ -565,8 +584,11 @@ export default function HeroSearch() {
 
               {activeDropdown === "propertyType" && (
                 <div className="absolute left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 top-full z-50 mt-1.5 w-[390px] max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-white p-3 shadow-2xl">
-                  {/* Top Tabs: Homes | Plots | Commercial | Projects */}
-                  <div className="flex rounded-lg bg-surface p-1 mb-3">
+                  {/* Top Tabs: Homes | Plots | Commercial | High Raise Projects.
+                      Widths follow each label's length instead of being equal
+                      quarters — an equal split wraps the longest tab onto two
+                      lines while leaving slack under the short ones. */}
+                  <div className="mb-3 flex items-stretch gap-1 rounded-lg bg-surface p-1">
                     {propertyCategoriesData.map((cat) => {
                       const isActive = searchState.propertyType === cat.value;
                       return (
@@ -574,7 +596,7 @@ export default function HeroSearch() {
                           key={cat.value}
                           type="button"
                           onClick={() => handleSearchFieldChange({ propertyType: cat.value })}
-                          className={`flex-1 py-2 text-center text-[11px] sm:text-[13px] font-semibold rounded-md transition-colors ${
+                          className={`min-w-0 flex-auto text-balance rounded-md px-1.5 py-2 text-center text-[11px] font-semibold leading-tight transition-colors sm:px-2 sm:text-[12.5px] ${
                             isActive
                               ? "bg-primary text-white shadow-sm"
                               : "text-text hover:text-primary"
