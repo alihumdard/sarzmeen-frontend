@@ -56,14 +56,14 @@ export default function PageBanner({
         fill
         priority
         sizes="100vw"
-        className="-z-20 object-cover"
+        className="-z-20 object-cover object-[50%_35%]"
       />
 
       <div className={`absolute inset-0 -z-10 ${overlay}`} />
 
       <div
         className={`container-page ${
-          subtitle ? "py-12 sm:py-16" : "py-10 sm:py-12"
+          subtitle ? "py-16 sm:py-24" : "py-14 sm:py-20"
         }`}
       >
         <nav
