@@ -149,7 +149,7 @@ export default function ContactPage() {
         title="We're Here to Help You"
         description="Have a question or need assistance? Our team is ready to help you find the right property or solve any queries."
         crumbs={[{ label: "Home", href: "/" }, { label: "Contact Us" }]}
-        image="/images/agents-banner.jpg"
+        image="/images/contact-banner.jpg"
       />
 
       <section className="bg-white py-8 sm:py-10">
