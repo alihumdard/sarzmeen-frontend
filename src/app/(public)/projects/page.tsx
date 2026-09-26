@@ -35,7 +35,7 @@ export default async function ProjectsPage({
         description={`${results.length.toLocaleString("en-US")} ${results.length === 1 ? "project" : "projects"} available`}
         crumbs={[{ label: "Home", href: "/" }, { label: "Projects" }]}
         contentMaxWidth="720px"
-        image="/images/city-1.jpg"
+        image="/images/city-lahore-skyline.jpg"
       >
         <ProjectSearchBar />
       </PageBanner>

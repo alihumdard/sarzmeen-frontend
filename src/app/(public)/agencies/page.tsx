@@ -50,7 +50,7 @@ export default async function AgenciesPage({
         description={`${results.length} ${results.length === 1 ? "agency" : "agencies"} listed`}
         crumbs={[{ label: "Home", href: "/" }, { label: "Agencies" }]}
         contentMaxWidth="720px"
-        image="/images/city-1.jpg"
+        image="/images/agents-banner.jpg"
       >
         <Suspense
           fallback={<div className="h-[66px] rounded-lg bg-white shadow-xl" />}

@@ -70,6 +70,7 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
           { label: "Agencies", href: "/agencies" },
           { label: agency.name },
         ]}
+        image="/images/agents-banner.jpg"
       />
 
       <section className="bg-surface py-8 sm:py-10">

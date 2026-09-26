@@ -69,6 +69,7 @@ export default async function AgentPage({ params }: AgentPageProps) {
           { label: "Properties", href: "/properties" },
           { label: agent.name },
         ]}
+        image="/images/agents-banner.jpg"
       />
 
       <section className="bg-surface py-8 sm:py-10">

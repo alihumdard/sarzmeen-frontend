@@ -19,6 +19,7 @@ export default function BlogPage() {
         title="Our Blogs"
         description="Stay updated with the latest real estate news, market trends, investment tips and property guides."
         crumbs={[{ label: "Home", href: "/" }, { label: "Blogs" }]}
+        image="/images/agents-banner.jpg"
       >
         <Suspense fallback={null}>
           <BlogSearch />

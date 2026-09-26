@@ -20,7 +20,7 @@ export default function AboutPage() {
         subtitle="Pakistan's most trusted real estate platform"
         description="We are committed to simplifying the property journey for buyers, sellers and investors through transparency, innovation and unmatched expertise."
         crumbs={[{ label: "Home", href: "/" }, { label: "About Us" }]}
-        image="/images/interior-1.jpg"
+        image="/images/agents-banner.jpg"
       />
 
       <WhoWeAre />

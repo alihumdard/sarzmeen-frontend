@@ -51,7 +51,7 @@ export default async function PropertiesPage({
         description={`${results.length.toLocaleString("en-US")} ${results.length === 1 ? "property" : "properties"} available`}
         crumbs={[{ label: "Home", href: "/" }, { label: "Properties" }]}
         contentMaxWidth="720px"
-        image="/images/city-1.jpg"
+        image="/images/city-lahore-skyline.jpg"
       >
         <ListingSearchBar />
         <PopularSearches />
