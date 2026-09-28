@@ -2,11 +2,10 @@
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useState, useEffect, useTransition, Suspense } from "react";
-import { demoAgents, Agent } from "@/data/agents";
+import { demoAgents } from "@/data/agents";
 import AgentsHero from "@/components/agents/AgentsHero";
 import AgentFilters from "@/components/agents/AgentFilters";
 import AgentResults from "@/components/agents/AgentResults";
-import AgenciesByCity from "@/components/agents/AgenciesByCity";
 import AgentsPagination from "@/components/agents/AgentsPagination";
 
 const ITEMS_PER_PAGE = 6;
@@ -131,13 +130,6 @@ function AgentsContent() {
     });
   }
 
-  function handleSelectCity(cityName: string) {
-    updateQueryString({
-      city: cityName,
-      page: 1,
-    });
-  }
-
   function handlePageChange(newPage: number) {
     setCurrentPage(newPage);
     updateQueryString({ page: newPage });
@@ -168,8 +160,6 @@ function AgentsContent() {
         totalPages={totalPages}
         onPageChange={handlePageChange}
       />
-
-      <AgenciesByCity onSelectCity={handleSelectCity} selectedCity={cityQuery} />
     </>
   );
 }
