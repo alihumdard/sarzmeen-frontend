@@ -4,7 +4,8 @@ import BlogList from "@/components/blog/BlogList";
 import BlogSearch from "@/components/blog/BlogSearch";
 import BlogSidebar from "@/components/blog/BlogSidebar";
 import PageBanner from "@/components/layout/PageBanner";
-import { latestPosts, totalBlogCount } from "@/constants/mockBlogs";
+import { serverApi } from "@/lib/api/server";
+import type { BlogPost } from "@/types/blog";
 
 export const metadata: Metadata = {
   title: "Our Blogs",
@@ -12,7 +13,21 @@ export const metadata: Metadata = {
     "Stay updated with the latest real estate news, market trends, investment tips and property guides from across Pakistan.",
 };
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  let posts: BlogPost[] = [];
+  let total = 0;
+
+  try {
+    const res = await serverApi<{
+      data: BlogPost[];
+      meta: { total: number };
+    }>("/blogs");
+    posts = res.data;
+    total = res.meta.total;
+  } catch {
+    // fallback empty
+  }
+
   return (
     <main>
       <PageBanner
@@ -30,7 +45,7 @@ export default function BlogPage() {
         <div className="container-page grid items-start gap-6 lg:grid-cols-[250px_1fr]">
           <BlogSidebar />
           <Suspense fallback={null}>
-            <BlogList posts={latestPosts} total={totalBlogCount} />
+            <BlogList posts={posts} total={total} />
           </Suspense>
         </div>
       </section>

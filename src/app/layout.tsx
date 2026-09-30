@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AuthProvider } from "@/context/AuthContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -34,7 +35,9 @@ export default function RootLayout({
              * onto <body> before React hydrates, which is a false-positive
              * mismatch unrelated to our code — not a signal to hide real bugs.
              */}
-            <body suppressHydrationWarning>{children}</body>
+            <body suppressHydrationWarning>
+                <AuthProvider>{children}</AuthProvider>
+            </body>
         </html>
     );
 }

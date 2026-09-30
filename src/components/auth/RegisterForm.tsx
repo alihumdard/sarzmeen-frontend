@@ -1,19 +1,67 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AuthField from "@/components/auth/AuthField";
 import RoleSelect from "@/components/auth/RoleSelect";
 import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
 import { UserPlusIcon } from "@/components/ui/Icons";
+import { useAuth } from "@/context/AuthContext";
 
-/**
- * Sign-up half of the auth page.
- *
- * V1 renders the form only — there is no endpoint to submit to until the
- * Laravel API is in place.
- */
 export default function RegisterForm() {
+  const { register } = useAuth();
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
+  const [busy, setBusy] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    setFieldErrors({});
+    setBusy(true);
+
+    const form = new FormData(e.currentTarget);
+
+    try {
+      await register({
+        name: form.get("fullName") as string,
+        email: form.get("email") as string,
+        phone: (form.get("phone") as string) || undefined,
+        password: form.get("newPassword") as string,
+        password_confirmation: form.get("confirmPassword") as string,
+        role: form.get("role") as string,
+        agencyName: (form.get("agencyName") as string) || undefined,
+      });
+      router.push("/admin");
+    } catch (err: unknown) {
+      if (err && typeof err === "object" && "errors" in err) {
+        setFieldErrors(
+          (err as { errors: Record<string, string[]> }).errors ?? {},
+        );
+      }
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Registration failed. Please try again.";
+      setError(msg);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const firstError = Object.values(fieldErrors).flat()[0];
+
   return (
     <div className="flex flex-col">
-      <form className="flex flex-col gap-5">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        {(error || firstError) && (
+          <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700">
+            {firstError ?? error}
+          </div>
+        )}
+
         <RoleSelect />
 
         <div className="grid gap-5 sm:grid-cols-2">
@@ -95,10 +143,11 @@ export default function RegisterForm() {
 
         <button
           type="submit"
-          className="mt-1 flex items-center justify-center gap-2.5 rounded-full bg-primary py-[13px] text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark"
+          disabled={busy}
+          className="mt-1 flex items-center justify-center gap-2.5 rounded-full bg-primary py-[13px] text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark disabled:opacity-60"
         >
           <UserPlusIcon className="h-[18px] w-[18px] text-white" />
-          Create Account
+          {busy ? "Creating Account..." : "Create Account"}
         </button>
       </form>
 

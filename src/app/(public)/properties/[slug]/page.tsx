@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import DetailBreadcrumb from "@/components/property/DetailBreadcrumb";
 import PropertyDetailHeader from "@/components/property/PropertyDetailHeader";
 import PropertyGallery from "@/components/property/PropertyGallery";
@@ -7,35 +8,29 @@ import PropertyQuickFacts from "@/components/property/PropertyQuickFacts";
 import PropertyTabs from "@/components/property/PropertyTabs";
 import SimilarProperties from "@/components/property/SimilarProperties";
 import SellRentStrip from "@/components/layout/SellRentStrip";
-import { propertyDetail } from "@/constants/mockPropertyDetail";
-import { featuredProperties } from "@/constants/mockProperties";
+import { serverApi } from "@/lib/api/server";
+import type { PropertyDetail, Property } from "@/types/property";
 
 type PropertyDetailPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-/**
- * Looks a property up by slug.
- *
- * Until the API exists every slug resolves to the one mock record, with its
- * headline derived from the slug so different cards read differently.
- */
-function getProperty(slug: string) {
-  if (slug === propertyDetail.slug) return propertyDetail;
-
-  const title = slug
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-
-  return { ...propertyDetail, slug, headline: title };
+async function getProperty(slug: string): Promise<PropertyDetail> {
+  try {
+    const res = await serverApi<{ data: PropertyDetail }>(
+      `/properties/${slug}`,
+    );
+    return res.data;
+  } catch {
+    notFound();
+  }
 }
 
 export async function generateMetadata({
   params,
 }: PropertyDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const property = getProperty(slug);
+  const property = await getProperty(slug);
 
   return {
     title: property.headline,
@@ -47,7 +42,17 @@ export default async function PropertyDetailPage({
   params,
 }: PropertyDetailPageProps) {
   const { slug } = await params;
-  const property = getProperty(slug);
+  const property = await getProperty(slug);
+
+  let similarProperties: Property[] = [];
+  try {
+    const res = await serverApi<{ data: Property[] }>(
+      `/properties?per_page=4&featured=1`,
+    );
+    similarProperties = res.data.filter((p) => p.slug !== slug);
+  } catch {
+    // non-critical
+  }
 
   return (
     <main>
@@ -56,7 +61,6 @@ export default async function PropertyDetailPage({
         crumbs={[
           { label: "Home", href: "/" },
           { label: "Properties", href: "/properties" },
-          { label: "Houses", href: "/properties?type=house" },
           { label: property.headline },
         ]}
       />
@@ -90,7 +94,7 @@ export default async function PropertyDetailPage({
       </section>
 
       <SimilarProperties
-        properties={featuredProperties}
+        properties={similarProperties}
         currentSlug={property.slug}
       />
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -13,9 +13,27 @@ import {
   StarFilledIcon,
   VerifiedTickIcon,
 } from "@/components/ui/Icons";
-import { testimonials, type Testimonial } from "@/constants/mockTestimonials";
 import Carousel from "@/components/ui/Carousel";
 import WriteReviewModal from "@/components/home/WriteReviewModal";
+
+type Testimonial = {
+  id: string;
+  avatar: string;
+  name: string;
+  city: string;
+  rating: number;
+  purchase: string;
+  quote: string;
+  timeAgo: string;
+};
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days < 30) return `${days} days ago`;
+  const months = Math.floor(days / 30);
+  return `${months} month${months > 1 ? "s" : ""} ago`;
+}
 
 const sellStats = [
   { Icon: HomeStatIcon, value: "10K+", label: "Properties Listed" },
@@ -116,9 +134,32 @@ function ReviewCard({ testimonial }: { testimonial: Testimonial }) {
  */
 export default function Testimonials() {
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/testimonials`)
+      .then((r) => r.json())
+      .then((res: { data: Array<{ id: number; name: string; city: string; avatar: string; rating: number; purchase: string; quote: string; createdAt: string }> }) => {
+        setTestimonials(
+          res.data.map((t) => ({
+            id: String(t.id),
+            avatar: t.avatar || "/images/avatars/default.jpg",
+            name: t.name,
+            city: t.city,
+            rating: t.rating,
+            purchase: t.purchase,
+            quote: t.quote,
+            timeAgo: timeAgo(t.createdAt),
+          }))
+        );
+      })
+      .catch(() => {});
+  }, []);
 
   const averageRating =
-    testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length;
+    testimonials.length > 0
+      ? testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length
+      : 4.8;
 
   return (
     <section className="relative overflow-hidden bg-[#0a0f0d] py-8 sm:py-9">

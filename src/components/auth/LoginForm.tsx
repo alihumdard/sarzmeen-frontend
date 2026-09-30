@@ -1,18 +1,49 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AuthField from "@/components/auth/AuthField";
 import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
 import { LoginArrowIcon, ShieldLockIcon } from "@/components/ui/Icons";
+import { useAuth } from "@/context/AuthContext";
 
-/**
- * Sign-in half of the auth page.
- *
- * V1 renders the form only — there is no endpoint to submit to until the
- * Laravel API and Sanctum session handling are in place.
- */
 export default function LoginForm() {
+  const { login } = useAuth();
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError("");
+    setBusy(true);
+
+    const form = new FormData(e.currentTarget);
+    const email = form.get("identifier") as string;
+    const password = form.get("password") as string;
+
+    try {
+      await login(email, password);
+      router.push("/admin");
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "Login failed. Please try again.";
+      setError(msg);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="flex flex-col">
-      <form className="flex flex-col gap-5">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        {error && (
+          <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700">
+            {error}
+          </div>
+        )}
+
         <AuthField
           label="Email Address or Phone Number"
           name="identifier"
@@ -55,10 +86,11 @@ export default function LoginForm() {
 
         <button
           type="submit"
-          className="mt-1 flex items-center justify-center gap-2.5 rounded-full bg-primary py-[13px] text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark"
+          disabled={busy}
+          className="mt-1 flex items-center justify-center gap-2.5 rounded-full bg-primary py-[13px] text-[13px] font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark disabled:opacity-60"
         >
           <LoginArrowIcon className="h-[18px] w-[18px] text-white" />
-          Login
+          {busy ? "Signing in..." : "Login"}
         </button>
       </form>
 

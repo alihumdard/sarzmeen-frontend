@@ -2,15 +2,29 @@ import Link from "next/link";
 import { ChevronRightIcon } from "@/components/ui/Icons";
 import InvestPromo from "@/components/blog/InvestPromo";
 import NewsletterBox from "@/components/blog/NewsletterBox";
-import { blogCategories, blogTags } from "@/constants/mockBlogs";
+import { serverApi } from "@/lib/api/server";
+import type { BlogCategory, BlogTag } from "@/types/blog";
 
 type BlogSidebarProps = {
-  /** Slug of the active category, or undefined on the all-categories view. */
   activeCategory?: string;
 };
 
-export default function BlogSidebar({ activeCategory }: BlogSidebarProps) {
+export default async function BlogSidebar({ activeCategory }: BlogSidebarProps) {
   const isAllActive = !activeCategory;
+
+  let blogCategories: BlogCategory[] = [];
+  let blogTags: BlogTag[] = [];
+
+  try {
+    const [catsRes, tagsRes] = await Promise.all([
+      serverApi<{ data: BlogCategory[] }>("/blog-categories"),
+      serverApi<{ data: BlogTag[] }>("/blog-tags"),
+    ]);
+    blogCategories = catsRes.data;
+    blogTags = tagsRes.data;
+  } catch {
+    // fallback empty
+  }
 
   return (
     <aside className="flex flex-col gap-6">
@@ -58,22 +72,24 @@ export default function BlogSidebar({ activeCategory }: BlogSidebarProps) {
       </div>
 
       {/* Popular tags */}
-      <div className="rounded-lg border border-border bg-white p-5">
-        <h2 className="text-[15px] font-bold text-heading">Popular Tags</h2>
+      {blogTags.length > 0 && (
+        <div className="rounded-lg border border-border bg-white p-5">
+          <h2 className="text-[15px] font-bold text-heading">Popular Tags</h2>
 
-        <ul className="mt-4 flex flex-wrap gap-2">
-          {blogTags.map((tag) => (
-            <li key={tag.id}>
-              <Link
-                href={`/blog?tag=${tag.slug}`}
-                className="block rounded-md border border-border px-3 py-1.5 text-[11px] text-text transition-colors hover:border-primary hover:text-primary"
-              >
-                {tag.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+          <ul className="mt-4 flex flex-wrap gap-2">
+            {blogTags.map((tag) => (
+              <li key={tag.id}>
+                <Link
+                  href={`/blog?tag=${tag.slug}`}
+                  className="block rounded-md border border-border px-3 py-1.5 text-[11px] text-text transition-colors hover:border-primary hover:text-primary"
+                >
+                  {tag.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <NewsletterBox />
       <InvestPromo />

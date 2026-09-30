@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
@@ -8,6 +8,20 @@ import StatCard from "@/components/admin/StatCard";
 import StatusBadge from "@/components/admin/StatusBadge";
 import DonutChart from "@/components/admin/DonutChart";
 import AreaLineChart from "@/components/admin/AreaLineChart";
+import { api } from "@/lib/api/client";
+
+type DashboardStats = {
+  totalProperties: number;
+  totalProjects: number;
+  totalBlogs: number;
+  totalInquiries: number;
+  totalUsers: number;
+  totalAgencies: number;
+  totalAgents: number;
+  pendingAccounts: number;
+  approvedAccounts: number;
+  rejectedAccounts: number;
+};
 
 type TopProperty = {
   id: number;
@@ -159,6 +173,20 @@ const inquiryStatusVariant: Record<
 
 export default function AdminDashboardPage() {
   const [period, setPeriod] = useState("30");
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+
+  const loadStats = useCallback(async () => {
+    try {
+      const res = await api<{ data: DashboardStats }>("/admin/stats");
+      setStats(res.data);
+    } catch {
+      // fallback to null
+    }
+  }, []);
+
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
 
   const chart = useMemo(() => {
     if (period === "7") {
@@ -201,50 +229,35 @@ export default function AdminDashboardPage() {
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard
           title="Total Properties"
-          value="1,248"
-          trend="12.5%"
-          trendDirection="up"
-          trendText="from last month"
+          value={stats?.totalProperties.toLocaleString() ?? "—"}
           icon={<PropertyIcon />}
           iconClassName="bg-primary/10 text-primary"
         />
 
         <StatCard
           title="Total Projects"
-          value="96"
-          trend="8.4%"
-          trendDirection="up"
-          trendText="from last month"
+          value={stats?.totalProjects.toLocaleString() ?? "—"}
           icon={<ProjectIcon />}
           iconClassName="bg-emerald-50 text-emerald-600"
         />
 
         <StatCard
-          title="Total Blogs"
-          value="184"
-          trend="15.3%"
-          trendDirection="up"
-          trendText="from last month"
+          title="Total Agencies"
+          value={stats?.totalAgencies.toLocaleString() ?? "—"}
           icon={<BlogIcon />}
           iconClassName="bg-blue-50 text-blue-600"
         />
 
         <StatCard
-          title="Total Inquiries"
-          value="2,543"
-          trend="18.7%"
-          trendDirection="up"
-          trendText="from last month"
+          title="Total Agents"
+          value={stats?.totalAgents.toLocaleString() ?? "—"}
           icon={<InquiryIcon />}
           iconClassName="bg-orange-50 text-orange-600"
         />
 
         <StatCard
           title="Total Users"
-          value="8,652"
-          trend="10.2%"
-          trendDirection="up"
-          trendText="from last month"
+          value={stats?.totalUsers.toLocaleString() ?? "—"}
           icon={<UsersIcon />}
           iconClassName="bg-violet-50 text-violet-600"
         />

@@ -1,11 +1,25 @@
 import Link from "next/link";
 import PropertyCard from "@/components/property/PropertyCard";
 import Carousel from "@/components/ui/Carousel";
-import { featuredProperties } from "@/constants/mockProperties";
+import { serverApi } from "@/lib/api/server";
+import type { Property } from "@/types/property";
 
-export default function FeaturedProperties() {
+export default async function FeaturedProperties() {
+  let properties: Property[] = [];
+
+  try {
+    const res = await serverApi<{ data: Property[] }>(
+      "/properties?featured=1&per_page=8",
+    );
+    properties = res.data;
+  } catch {
+    return null;
+  }
+
+  if (properties.length === 0) return null;
+
   return (
-    <section className="bg-white pt-2 sm:pt-4 pb-10 sm:pb-12">
+    <section className="bg-white pt-2 pb-10 sm:pt-4 sm:pb-12">
       <div className="container-page">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -26,11 +40,11 @@ export default function FeaturedProperties() {
         </div>
 
         <Carousel
-          itemCount={featuredProperties.length}
+          itemCount={properties.length}
           itemsPerPage={4}
           label="properties"
         >
-          {featuredProperties.map((property) => (
+          {properties.map((property) => (
             <div
               key={property.id}
               className="w-[270px] shrink-0 snap-start sm:w-[300px] lg:w-[calc((100%-60px)/4)]"

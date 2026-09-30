@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import SellRentStrip from "@/components/layout/SellRentStrip";
 import DetailBreadcrumb from "@/components/property/DetailBreadcrumb";
 import PropertyGallery from "@/components/property/PropertyGallery";
@@ -7,18 +8,28 @@ import ProjectPriceBox from "@/components/project/ProjectPriceBox";
 import ProjectProperties from "@/components/project/ProjectProperties";
 import ProjectQuickFacts from "@/components/project/ProjectQuickFacts";
 import ProjectTabs from "@/components/project/ProjectTabs";
-import { getProjectDetail } from "@/constants/mockProjects";
-import { getPropertiesByProject } from "@/lib/utils/getProjectProperties";
+import { serverApi } from "@/lib/api/server";
+import type { ProjectDetail } from "@/types/project";
+import type { Property } from "@/types/property";
 
 type ProjectDetailPageProps = {
   params: Promise<{ slug: string }>;
 };
 
+async function getProject(slug: string): Promise<ProjectDetail> {
+  try {
+    const res = await serverApi<{ data: ProjectDetail }>(`/projects/${slug}`);
+    return res.data;
+  } catch {
+    notFound();
+  }
+}
+
 export async function generateMetadata({
   params,
 }: ProjectDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const project = getProjectDetail(slug);
+  const project = await getProject(slug);
 
   return {
     title: project.name,
@@ -30,8 +41,17 @@ export default async function ProjectDetailPage({
   params,
 }: ProjectDetailPageProps) {
   const { slug } = await params;
-  const project = getProjectDetail(slug);
-  const properties = getPropertiesByProject(project.slug);
+  const project = await getProject(slug);
+
+  let properties: Property[] = [];
+  try {
+    const res = await serverApi<{ data: Property[] }>(
+      `/properties?project=${project.slug}&per_page=6`,
+    );
+    properties = res.data;
+  } catch {
+    // non-critical
+  }
 
   return (
     <main>

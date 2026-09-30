@@ -3,8 +3,8 @@ import PageBanner from "@/components/layout/PageBanner";
 import ProjectFilters from "@/components/project/ProjectFilters";
 import ProjectResults from "@/components/project/ProjectResults";
 import ProjectSearchBar from "@/components/project/ProjectSearchBar";
-import { popularProjects } from "@/constants/mockProjects";
-import { filterProjects } from "@/lib/utils/filterProjects";
+import { serverApi } from "@/lib/api/server";
+import type { Project } from "@/types/project";
 
 export const metadata: Metadata = {
   title: "Real Estate Projects",
@@ -26,13 +26,24 @@ export default async function ProjectsPage({
 }: ProjectsPageProps) {
   const params = await searchParams;
 
-  const results = filterProjects(popularProjects, params);
+  const qs = new URLSearchParams();
+  if (params.category) qs.set("category", params.category);
+  if (params.city) qs.set("city", params.city);
+
+  const query = qs.toString();
+  const res = await serverApi<{
+    data: Project[];
+    meta: { total: number };
+  }>(`/projects${query ? `?${query}` : ""}`);
+
+  const results = res.data;
+  const total = res.meta.total;
 
   return (
     <main>
       <PageBanner
         title="Real Estate Projects"
-        description={`${results.length.toLocaleString("en-US")} ${results.length === 1 ? "project" : "projects"} available`}
+        description={`${total.toLocaleString("en-US")} ${total === 1 ? "project" : "projects"} available`}
         crumbs={[{ label: "Home", href: "/" }, { label: "Projects" }]}
         contentMaxWidth="720px"
         image="/images/city-lahore-skyline.jpg"
@@ -43,7 +54,7 @@ export default async function ProjectsPage({
       <section className="bg-surface py-8">
         <div className="container-page grid items-start gap-6 lg:grid-cols-[250px_1fr]">
           <ProjectFilters />
-          <ProjectResults projects={results} total={results.length} />
+          <ProjectResults projects={results} total={total} />
         </div>
       </section>
     </main>

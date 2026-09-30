@@ -1,9 +1,23 @@
 import Link from "next/link";
 import ProjectCard from "@/components/project/ProjectCard";
 import Carousel from "@/components/ui/Carousel";
-import { popularProjects } from "@/constants/mockProjects";
+import { serverApi } from "@/lib/api/server";
+import type { Project } from "@/types/project";
 
-export default function PopularProjects() {
+export default async function PopularProjects() {
+  let projects: Project[] = [];
+
+  try {
+    const res = await serverApi<{ data: Project[] }>(
+      "/projects?per_page=8",
+    );
+    projects = res.data;
+  } catch {
+    return null;
+  }
+
+  if (projects.length === 0) return null;
+
   return (
     <section className="bg-surface py-10 sm:py-12">
       <div className="container-page">
@@ -26,11 +40,11 @@ export default function PopularProjects() {
         </div>
 
         <Carousel
-          itemCount={popularProjects.length}
+          itemCount={projects.length}
           itemsPerPage={4}
           label="projects"
         >
-          {popularProjects.map((project) => (
+          {projects.map((project) => (
             <div
               key={project.id}
               className="w-[270px] shrink-0 snap-start sm:w-[300px] lg:w-[calc((100%-60px)/4)]"

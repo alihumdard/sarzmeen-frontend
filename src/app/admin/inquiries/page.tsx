@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminFilterBar from "@/components/admin/AdminFilterBar";
@@ -9,8 +9,9 @@ import AdminTable, {
 } from "@/components/admin/AdminTable";
 import AdminPagination from "@/components/admin/AdminPagination";
 import StatusBadge from "@/components/admin/StatusBadge";
+import { api } from "@/lib/api/client";
 
-type InquiryStatus = "New" | "Pending" | "Contacted" | "Closed";
+type InquiryStatus = "new" | "pending" | "contacted" | "closed";
 
 type Inquiry = {
   id: number;
@@ -27,156 +28,13 @@ type Inquiry = {
   image: string;
 };
 
-const initialInquiries: Inquiry[] = [
-  {
-    id: 1,
-    name: "Ali Raza",
-    email: "ali.raza@email.com",
-    phone: "+92 300 1234567",
-    property: "5 Marla House",
-    propertyType: "House",
-    location: "DHA Lahore",
-    message: "I am interested in this property, please share more details.",
-    source: "Website",
-    status: "New",
-    date: "May 20, 2024 10:30 AM",
-    image: "/images/property-1.jpg",
-  },
-  {
-    id: 2,
-    name: "Sarah Khan",
-    email: "sarah.khan@email.com",
-    phone: "+92 321 9876543",
-    property: "Bahria Town Plot",
-    propertyType: "Plot",
-    location: "Lahore",
-    message: "Please share more details about payment plan.",
-    source: "Contact Form",
-    status: "Contacted",
-    date: "May 19, 2024 09:15 AM",
-    image: "/images/city-1.jpg",
-  },
-  {
-    id: 3,
-    name: "Usman Ahmed",
-    email: "usman.ahmed@email.com",
-    phone: "+92 333 4567890",
-    property: "The Oaks Residence",
-    propertyType: "Apartment",
-    location: "Islamabad",
-    message: "Is this project still available?",
-    source: "Website",
-    status: "Pending",
-    date: "May 18, 2024 05:40 PM",
-    image: "/images/project-1.jpg",
-  },
-  {
-    id: 4,
-    name: "Ayesha Malik",
-    email: "ayesha.malik@email.com",
-    phone: "+92 300 1122334",
-    property: "3 Marla Plot",
-    propertyType: "Plot",
-    location: "Karachi",
-    message: "Can you guide about payment options?",
-    source: "WhatsApp",
-    status: "Contacted",
-    date: "May 18, 2024 11:10 AM",
-    image: "/images/property-1.jpg",
-  },
-  {
-    id: 5,
-    name: "Fahad Hussain",
-    email: "fahad.hussain@email.com",
-    phone: "+92 321 6677889",
-    property: "Apartment for Rent",
-    propertyType: "Apartment",
-    location: "Gulberg Lahore",
-    message: "What is the monthly rent?",
-    source: "Phone",
-    status: "New",
-    date: "May 17, 2024 10:00 AM",
-    image: "/images/interior-1.jpg",
-  },
-  {
-    id: 6,
-    name: "Zainab Fatima",
-    email: "zainab.fatima@email.com",
-    phone: "+92 333 9988776",
-    property: "Commercial Plot",
-    propertyType: "Commercial",
-    location: "Islamabad",
-    message: "Interested in commercial plots in this sector.",
-    source: "Website",
-    status: "Pending",
-    date: "May 16, 2024 02:30 PM",
-    image: "/images/city-1.jpg",
-  },
-  {
-    id: 7,
-    name: "Bilal Khan",
-    email: "bilal.khan@email.com",
-    phone: "+92 300 5544332",
-    property: "House for Sale",
-    propertyType: "House",
-    location: "Johar Town",
-    message: "Kindly share location details.",
-    source: "Facebook",
-    status: "Contacted",
-    date: "May 15, 2024 04:20 PM",
-    image: "/images/property-1.jpg",
-  },
-  {
-    id: 8,
-    name: "Hira Noor",
-    email: "hira.noor@email.com",
-    phone: "+92 321 2233445",
-    property: "New Metro City",
-    propertyType: "Plot",
-    location: "Kharian",
-    message: "I want to book a visit.",
-    source: "Website",
-    status: "New",
-    date: "May 14, 2024 09:30 AM",
-    image: "/images/project-1.jpg",
-  },
-  {
-    id: 9,
-    name: "Ahmad Ali",
-    email: "ahmad.ali@email.com",
-    phone: "+92 333 7766554",
-    property: "Farm House",
-    propertyType: "House",
-    location: "Islamabad",
-    message: "Please send complete brochure.",
-    source: "Email",
-    status: "Contacted",
-    date: "May 13, 2024 11:20 AM",
-    image: "/images/interior-1.jpg",
-  },
-  {
-    id: 10,
-    name: "Maria Ahmed",
-    email: "maria.ahmed@email.com",
-    phone: "+92 300 8899001",
-    property: "Plots on Installment",
-    propertyType: "Plot",
-    location: "Faisalabad",
-    message: "What are the installment plans?",
-    source: "Website",
-    status: "Pending",
-    date: "May 12, 2024 03:45 PM",
-    image: "/images/city-1.jpg",
-  },
-];
-
 const sourceBadgeClasses: Record<string, string> = {
-  Website: "bg-blue-50 text-blue-600",
-  "Contact Form": "bg-violet-50 text-violet-600",
-  WhatsApp: "bg-emerald-50 text-emerald-600",
-  Phone: "bg-red-50 text-red-600",
-  Facebook: "bg-sky-50 text-sky-600",
-  Email: "bg-amber-50 text-amber-600",
+  website: "bg-blue-50 text-blue-600",
+  "contact form": "bg-violet-50 text-violet-600",
+  whatsapp: "bg-emerald-50 text-emerald-600",
+  phone: "bg-red-50 text-red-600",
+  facebook: "bg-sky-50 text-sky-600",
+  email: "bg-amber-50 text-amber-600",
 };
 
 function getInitials(name: string) {
@@ -188,8 +46,13 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
+function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 export default function InquiriesPage() {
-  const [inquiries, setInquiries] = useState(initialInquiries);
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [propertyType, setPropertyType] = useState("");
@@ -199,13 +62,62 @@ export default function InquiriesPage() {
 
   const itemsPerPage = 10;
 
+  const fetchInquiries = useCallback(async () => {
+    try {
+      const params = new URLSearchParams();
+      if (status) params.set("status", status);
+      const qs = params.toString();
+      const res = await api<{
+        data: Array<{
+          id: string;
+          name: string;
+          email: string;
+          phone: string;
+          message: string;
+          source: string;
+          status: string;
+          property: string;
+          propertyType: string;
+          location: string;
+          image: string;
+          date: string;
+          createdAt: string;
+        }>;
+      }>(`/admin/inquiries${qs ? `?${qs}` : ""}`);
+      setInquiries(
+        res.data.map((i) => ({
+          id: Number(i.id),
+          name: i.name,
+          email: i.email,
+          phone: i.phone || "",
+          property: i.property || "N/A",
+          propertyType: i.propertyType || "",
+          location: i.location || "",
+          message: i.message,
+          source: i.source || "website",
+          status: i.status as InquiryStatus,
+          date: i.date || new Date(i.createdAt).toLocaleDateString("en-PK", { day: "numeric", month: "short", year: "numeric" }),
+          image: i.image || "/images/property-1.jpg",
+        }))
+      );
+    } catch {
+      // keep empty
+    } finally {
+      setLoading(false);
+    }
+  }, [status]);
+
+  useEffect(() => {
+    fetchInquiries();
+  }, [fetchInquiries]);
+
   const locationOptions = useMemo(
-    () => Array.from(new Set(inquiries.map((item) => item.location))),
+    () => Array.from(new Set(inquiries.map((item) => item.location).filter(Boolean))),
     [inquiries],
   );
 
   const sourceOptions = useMemo(
-    () => Array.from(new Set(inquiries.map((item) => item.source))),
+    () => Array.from(new Set(inquiries.map((item) => item.source).filter(Boolean))),
     [inquiries],
   );
 
@@ -219,7 +131,6 @@ export default function InquiriesPage() {
         inquiry.email.toLowerCase().includes(query) ||
         inquiry.phone.toLowerCase().includes(query);
 
-      const matchesStatus = !status || inquiry.status === status;
       const matchesLocation = !location || inquiry.location === location;
       const matchesSource = !source || inquiry.source === source;
       const matchesPropertyType =
@@ -227,13 +138,12 @@ export default function InquiriesPage() {
 
       return (
         matchesSearch &&
-        matchesStatus &&
         matchesLocation &&
         matchesSource &&
         matchesPropertyType
       );
     });
-  }, [inquiries, search, status, location, source, propertyType]);
+  }, [inquiries, search, location, source, propertyType]);
 
   const totalPages = Math.max(
     1,
@@ -254,16 +164,29 @@ export default function InquiriesPage() {
     setPage(1);
   };
 
-  const deleteInquiry = (id: number) => {
-    setInquiries((current) => current.filter((inquiry) => inquiry.id !== id));
+  const deleteInquiry = async (id: number) => {
+    try {
+      await api(`/admin/inquiries/${id}`, { method: "DELETE" });
+      setInquiries((current) => current.filter((inquiry) => inquiry.id !== id));
+    } catch {
+      // silent
+    }
   };
 
-  const markContacted = (id: number) => {
-    setInquiries((current) =>
-      current.map((inquiry) =>
-        inquiry.id === id ? { ...inquiry, status: "Contacted" } : inquiry,
-      ),
-    );
+  const markContacted = async (id: number) => {
+    try {
+      await api(`/admin/inquiries/${id}/status`, {
+        method: "PATCH",
+        body: { status: "contacted" } as unknown as Record<string, unknown>,
+      });
+      setInquiries((current) =>
+        current.map((inquiry) =>
+          inquiry.id === id ? { ...inquiry, status: "contacted" as InquiryStatus } : inquiry,
+        ),
+      );
+    } catch {
+      // silent
+    }
   };
 
   const columns: AdminTableColumn<Inquiry>[] = [
@@ -344,17 +267,17 @@ export default function InquiriesPage() {
         <span
           className={[
             "inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-[10px] font-medium",
-            sourceBadgeClasses[inquiry.source] ?? "bg-gray-100 text-gray-600",
+            sourceBadgeClasses[inquiry.source.toLowerCase()] ?? "bg-gray-100 text-gray-600",
           ].join(" ")}
         >
-          {inquiry.source}
+          {capitalize(inquiry.source)}
         </span>
       ),
     },
     {
       key: "status",
       label: "Status",
-      render: (inquiry) => <StatusBadge status={inquiry.status} />,
+      render: (inquiry) => <StatusBadge status={capitalize(inquiry.status)} />,
     },
     {
       key: "date",
@@ -412,6 +335,14 @@ export default function InquiriesPage() {
     },
   ];
 
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <AdminPageHeader
@@ -430,15 +361,6 @@ export default function InquiriesPage() {
               <DownloadIcon />
               Export
             </button>
-
-            <button
-              type="button"
-              className="inline-flex h-9 items-center gap-2 rounded-md border border-gray-200 bg-white px-4 text-[11px] font-semibold text-gray-700 transition-colors hover:border-primary hover:text-primary"
-            >
-              <CalendarIcon />
-              May 01, 2024 - May 31, 2024
-              <ChevronDownIcon />
-            </button>
           </div>
         }
       />
@@ -448,29 +370,24 @@ export default function InquiriesPage() {
         <SummaryCard
           label="Total Inquiries"
           value={inquiries.length}
-          trend="+15.4%"
           icon={<InquiryIcon />}
           iconClassName="bg-primary/10 text-primary"
         />
         <SummaryCard
           label="New Inquiries"
-          value={inquiries.filter((i) => i.status === "New").length}
-          trend="+22.1%"
+          value={inquiries.filter((i) => i.status === "new").length}
           icon={<UserIcon />}
           iconClassName="bg-blue-50 text-blue-600"
         />
         <SummaryCard
           label="Pending"
-          value={inquiries.filter((i) => i.status === "Pending").length}
-          trend="-12.5%"
-          negative
+          value={inquiries.filter((i) => i.status === "pending").length}
           icon={<ClockIcon />}
           iconClassName="bg-amber-50 text-amber-600"
         />
         <SummaryCard
           label="Contacted"
-          value={inquiries.filter((i) => i.status === "Contacted").length}
-          trend="+18.7%"
+          value={inquiries.filter((i) => i.status === "contacted").length}
           icon={<CheckIcon />}
           iconClassName="bg-emerald-50 text-emerald-600"
         />
@@ -489,27 +406,13 @@ export default function InquiriesPage() {
             label: "All Status",
             value: status,
             options: [
-              { label: "New", value: "New" },
-              { label: "Pending", value: "Pending" },
-              { label: "Contacted", value: "Contacted" },
-              { label: "Closed", value: "Closed" },
+              { label: "New", value: "new" },
+              { label: "Pending", value: "pending" },
+              { label: "Contacted", value: "contacted" },
+              { label: "Closed", value: "closed" },
             ],
             onChange: (value) => {
               setStatus(value);
-              setPage(1);
-            },
-          },
-          {
-            label: "All Property Types",
-            value: propertyType,
-            options: [
-              { label: "House", value: "House" },
-              { label: "Plot", value: "Plot" },
-              { label: "Apartment", value: "Apartment" },
-              { label: "Commercial", value: "Commercial" },
-            ],
-            onChange: (value) => {
-              setPropertyType(value);
               setPage(1);
             },
           },
@@ -525,7 +428,7 @@ export default function InquiriesPage() {
           {
             label: "All Sources",
             value: source,
-            options: sourceOptions.map((value) => ({ label: value, value })),
+            options: sourceOptions.map((value) => ({ label: capitalize(value), value })),
             onChange: (value) => {
               setSource(value);
               setPage(1);
@@ -559,15 +462,11 @@ export default function InquiriesPage() {
 function SummaryCard({
   label,
   value,
-  trend,
-  negative,
   icon,
   iconClassName,
 }: {
   label: string;
   value: number;
-  trend: string;
-  negative?: boolean;
   icon: React.ReactNode;
   iconClassName?: string;
 }) {
@@ -586,17 +485,6 @@ function SummaryCard({
         <p className="truncate text-[11px] text-gray-500">{label}</p>
         <p className="mt-0.5 text-[19px] font-bold leading-none text-gray-900">
           {value.toLocaleString()}
-        </p>
-        <p
-          className={[
-            "mt-1.5 text-[9px] font-medium",
-            negative ? "text-red-500" : "text-emerald-600",
-          ].join(" ")}
-        >
-          {negative ? "↓" : "↑"} {trend}
-          <span className="ml-1 font-normal text-gray-400">
-            from last month
-          </span>
         </p>
       </div>
     </div>
@@ -651,23 +539,6 @@ function DownloadIcon() {
       <path d="M12 3v12" />
       <path d="m7 10 5 5 5-5" />
       <path d="M5 21h14" />
-    </svg>
-  );
-}
-
-function CalendarIcon() {
-  return (
-    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="4" y="5" width="16" height="15" rx="2" />
-      <path d="M8 3v4M16 3v4M4 10h16" />
-    </svg>
-  );
-}
-
-function ChevronDownIcon() {
-  return (
-    <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m6 9 6 6 6-6" />
     </svg>
   );
 }

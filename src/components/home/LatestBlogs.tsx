@@ -1,9 +1,21 @@
 import Link from "next/link";
 import BlogCard from "@/components/blog/BlogCard";
 import Carousel from "@/components/ui/Carousel";
-import { latestPosts } from "@/constants/mockBlogs";
+import { serverApi } from "@/lib/api/server";
+import type { BlogPost } from "@/types/blog";
 
-export default function LatestBlogs() {
+export default async function LatestBlogs() {
+  let posts: BlogPost[] = [];
+
+  try {
+    const res = await serverApi<{ data: BlogPost[] }>("/blogs?per_page=8");
+    posts = res.data;
+  } catch {
+    // fallback empty
+  }
+
+  if (posts.length === 0) return null;
+
   return (
     <section className="bg-white py-6 sm:py-8">
       <div className="container-page">
@@ -26,12 +38,12 @@ export default function LatestBlogs() {
         </div>
 
         <Carousel
-          itemCount={latestPosts.length}
+          itemCount={posts.length}
           itemsPerPage={4}
           label="articles"
           showDots={false}
         >
-          {latestPosts.map((post) => (
+          {posts.map((post) => (
             <div
               key={post.id}
               className="w-[270px] shrink-0 snap-start sm:w-[300px] lg:w-[calc((100%-60px)/4)]"
