@@ -44,13 +44,17 @@ export default function PropertyCard({ property }: PropertyCardProps) {
       {/* Image with the two corner badges and the favourite button.
           `shrink-0` keeps the fixed height intact inside the flex column. */}
       <div className="relative h-[200px] shrink-0 overflow-hidden">
-        <Image
-          src={property.image}
-          alt={title}
-          fill
-          sizes="(min-width: 1024px) 320px, (min-width: 640px) 300px, 270px"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        {property.image ? (
+          <Image
+            src={property.image}
+            alt={title}
+            fill
+            sizes="(min-width: 1024px) 320px, (min-width: 640px) 300px, 270px"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400 text-sm">No Image</div>
+        )}
 
         {/* Click target covering the photo, layered over the image itself. */}
         <Link
@@ -118,13 +122,17 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             className="flex min-w-0 items-center gap-2.5 transition-opacity hover:opacity-80"
           >
             <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full ring-2 ring-primary-light">
-              <Image
-                src={agent.avatar}
-                alt={agent.name}
-                fill
-                sizes="32px"
-                className="object-cover"
-              />
+              {agent.avatar ? (
+                <Image
+                  src={agent.avatar}
+                  alt={agent.name}
+                  fill
+                  sizes="32px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-gray-200 text-[10px] font-bold text-gray-400">{agent.name?.charAt(0)}</div>
+              )}
             </div>
             <div className="min-w-0">
               <p className="truncate text-xs font-semibold text-heading">

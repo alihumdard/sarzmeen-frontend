@@ -84,13 +84,17 @@ export default function PropertyPriceBox({ property }: PropertyPriceBoxProps) {
         className="mt-5 flex items-center gap-3 transition-opacity hover:opacity-80"
       >
         <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-2 ring-primary-light">
-          <Image
-            src={agent.avatar}
-            alt={agent.name}
-            fill
-            sizes="48px"
-            className="object-cover"
-          />
+          {agent.avatar ? (
+            <Image
+              src={agent.avatar}
+              alt={agent.name}
+              fill
+              sizes="48px"
+              className="object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gray-200 text-xs font-semibold text-gray-500">{agent.name?.charAt(0)?.toUpperCase()}</div>
+          )}
         </div>
 
         <div className="min-w-0">

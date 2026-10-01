@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import DetailBreadcrumb from "@/components/property/DetailBreadcrumb";
 import PropertyDetailHeader from "@/components/property/PropertyDetailHeader";
 import PropertyGallery from "@/components/property/PropertyGallery";
@@ -7,37 +8,25 @@ import PropertyQuickFacts from "@/components/property/PropertyQuickFacts";
 import PropertyTabs from "@/components/property/PropertyTabs";
 import SimilarProperties from "@/components/property/SimilarProperties";
 import SellRentStrip from "@/components/layout/SellRentStrip";
-import { rentPropertyDetail } from "@/constants/mockRentPropertyDetail";
-import { rentProperties } from "@/constants/mockRentProperties";
+import { serverApi } from "@/lib/api/server";
+import type { PropertyDetail, Property } from "@/types/property";
 
 type RentDetailPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-/**
- * Looks a rental up by slug.
- *
- * Mirrors the sale detail page: until the API exists every slug resolves to
- * the one mock record, with its headline derived from the slug so different
- * cards read differently.
- */
-function getRental(slug: string) {
-  if (slug === rentPropertyDetail.slug) return rentPropertyDetail;
-
-  const title = slug
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-
-  return { ...rentPropertyDetail, slug, headline: title };
+async function getRental(slug: string): Promise<PropertyDetail> {
+  try {
+    const res = await serverApi<{ data: PropertyDetail }>(`/properties/${slug}`);
+    return res.data;
+  } catch {
+    notFound();
+  }
 }
 
-export async function generateMetadata({
-  params,
-}: RentDetailPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: RentDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const rental = getRental(slug);
-
+  const rental = await getRental(slug);
   return {
     title: rental.headline,
     description: rental.description,
@@ -46,7 +35,15 @@ export async function generateMetadata({
 
 export default async function RentDetailPage({ params }: RentDetailPageProps) {
   const { slug } = await params;
-  const rental = getRental(slug);
+  const rental = await getRental(slug);
+
+  let similarProperties: Property[] = [];
+  try {
+    const res = await serverApi<{ data: Property[] }>(`/properties?per_page=4&purpose=rent`);
+    similarProperties = res.data.filter((p) => p.slug !== slug);
+  } catch {
+    // non-critical
+  }
 
   return (
     <main>
@@ -55,7 +52,6 @@ export default async function RentDetailPage({ params }: RentDetailPageProps) {
         crumbs={[
           { label: "Home", href: "/" },
           { label: "Rent", href: "/rent" },
-          { label: "Houses", href: "/rent?type=house" },
           { label: rental.headline },
         ]}
       />
@@ -89,7 +85,7 @@ export default async function RentDetailPage({ params }: RentDetailPageProps) {
       </section>
 
       <SimilarProperties
-        properties={rentProperties}
+        properties={similarProperties}
         currentSlug={rental.slug}
         title="Similar Rentals You May Like"
         viewAllHref="/rent"

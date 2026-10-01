@@ -31,13 +31,17 @@ export default function BlogCard({ post, variant = "compact" }: BlogCardProps) {
           isFull ? "h-[185px]" : "h-[160px]"
         }`}
       >
-        <Image
-          src={image}
-          alt={title}
-          fill
-          sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 90vw"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        {image ? (
+          <Image
+            src={image}
+            alt={title}
+            fill
+            sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 90vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400 text-sm">No Image</div>
+        )}
 
         <span className="pointer-events-none absolute left-3 top-3 z-20 rounded bg-primary px-2.5 py-1 text-[10px] font-semibold text-white">
           {category}
@@ -88,13 +92,17 @@ export default function BlogCard({ post, variant = "compact" }: BlogCardProps) {
             <div className="mt-auto flex items-center justify-between gap-3 border-t border-border pt-3">
               <div className="flex min-w-0 items-center gap-2.5">
                 <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
-                  <Image
-                    src={author.avatar}
-                    alt={author.name}
-                    fill
-                    sizes="32px"
-                    className="object-cover"
-                  />
+                  {author.avatar ? (
+                    <Image
+                      src={author.avatar}
+                      alt={author.name}
+                      fill
+                      sizes="32px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gray-200 text-xs font-semibold text-gray-500">{author.name?.charAt(0)?.toUpperCase()}</div>
+                  )}
                 </div>
 
                 <div className="min-w-0">

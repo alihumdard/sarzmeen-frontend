@@ -74,13 +74,17 @@ function ReviewCard({ testimonial }: { testimonial: Testimonial }) {
       <div className="relative flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full ring-2 ring-white/10">
-            <Image
-              src={testimonial.avatar}
-              alt={testimonial.name}
-              fill
-              sizes="40px"
-              className="object-cover"
-            />
+            {testimonial.avatar ? (
+              <Image
+                src={testimonial.avatar}
+                alt={testimonial.name}
+                fill
+                sizes="40px"
+                className="object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gray-200 text-xs font-semibold text-gray-500">{testimonial.name?.charAt(0)?.toUpperCase()}</div>
+            )}
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
@@ -248,13 +252,17 @@ export default function Testimonials() {
                   key={testimonial.id}
                   className="relative h-7 w-7 overflow-hidden rounded-full ring-2 ring-[#0b1210]"
                 >
-                  <Image
-                    src={testimonial.avatar}
-                    alt=""
-                    fill
-                    sizes="28px"
-                    className="object-cover"
-                  />
+                  {testimonial.avatar ? (
+                    <Image
+                      src={testimonial.avatar}
+                      alt=""
+                      fill
+                      sizes="28px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gray-200 text-xs font-semibold text-gray-500">{testimonial.name?.charAt(0)?.toUpperCase()}</div>
+                  )}
                 </div>
               ))}
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-[10px] font-semibold text-white/70 ring-2 ring-[#0b1210]">

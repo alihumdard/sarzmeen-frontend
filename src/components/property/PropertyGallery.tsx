@@ -135,13 +135,17 @@ export default function PropertyGallery({
                 index === active ? "border-primary" : "border-transparent"
               }`}
             >
-              <Image
-                src={image}
-                alt=""
-                fill
-                sizes="120px"
-                className="object-cover"
-              />
+              {image ? (
+                <Image
+                  src={image}
+                  alt=""
+                  fill
+                  sizes="120px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400 text-sm">No Image</div>
+              )}
             </button>
           </li>
         ))}

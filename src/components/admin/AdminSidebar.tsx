@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 type AdminSidebarProps = {
   mobileOpen?: boolean;
@@ -35,6 +36,11 @@ type MenuItem = {
   icon: IconName;
   /** True once a real page exists at `href`. False renders it inert with a "Soon" tag. */
   implemented?: boolean;
+  /**
+   * Roles allowed to see this entry. Omitted means admin-only, because every
+   * /admin/* API route is gated behind `role:admin` and 403s for anyone else.
+   */
+  roles?: string[];
 };
 
 type MenuGroup = {
@@ -56,12 +62,14 @@ const menuGroups: MenuGroup[] = [
         href: "/admin",
         icon: "dashboard",
         implemented: true,
+        roles: ["admin", "agency", "agent"],
       },
       {
         label: "Properties",
         href: "/admin/properties",
         icon: "property",
         implemented: true,
+        roles: ["admin", "agency", "agent"],
       },
       {
         label: "Projects",
@@ -348,6 +356,17 @@ export default function AdminSidebar({
   onClose,
 }: AdminSidebarProps) {
   const pathname = usePathname();
+  const { user } = useAuth();
+
+  // Drop entries this role cannot use, then drop groups left empty.
+  const visibleGroups = menuGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) =>
+        item.roles ? item.roles.includes(user?.role ?? "") : user?.role === "admin",
+      ),
+    }))
+    .filter((group) => group.items.length > 0);
 
   const [openMenus, setOpenMenus] = useState<string[]>([
     "Properties",
@@ -603,7 +622,7 @@ export default function AdminSidebar({
       {/* Navigation */}
       <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-5 [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.15)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/15 [&::-webkit-scrollbar-track]:bg-transparent">
         <div className="space-y-6">
-          {menuGroups.map((group) => (
+          {visibleGroups.map((group) => (
             <div key={group.title}>
               <p className="mb-2 px-3 text-[9px] font-semibold tracking-[0.12em] text-white/40">
                 {group.title}

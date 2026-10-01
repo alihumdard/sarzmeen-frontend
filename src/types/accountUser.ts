@@ -10,7 +10,7 @@
  * for real requests does not require touching the components.
  */
 
-export type AccountRole = "user" | "agent" | "agency";
+export type AccountRole = "user" | "agent" | "agency" | "admin";
 
 /**
  * Where a record sits in the approval flow.

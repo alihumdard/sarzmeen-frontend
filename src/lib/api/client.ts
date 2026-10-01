@@ -8,9 +8,10 @@ let csrfReady = false;
 
 async function ensureCsrf(): Promise<void> {
   if (csrfReady) return;
-  await fetch(`${API_URL}/sanctum/csrf-cookie`, {
+  const res = await fetch(`${API_URL}/sanctum/csrf-cookie`, {
     credentials: "include",
   });
+  if (!res.ok) throw new Error("Failed to initialize session");
   csrfReady = true;
 }
 
@@ -51,13 +52,27 @@ export async function api<T = unknown>(
     fetchBody = JSON.stringify(body);
   }
 
-  const res = await fetch(`${API_URL}/api${path}`, {
+  let res = await fetch(`${API_URL}/api${path}`, {
     method: method ?? "GET",
     headers,
     credentials: "include",
     body: fetchBody,
     ...rest,
   });
+
+  if (res.status === 419 && !isGet) {
+    csrfReady = false;
+    await ensureCsrf();
+    const retryToken = getCookie("XSRF-TOKEN");
+    if (retryToken) headers["X-XSRF-TOKEN"] = retryToken;
+    res = await fetch(`${API_URL}/api${path}`, {
+      method: method ?? "GET",
+      headers,
+      credentials: "include",
+      body: fetchBody,
+      ...rest,
+    });
+  }
 
   if (res.status === 204) return undefined as T;
 

@@ -24,8 +24,8 @@ export default function LoginForm() {
     const password = form.get("password") as string;
 
     try {
-      await login(email, password);
-      router.push("/admin");
+      const user = await login(email, password);
+      router.push(user.role === "user" ? "/" : "/admin");
     } catch (err: unknown) {
       const msg =
         err instanceof Error ? err.message : "Login failed. Please try again.";

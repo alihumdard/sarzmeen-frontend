@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { mainNavigation } from "@/constants/navigation";
+import { useAuth } from "@/context/AuthContext";
 import {
   ChevronDownIcon,
   CloseIcon,
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/Icons";
 
 export default function Header() {
+  const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openMobileGroup, setOpenMobileGroup] = useState<string | null>(null);
@@ -128,20 +130,42 @@ export default function Header() {
 
         {/* Desktop actions */}
         <div className="hidden shrink-0 items-center justify-self-end gap-3 xl:flex">
-          <Link
-            href="/login"
-            className="flex items-center gap-1.5 px-2 text-[14px] font-semibold text-heading transition-colors hover:text-primary"
-          >
-            <UserCircleIcon className="h-5 w-5" />
-            Login
-          </Link>
+          {user ? (
+            <>
+              <Link
+                href={user.role === "user" ? "/" : "/admin"}
+                className="flex items-center gap-1.5 px-2 text-[14px] font-semibold text-heading transition-colors hover:text-primary"
+              >
+                <UserCircleIcon className="h-5 w-5" />
+                {user.name}
+              </Link>
 
-          <Link
-            href="/register"
-            className="px-2 text-[14px] font-semibold text-heading transition-colors hover:text-primary"
-          >
-            Register
-          </Link>
+              <button
+                type="button"
+                onClick={() => logout()}
+                className="px-2 text-[14px] font-semibold text-heading transition-colors hover:text-primary"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="flex items-center gap-1.5 px-2 text-[14px] font-semibold text-heading transition-colors hover:text-primary"
+              >
+                <UserCircleIcon className="h-5 w-5" />
+                Login
+              </Link>
+
+              <Link
+                href="/register"
+                className="px-2 text-[14px] font-semibold text-heading transition-colors hover:text-primary"
+              >
+                Register
+              </Link>
+            </>
+          )}
 
           <Link
             href="/properties/add"
@@ -234,22 +258,48 @@ export default function Header() {
               </Link>
 
               <div className="flex gap-3">
-                <Link
-                  href="/login"
-                  onClick={closeMobileMenu}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-full border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
-                >
-                  <UserCircleIcon className="h-5 w-5" />
-                  Login
-                </Link>
+                {user ? (
+                  <>
+                    <Link
+                      href={user.role === "user" ? "/" : "/admin"}
+                      onClick={closeMobileMenu}
+                      className="flex flex-1 items-center justify-center gap-2 rounded-full border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
+                    >
+                      <UserCircleIcon className="h-5 w-5" />
+                      {user.name}
+                    </Link>
 
-                <Link
-                  href="/register"
-                  onClick={closeMobileMenu}
-                  className="flex flex-1 items-center justify-center rounded-full border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
-                >
-                  Register
-                </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        closeMobileMenu();
+                        logout();
+                      }}
+                      className="flex flex-1 items-center justify-center rounded-full border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
+                    >
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      onClick={closeMobileMenu}
+                      className="flex flex-1 items-center justify-center gap-2 rounded-full border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
+                    >
+                      <UserCircleIcon className="h-5 w-5" />
+                      Login
+                    </Link>
+
+                    <Link
+                      href="/register"
+                      onClick={closeMobileMenu}
+                      className="flex flex-1 items-center justify-center rounded-full border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
+                    >
+                      Register
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </nav>

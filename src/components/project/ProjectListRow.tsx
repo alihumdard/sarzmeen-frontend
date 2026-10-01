@@ -15,13 +15,17 @@ export default function ProjectListRow({ project }: ProjectListRowProps) {
   return (
     <article className="group flex flex-col overflow-hidden rounded-lg border border-border bg-white transition-all hover:-translate-y-0.5 hover:shadow-lg lg:flex-row">
       <div className="relative h-[200px] shrink-0 overflow-hidden lg:h-auto lg:w-[240px]">
-        <Image
-          src={image}
-          alt={name}
-          fill
-          sizes="(min-width: 1024px) 240px, 100vw"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        {image ? (
+          <Image
+            src={image}
+            alt={name}
+            fill
+            sizes="(min-width: 1024px) 240px, 100vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400 text-sm">No Image</div>
+        )}
 
         <Link
           href={`/projects/${slug}`}

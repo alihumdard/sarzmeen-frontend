@@ -34,6 +34,9 @@ export async function register(data: {
 }
 
 export async function logout(): Promise<void> {
-  await api("/logout", { method: "POST" });
-  resetCsrf();
+  try {
+    await api("/logout", { method: "POST" });
+  } finally {
+    resetCsrf();
+  }
 }

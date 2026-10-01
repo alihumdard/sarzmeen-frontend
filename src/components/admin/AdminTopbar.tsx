@@ -3,9 +3,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 type AdminTopbarProps = {
   onMenuClick?: () => void;
+};
+
+const roleLabels: Record<string, string> = {
+  admin: "Super Administrator",
+  agency: "Agency",
+  agent: "Agent",
+  user: "Website User",
 };
 
 const mockNotifications = [
@@ -48,6 +56,9 @@ const mockMessages = [
 ];
 
 export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
+  const { user, logout } = useAuth();
+  const displayName = user?.name ?? "";
+  const displayRole = user ? (roleLabels[user.role] ?? user.role) : "";
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [messagesOpen, setMessagesOpen] = useState(false);
@@ -278,21 +289,27 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
               aria-expanded={profileOpen}
               className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-gray-50"
             >
-              <Image
-                src="/images/agent-1.jpg"
-                alt="Admin"
-                width={40}
-                height={40}
-                className="h-9 w-9 rounded-full border border-gray-200 object-cover"
-              />
+              {user?.avatar ? (
+                <Image
+                  src={user.avatar}
+                  alt={displayName}
+                  width={40}
+                  height={40}
+                  className="h-9 w-9 rounded-full border border-gray-200 object-cover"
+                />
+              ) : (
+                <span className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-primary/10 text-[12px] font-semibold text-primary">
+                  {displayName.charAt(0).toUpperCase()}
+                </span>
+              )}
 
               <div className="hidden text-left md:block">
                 <p className="text-[12px] font-semibold text-gray-900">
-                  Admin
+                  {displayName}
                 </p>
 
                 <p className="mt-0.5 text-[9px] text-gray-500">
-                  Super Administrator
+                  {displayRole}
                 </p>
               </div>
 
@@ -304,11 +321,11 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
               <div className="absolute right-0 top-full mt-2 w-[190px] overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
                 <div className="border-b border-gray-100 px-4 py-3">
                   <p className="text-[12px] font-semibold text-gray-900">
-                    Admin
+                    {displayName}
                   </p>
 
                   <p className="mt-1 text-[10px] text-gray-500">
-                    Super Administrator
+                    {displayRole}
                   </p>
                 </div>
 
@@ -330,12 +347,16 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
 
                 <div className="my-1 border-t border-gray-100" />
 
-                <Link
-                  href="/login"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProfileOpen(false);
+                    logout();
+                  }}
                   className="flex w-full px-4 py-2.5 text-left text-[11px] text-red-500 hover:bg-red-50"
                 >
                   Logout
-                </Link>
+                </button>
               </div>
             )}
           </div>

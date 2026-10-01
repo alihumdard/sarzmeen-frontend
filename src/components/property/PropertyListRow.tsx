@@ -58,13 +58,17 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
     <article className="group flex flex-col overflow-hidden rounded-lg border border-border bg-white transition-all hover:-translate-y-0.5 hover:shadow-lg lg:flex-row">
       {/* Photo */}
       <div className="relative h-[200px] shrink-0 overflow-hidden lg:h-auto lg:w-[240px]">
-        <Image
-          src={image}
-          alt={title}
-          fill
-          sizes="(min-width: 1024px) 240px, 100vw"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        {image ? (
+          <Image
+            src={image}
+            alt={title}
+            fill
+            sizes="(min-width: 1024px) 240px, 100vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400 text-sm">No Image</div>
+        )}
 
         <Link
           href={detailHref}
@@ -164,13 +168,17 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
             className="flex items-center gap-2.5 rounded-md py-1 transition-opacity hover:opacity-80"
           >
             <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-primary-light">
-              <Image
-                src={agent.avatar}
-                alt={agent.name}
-                fill
-                sizes="36px"
-                className="object-cover"
-              />
+              {agent.avatar ? (
+                <Image
+                  src={agent.avatar}
+                  alt={agent.name}
+                  fill
+                  sizes="36px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-gray-200 text-xs font-semibold text-gray-500">{agent.name?.charAt(0)?.toUpperCase()}</div>
+              )}
             </div>
 
             <div className="min-w-0">

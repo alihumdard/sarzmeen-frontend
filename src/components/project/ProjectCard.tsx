@@ -16,13 +16,17 @@ export default function ProjectCard({ project }: ProjectCardProps) {
     <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-white transition-all hover:-translate-y-0.5 hover:shadow-lg">
       {/* Fixed height keeps the frame from collapsing inside the flex column. */}
       <div className="relative h-[160px] shrink-0 overflow-hidden">
-        <Image
-          src={image}
-          alt={name}
-          fill
-          sizes="(min-width: 1024px) 320px, (min-width: 640px) 300px, 270px"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        {image ? (
+          <Image
+            src={image}
+            alt={name}
+            fill
+            sizes="(min-width: 1024px) 320px, (min-width: 640px) 300px, 270px"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400 text-sm">No Image</div>
+        )}
 
         <Link
           href={`/projects/${slug}`}

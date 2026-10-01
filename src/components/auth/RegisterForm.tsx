@@ -25,7 +25,7 @@ export default function RegisterForm() {
     const form = new FormData(e.currentTarget);
 
     try {
-      await register({
+      const user = await register({
         name: form.get("fullName") as string,
         email: form.get("email") as string,
         phone: (form.get("phone") as string) || undefined,
@@ -34,7 +34,7 @@ export default function RegisterForm() {
         role: form.get("role") as string,
         agencyName: (form.get("agencyName") as string) || undefined,
       });
-      router.push("/admin");
+      router.push(user.role === "user" ? "/" : "/admin");
     } catch (err: unknown) {
       if (err && typeof err === "object" && "errors" in err) {
         setFieldErrors(
