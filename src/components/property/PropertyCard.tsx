@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import SafeImage from "@/components/ui/SafeImage";
 import {
   AreaIcon,
   BathIcon,
@@ -44,17 +45,15 @@ export default function PropertyCard({ property }: PropertyCardProps) {
       {/* Image with the two corner badges and the favourite button.
           `shrink-0` keeps the fixed height intact inside the flex column. */}
       <div className="relative h-[200px] shrink-0 overflow-hidden">
-        {property.image ? (
-          <Image
-            src={property.image}
-            alt={title}
-            fill
-            sizes="(min-width: 1024px) 320px, (min-width: 640px) 300px, 270px"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400 text-sm">No Image</div>
-        )}
+        <SafeImage
+          src={property.image || ""}
+          alt={title}
+          fill
+          sizes="(min-width: 1024px) 320px, (min-width: 640px) 300px, 270px"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          fallbackText="No Image"
+          unoptimized
+        />
 
         {/* Click target covering the photo, layered over the image itself. */}
         <Link

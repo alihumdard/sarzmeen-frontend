@@ -10,6 +10,7 @@ export async function login(
   email: string,
   password: string,
 ): Promise<AuthUser> {
+  resetCsrf();
   await api("/login", {
     method: "POST",
     body: { email, password },

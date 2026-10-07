@@ -5,7 +5,7 @@
  * data for a real response later should not require touching the components.
  */
 
-export type PropertyPurpose = "sale" | "rent";
+export type PropertyPurpose = "sale" | "rent" | "installment";
 
 export type Agent = {
   id: string;
@@ -65,6 +65,10 @@ export type Property = {
   listedAgo?: string;
   /** Shows a verified tick beside the title. */
   verified?: boolean;
+  /** Property type slug, e.g. "residential-plot" — keys the field schema. */
+  typeSlug?: string;
+  /** Type-specific fields defined by config/property_schema.php. */
+  specs?: Record<string, unknown>;
 };
 
 /** A landmark near the property, shown under the location map. */
@@ -111,6 +115,8 @@ export type PropertyDetail = Property & {
   listedOn: string;
   /** Full description, one entry per paragraph. */
   descriptionParagraphs: string[];
+  /** Sanitised HTML from the rich-text editor; preferred over the paragraphs. */
+  descriptionHtml?: string;
   /** Selling points listed with ticks under the description. */
   highlights: string[];
   /** Landmarks shown under the location map. */

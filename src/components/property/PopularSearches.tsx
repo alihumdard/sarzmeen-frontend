@@ -1,7 +1,14 @@
 import Link from "next/link";
-import { popularSearches } from "@/constants/mockProperties";
 
-/** Quick-link chips shown under the listing search bar. */
+const popularSearches = [
+  { label: "DHA Lahore", href: "/properties?city=lahore&location=dha" },
+  { label: "Bahria Town", href: "/properties?location=bahria-town" },
+  { label: "5 Marla House", href: "/properties?type=house&area=5-marla" },
+  { label: "10 Marla Plot", href: "/properties?type=residential-plot" },
+  { label: "1 Kanal House", href: "/properties?type=house&area=1-kanal" },
+  { label: "Commercial Property", href: "/properties?type=commercial-plot" },
+];
+
 export default function PopularSearches() {
   return (
     <div className="mt-4 flex flex-wrap items-center gap-2">

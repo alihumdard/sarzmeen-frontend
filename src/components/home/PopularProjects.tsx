@@ -1,20 +1,20 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import ProjectCard from "@/components/project/ProjectCard";
 import Carousel from "@/components/ui/Carousel";
-import { serverApi } from "@/lib/api/server";
+import { api } from "@/lib/api/client";
 import type { Project } from "@/types/project";
 
-export default async function PopularProjects() {
-  let projects: Project[] = [];
+export default function PopularProjects() {
+  const [projects, setProjects] = useState<Project[]>([]);
 
-  try {
-    const res = await serverApi<{ data: Project[] }>(
-      "/projects?per_page=8",
-    );
-    projects = res.data;
-  } catch {
-    return null;
-  }
+  useEffect(() => {
+    api<{ data: Project[] }>("/projects?per_page=8")
+      .then((res) => setProjects(res.data))
+      .catch(() => {});
+  }, []);
 
   if (projects.length === 0) return null;
 

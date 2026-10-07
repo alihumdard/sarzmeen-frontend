@@ -4,6 +4,8 @@ import type {
 } from "@/types/propertyType";
 import { api } from "./client";
 
+export type { PropertyTypeRecord, PropertyTypeInput };
+
 export async function listPropertyTypes(): Promise<PropertyTypeRecord[]> {
   const res = await api<{ data: PropertyTypeRecord[] }>("/property-types");
   return res.data;

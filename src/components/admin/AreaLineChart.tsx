@@ -16,14 +16,22 @@ export default function AreaLineChart({
   const paddingBottom = 24;
   const chartHeight = height - paddingTop - paddingBottom;
 
+  if (!data.length) {
+    return (
+      <div className="flex h-[220px] w-full items-center justify-center text-[13px] text-gray-400">
+        No data available
+      </div>
+    );
+  }
+
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
 
-  const stepX = width / (data.length - 1);
+  const stepX = data.length > 1 ? width / (data.length - 1) : 0;
 
   const points = data.map((value, index) => {
-    const x = index * stepX;
+    const x = data.length > 1 ? index * stepX : width / 2;
     const y =
       paddingTop + chartHeight - ((value - min) / range) * chartHeight;
     return { x, y, value };
@@ -76,7 +84,7 @@ export default function AreaLineChart({
         {labels.map((label, index) => (
           <text
             key={label}
-            x={index * stepX}
+            x={labels.length > 1 ? index * (width / (labels.length - 1)) : width / 2}
             y={height - 6}
             fontSize="10"
             fill="#9ca3af"

@@ -1,6 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { popularCities } from "@/constants/mockProjects";
+
+const popularCities = [
+  { slug: "bahria-town", name: "Bahria Town", propertyCount: "Properties", image: "/images/city-1.jpg" },
+  { slug: "dha", name: "DHA Lahore", propertyCount: "Properties", image: "/images/city-1.jpg" },
+  { slug: "johar-town", name: "Johar Town", propertyCount: "Properties", image: "/images/city-1.jpg" },
+  { slug: "gulberg", name: "Gulberg", propertyCount: "Properties", image: "/images/city-1.jpg" },
+  { slug: "model-town", name: "Model Town", propertyCount: "Properties", image: "/images/city-1.jpg" },
+  { slug: "askari", name: "Askari", propertyCount: "Properties", image: "/images/city-1.jpg" },
+];
 
 export default function SearchByCity() {
   return (
@@ -14,7 +22,7 @@ export default function SearchByCity() {
 
       <ul className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-3">
         {popularCities.map((city) => (
-          <li key={city.id}>
+          <li key={city.slug}>
             <Link
               href={`/properties?area=${city.slug}`}
               className="group relative block h-[105px] overflow-hidden rounded-md"
@@ -27,7 +35,6 @@ export default function SearchByCity() {
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
 
-              {/* Bottom-weighted wash so the labels stay readable. */}
               <span className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,25,20,0.05)_35%,rgba(10,25,20,0.82)_100%)]" />
 
               <span className="absolute inset-x-0 bottom-0 p-3">

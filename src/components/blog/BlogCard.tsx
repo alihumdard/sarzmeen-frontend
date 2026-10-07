@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import SafeImage from "@/components/ui/SafeImage";
 import {
   ArrowRightIcon,
   CalendarIcon,
@@ -31,17 +32,15 @@ export default function BlogCard({ post, variant = "compact" }: BlogCardProps) {
           isFull ? "h-[185px]" : "h-[160px]"
         }`}
       >
-        {image ? (
-          <Image
-            src={image}
-            alt={title}
-            fill
-            sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 90vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400 text-sm">No Image</div>
-        )}
+        <SafeImage
+          src={image || ""}
+          alt={title}
+          fill
+          sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 90vw"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          fallbackText="No Image"
+          unoptimized
+        />
 
         <span className="pointer-events-none absolute left-3 top-3 z-20 rounded bg-primary px-2.5 py-1 text-[10px] font-semibold text-white">
           {category}

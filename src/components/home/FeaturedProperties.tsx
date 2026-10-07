@@ -1,20 +1,20 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import PropertyCard from "@/components/property/PropertyCard";
 import Carousel from "@/components/ui/Carousel";
-import { serverApi } from "@/lib/api/server";
+import { api } from "@/lib/api/client";
 import type { Property } from "@/types/property";
 
-export default async function FeaturedProperties() {
-  let properties: Property[] = [];
+export default function FeaturedProperties() {
+  const [properties, setProperties] = useState<Property[]>([]);
 
-  try {
-    const res = await serverApi<{ data: Property[] }>(
-      "/properties?featured=1&per_page=8",
-    );
-    properties = res.data;
-  } catch {
-    return null;
-  }
+  useEffect(() => {
+    api<{ data: Property[] }>("/properties?featured=1&per_page=8")
+      .then((res) => setProperties(res.data))
+      .catch(() => {});
+  }, []);
 
   if (properties.length === 0) return null;
 

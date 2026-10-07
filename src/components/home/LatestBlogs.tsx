@@ -1,18 +1,20 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import BlogCard from "@/components/blog/BlogCard";
 import Carousel from "@/components/ui/Carousel";
-import { serverApi } from "@/lib/api/server";
+import { api } from "@/lib/api/client";
 import type { BlogPost } from "@/types/blog";
 
-export default async function LatestBlogs() {
-  let posts: BlogPost[] = [];
+export default function LatestBlogs() {
+  const [posts, setPosts] = useState<BlogPost[]>([]);
 
-  try {
-    const res = await serverApi<{ data: BlogPost[] }>("/blogs?per_page=8");
-    posts = res.data;
-  } catch {
-    // fallback empty
-  }
+  useEffect(() => {
+    api<{ data: BlogPost[] }>("/blogs?per_page=8")
+      .then((res) => setPosts(res.data))
+      .catch(() => {});
+  }, []);
 
   if (posts.length === 0) return null;
 

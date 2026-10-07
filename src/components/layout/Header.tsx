@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import {
   ChevronDownIcon,
   CloseIcon,
+  GridViewIcon,
   MenuIcon,
   PlusCircleIcon,
   UserCircleIcon,
@@ -18,7 +19,9 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [openMobileGroup, setOpenMobileGroup] = useState<string | null>(null);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Close an open desktop dropdown on outside click or Escape.
   useEffect(() => {
@@ -42,6 +45,17 @@ export default function Header() {
       document.removeEventListener("keydown", handleEscape);
     };
   }, [openDropdown]);
+
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) setUserMenuOpen(false);
+    }
+    function handleEsc(e: KeyboardEvent) { if (e.key === "Escape") setUserMenuOpen(false); }
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleEsc);
+    return () => { document.removeEventListener("mousedown", handleClick); document.removeEventListener("keydown", handleEsc); };
+  }, [userMenuOpen]);
 
   function closeMobileMenu() {
     setMobileMenuOpen(false);
@@ -132,35 +146,58 @@ export default function Header() {
         <div className="hidden shrink-0 items-center justify-self-end gap-3 xl:flex">
           {user ? (
             <>
-              <Link
-                href={user.role === "user" ? "/" : "/admin"}
-                className="flex items-center gap-1.5 px-2 text-[14px] font-semibold text-heading transition-colors hover:text-primary"
-              >
-                <UserCircleIcon className="h-5 w-5" />
-                {user.name}
-              </Link>
+              <div ref={userMenuRef} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2.5 rounded-full border-[1.5px] border-primary/20 bg-primary-light/30 px-3 py-1.5 text-[13px] font-semibold text-heading transition-all hover:border-primary/40 hover:bg-primary-light/60"
+                >
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-[12px] font-bold text-white">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
+                  <span className="max-w-[100px] truncate">{user.name}</span>
+                  <ChevronDownIcon className={`h-3.5 w-3.5 text-muted transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
+                </button>
 
-              <button
-                type="button"
-                onClick={() => logout()}
-                className="px-2 text-[14px] font-semibold text-heading transition-colors hover:text-primary"
-              >
-                Logout
-              </button>
+                {userMenuOpen && (
+                  <div className="absolute right-0 top-full z-50 mt-2 w-52 overflow-hidden rounded-lg border border-border bg-white py-1.5 shadow-lg">
+                    <div className="border-b border-border px-4 py-2.5">
+                      <p className="truncate text-[13px] font-semibold text-heading">{user.name}</p>
+                      <p className="truncate text-[11px] text-muted">{user.email}</p>
+                    </div>
+                    <Link
+                      href="/admin"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-text transition-colors hover:bg-primary-light hover:text-primary"
+                    >
+                      <GridViewIcon className="h-4 w-4" />
+                      {user.role === "user" ? "My Properties" : "Dashboard"}
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => { setUserMenuOpen(false); logout(); }}
+                      className="flex w-full items-center gap-2.5 px-4 py-2.5 text-[13px] text-text transition-colors hover:bg-red-50 hover:text-red-600"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <>
               <Link
                 href="/login"
-                className="flex items-center gap-1.5 px-2 text-[14px] font-semibold text-heading transition-colors hover:text-primary"
+                className="flex items-center gap-1.5 rounded-lg border-[1.5px] border-border px-4 py-2 text-[13px] font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
               >
-                <UserCircleIcon className="h-5 w-5" />
+                <UserCircleIcon className="h-4.5 w-4.5" />
                 Login
               </Link>
 
               <Link
                 href="/register"
-                className="px-2 text-[14px] font-semibold text-heading transition-colors hover:text-primary"
+                className="rounded-lg bg-heading px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-heading/90"
               >
                 Register
               </Link>
@@ -257,50 +294,45 @@ export default function Header() {
                 Add Property
               </Link>
 
-              <div className="flex gap-3">
-                {user ? (
-                  <>
-                    <Link
-                      href={user.role === "user" ? "/" : "/admin"}
-                      onClick={closeMobileMenu}
-                      className="flex flex-1 items-center justify-center gap-2 rounded-full border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
-                    >
-                      <UserCircleIcon className="h-5 w-5" />
-                      {user.name}
-                    </Link>
+              {user ? (
+                <>
+                  <Link
+                    href="/admin"
+                    onClick={closeMobileMenu}
+                    className="flex items-center justify-center gap-2 rounded-full border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
+                  >
+                    <GridViewIcon className="h-4 w-4" />
+                    {user.role === "user" ? "My Properties" : "Dashboard"}
+                  </Link>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        closeMobileMenu();
-                        logout();
-                      }}
-                      className="flex flex-1 items-center justify-center rounded-full border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
-                    >
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link
-                      href="/login"
-                      onClick={closeMobileMenu}
-                      className="flex flex-1 items-center justify-center gap-2 rounded-full border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
-                    >
-                      <UserCircleIcon className="h-5 w-5" />
-                      Login
-                    </Link>
+                  <button
+                    type="button"
+                    onClick={() => { closeMobileMenu(); logout(); }}
+                    className="flex items-center justify-center gap-2 rounded-full border-[1.5px] border-border px-4 py-2.5 text-center text-sm font-semibold text-heading"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <div className="flex gap-3">
+                  <Link
+                    href="/login"
+                    onClick={closeMobileMenu}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-full border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
+                  >
+                    <UserCircleIcon className="h-5 w-5" />
+                    Login
+                  </Link>
 
-                    <Link
-                      href="/register"
-                      onClick={closeMobileMenu}
-                      className="flex flex-1 items-center justify-center rounded-full border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
-                    >
-                      Register
-                    </Link>
-                  </>
-                )}
-              </div>
+                  <Link
+                    href="/register"
+                    onClick={closeMobileMenu}
+                    className="flex flex-1 items-center justify-center rounded-full bg-heading px-4 py-2.5 text-center text-sm font-semibold text-white"
+                  >
+                    Register
+                  </Link>
+                </div>
+              )}
             </div>
           </nav>
         </div>

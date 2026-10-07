@@ -40,20 +40,6 @@ const mockNotifications = [
   },
 ];
 
-const mockMessages = [
-  {
-    id: "m1",
-    name: "Usman Ghazi",
-    preview: "Is the plot in Bahria Town still available?",
-    time: "12m ago",
-  },
-  {
-    id: "m2",
-    name: "Ayesha Malik",
-    preview: "Thanks for the quick response on the listing.",
-    time: "3h ago",
-  },
-];
 
 export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
   const { user, logout } = useAuth();
@@ -61,7 +47,6 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
   const displayRole = user ? (roleLabels[user.role] ?? user.role) : "";
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [messagesOpen, setMessagesOpen] = useState(false);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
   const menuRootRef = useRef<HTMLDivElement>(null);
@@ -86,14 +71,12 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
       if (menuRootRef.current && !menuRootRef.current.contains(event.target as Node)) {
         setProfileOpen(false);
         setNotificationsOpen(false);
-        setMessagesOpen(false);
       }
     }
     function handleEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setProfileOpen(false);
         setNotificationsOpen(false);
-        setMessagesOpen(false);
       }
     }
 
@@ -152,15 +135,6 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
 
         {/* Right Side */}
         <div ref={menuRootRef} className="flex shrink-0 items-center gap-1 sm:gap-2">
-          {/* Theme */}
-          <button
-            type="button"
-            aria-label="Toggle theme"
-            className="hidden h-10 w-10 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 sm:flex"
-          >
-            <SunIcon />
-          </button>
-
           {/* Notifications */}
           <div className="relative">
             <button
@@ -169,7 +143,6 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
               aria-expanded={notificationsOpen}
               onClick={() => {
                 setNotificationsOpen((value) => !value);
-                setMessagesOpen(false);
                 setProfileOpen(false);
               }}
               className="relative flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
@@ -225,58 +198,6 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
             )}
           </div>
 
-          {/* Messages */}
-          <div className="relative hidden sm:block">
-            <button
-              type="button"
-              aria-label="Messages"
-              aria-expanded={messagesOpen}
-              onClick={() => {
-                setMessagesOpen((value) => !value);
-                setNotificationsOpen(false);
-                setProfileOpen(false);
-              }}
-              className="relative flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
-            >
-              <MessageIcon />
-
-              {mockMessages.length > 0 && (
-                <span className="absolute right-1.5 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[8px] font-bold text-white">
-                  {mockMessages.length}
-                </span>
-              )}
-            </button>
-
-            {messagesOpen && (
-              <div className="absolute right-0 top-full mt-2 w-[280px] overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
-                <div className="border-b border-gray-100 px-4 py-3">
-                  <p className="text-[12px] font-semibold text-gray-900">
-                    Messages
-                  </p>
-                </div>
-
-                <div className="max-h-72 overflow-y-auto">
-                  {mockMessages.map((message) => (
-                    <div
-                      key={message.id}
-                      className="border-b border-gray-50 px-4 py-3 last:border-0 hover:bg-gray-50"
-                    >
-                      <div className="flex items-center justify-between">
-                        <p className="text-[11.5px] font-semibold text-gray-900">
-                          {message.name}
-                        </p>
-                        <p className="text-[10px] text-gray-400">{message.time}</p>
-                      </div>
-                      <p className="mt-0.5 truncate text-[11px] text-gray-500">
-                        {message.preview}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* Profile */}
           <div className="relative ml-1">
             <button
@@ -284,7 +205,6 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
               onClick={() => {
                 setProfileOpen((value) => !value);
                 setNotificationsOpen(false);
-                setMessagesOpen(false);
               }}
               aria-expanded={profileOpen}
               className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-gray-50"
@@ -404,30 +324,6 @@ function SearchIcon() {
   );
 }
 
-function SunIcon() {
-  return (
-    <svg
-      className="h-[19px] w-[19px]"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-    >
-      <circle cx="12" cy="12" r="3.5" />
-
-      <path d="M12 2v2" />
-      <path d="M12 20v2" />
-      <path d="m4.93 4.93 1.41 1.41" />
-      <path d="m17.66 17.66 1.41 1.41" />
-      <path d="M2 12h2" />
-      <path d="M20 12h2" />
-      <path d="m4.93 19.07 1.41-1.41" />
-      <path d="m17.66 6.34 1.41-1.41" />
-    </svg>
-  );
-}
-
 function BellIcon() {
   return (
     <svg
@@ -441,23 +337,6 @@ function BellIcon() {
     >
       <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
       <path d="M10 21h4" />
-    </svg>
-  );
-}
-
-function MessageIcon() {
-  return (
-    <svg
-      className="h-[19px] w-[19px]"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 8.4 8.4 0 0 1-3-.6L4 20l1.3-3.8A7.3 7.3 0 0 1 4.5 12 7.5 7.5 0 0 1 12 4.5a7.5 7.5 0 0 1 8 7Z" />
-      <path d="M8 12h.01M12 12h.01M16 12h.01" />
     </svg>
   );
 }
