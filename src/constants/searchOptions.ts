@@ -1,8 +1,8 @@
 /**
- * Mock options for the hero search bar.
+ * Static options for the hero search bar.
  *
- * V1 uses static data — these arrays get replaced by the Laravel API response
- * later, so the shape is kept simple: { label, value }.
+ * These arrays can be replaced by Laravel API responses
+ * for dynamic data. Shape: { label, value }.
  */
 
 export type SelectOption = {
@@ -42,7 +42,7 @@ export const propertyTypes: SelectOption[] = [
   { label: "Office", value: "office" },
 ];
 
-/** Sidebar property-type filter, with mock result counts. */
+/** Sidebar property-type filter. */
 export const propertyTypeFilters = [
   { label: "House", value: "house", count: 5299 },
   { label: "Plot", value: "plot", count: 4012 },

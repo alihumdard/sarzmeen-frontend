@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminFilterBar from "@/components/admin/AdminFilterBar";
 import AdminTable, { AdminTableColumn } from "@/components/admin/AdminTable";
@@ -20,6 +21,7 @@ const statusVariant: Record<string, "success" | "info" | "warning" | "neutral"> 
 };
 
 export default function BlogsPage() {
+  const router = useRouter();
   const [blogs, setBlogs] = useState<AdminBlog[]>([]);
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [loading, setLoading] = useState(true);
@@ -106,6 +108,8 @@ export default function BlogsPage() {
         <div onClick={(e) => e.stopPropagation()}>
           <AdminActionMenu
             actions={[
+              { label: "Edit", onClick: () => router.push(`/admin/blogs/new?edit=${blog.id}`), icon: <EditIcon /> },
+              { label: "Preview", onClick: () => window.open(`/blog/${blog.slug}`, "_blank"), icon: <PreviewIcon /> },
               { label: "Delete", onClick: () => handleDelete(blog.id), icon: <TrashIcon />, variant: "danger" },
             ]}
           />
@@ -121,7 +125,7 @@ export default function BlogsPage() {
         description="Manage blog posts."
         breadcrumbs={[{ label: "Content" }, { label: "Blogs" }]}
         action={
-          <Link href="/admin/blogs" className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[11px] font-semibold text-white hover:opacity-90">
+          <Link href="/admin/blogs/new" className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[11px] font-semibold text-white hover:opacity-90">
             <PlusIcon /> New Blog Post
           </Link>
         }
@@ -167,4 +171,6 @@ export default function BlogsPage() {
 }
 
 function PlusIcon() { return <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>; }
+function EditIcon() { return <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>; }
+function PreviewIcon() { return <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>; }
 function TrashIcon() { return <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5" /></svg>; }

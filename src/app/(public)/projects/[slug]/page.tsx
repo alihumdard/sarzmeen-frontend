@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import SellRentStrip from "@/components/layout/SellRentStrip";
 import DetailBreadcrumb from "@/components/property/DetailBreadcrumb";
 import PropertyGallery from "@/components/property/PropertyGallery";
+import PropertyInquiryForm from "@/components/property/PropertyInquiryForm";
 import ProjectDetailHeader from "@/components/project/ProjectDetailHeader";
 import ProjectPriceBox from "@/components/project/ProjectPriceBox";
 import ProjectProperties from "@/components/project/ProjectProperties";
@@ -79,6 +80,11 @@ export default async function ProjectDetailPage({
 
             <div className="flex flex-col gap-5">
               <ProjectPriceBox project={project} />
+              <PropertyInquiryForm
+                projectId={project.id}
+                title={project.name}
+                heading="Interested in this project?"
+              />
             </div>
           </div>
 

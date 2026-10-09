@@ -1,25 +1,28 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import BlogCard from "@/components/blog/BlogCard";
 import BlogListRow from "@/components/blog/BlogListRow";
 import { GridViewIcon, ListViewIcon } from "@/components/ui/Icons";
 import Dropdown from "@/components/ui/Dropdown";
 import Pagination from "@/components/ui/Pagination";
+import { blogUrl } from "@/lib/blogFilters";
 import type { BlogPost } from "@/types/blog";
 
 type BlogListProps = {
   posts: BlogPost[];
-  /** Total published posts, used for the "Showing x-y of z" line. */
+  /** Total posts matching the active filters, from the API. */
   total: number;
+  page: number;
+  lastPage: number;
+  pageSize: number;
+  sort: string;
+  search: string;
+  category: string;
+  tag: string;
 };
-
-/** Posts per page — matches the nine cards the listing shows at a time. */
-const PAGE_SIZE = 9;
-
-/** Must match BlogSearch's MIN_SEARCH_LENGTH. */
-const MIN_SEARCH_LENGTH = 3;
 
 const sortOptions = [
   { label: "Latest First", value: "latest" },
@@ -28,54 +31,48 @@ const sortOptions = [
 ];
 
 /**
- * Toolbar plus the post grid. View mode and sort are local state in V1 —
- * sorting is applied to the mock array rather than requested from an API.
- * The `q` URL param (set by BlogSearch once 3+ characters are typed)
- * filters posts by title, excerpt and category client-side.
+ * Toolbar plus the post grid. Every filter is held in the URL and resolved
+ * by the server, so sorting and pagination run across all posts rather than
+ * only the ones already on screen. View mode stays local since it is purely
+ * presentational.
  */
-export default function BlogList({ posts, total }: BlogListProps) {
-  const searchParams = useSearchParams();
-  const query = (searchParams.get("q") ?? "").trim();
-  const isSearching = query.length >= MIN_SEARCH_LENGTH;
-
+export default function BlogList({
+  posts,
+  total,
+  page,
+  lastPage,
+  pageSize,
+  sort,
+  search,
+  category,
+  tag,
+}: BlogListProps) {
+  const router = useRouter();
   const [view, setView] = useState<"grid" | "list">("grid");
-  const [sort, setSort] = useState("latest");
-  const [page, setPage] = useState(1);
 
-  const filtered = useMemo(() => {
-    if (!isSearching) return posts;
+  const hasFilters = Boolean(search || category || tag);
+  const firstItem = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const lastItem = Math.min(firstItem + posts.length - 1, total);
 
-    const needle = query.toLowerCase();
-    return posts.filter(
-      (post) =>
-        post.title.toLowerCase().includes(needle) ||
-        post.excerpt.toLowerCase().includes(needle) ||
-        post.category.toLowerCase().includes(needle),
+  function go(next: { sort?: string; page?: number }) {
+    router.push(
+      blogUrl({
+        q: search,
+        category,
+        tag,
+        sort: next.sort ?? sort,
+        page: next.page,
+      }),
+      { scroll: false },
     );
-  }, [posts, query, isSearching]);
+  }
 
-  const sorted = [...filtered].sort((a, b) => {
-    if (sort === "oldest") {
-      return a.publishedAt.localeCompare(b.publishedAt);
-    }
-    if (sort === "popular") {
-      return b.readTime - a.readTime;
-    }
-    return b.publishedAt.localeCompare(a.publishedAt);
-  });
-
-  /*
-   * Pages are derived from the full published count so the control matches
-   * what the API will return; only the mock page is actually rendered.
-   * While searching, the filtered count is the source of truth instead.
-   */
-  const effectiveTotal = isSearching ? sorted.length : total;
-  const totalPages = Math.max(1, Math.ceil(effectiveTotal / PAGE_SIZE));
-  const firstItem = sorted.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
-  const lastItem = Math.min(firstItem + sorted.length - 1, effectiveTotal);
+  function handleSort(value: string) {
+    go({ sort: value, page: 1 });
+  }
 
   function handlePageChange(nextPage: number) {
-    setPage(nextPage);
+    go({ page: nextPage });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -87,33 +84,16 @@ export default function BlogList({ posts, total }: BlogListProps) {
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-[13px] text-text">
-          {sorted.length === 0 ? (
-            <>
-              No blogs found for{" "}
-              <span className="font-semibold text-heading">
-                &ldquo;{query}&rdquo;
-              </span>
-            </>
+          {total === 0 ? (
+            "No blogs found"
           ) : (
             <>
               Showing{" "}
               <span className="font-semibold text-heading">
                 {firstItem}-{lastItem}
               </span>{" "}
-              of{" "}
-              <span className="font-semibold text-heading">
-                {effectiveTotal}
-              </span>{" "}
-              {isSearching ? (
-                <>
-                  Blogs for{" "}
-                  <span className="font-semibold text-heading">
-                    &ldquo;{query}&rdquo;
-                  </span>
-                </>
-              ) : (
-                "Blogs"
-              )}
+              of <span className="font-semibold text-heading">{total}</span>{" "}
+              Blogs
             </>
           )}
         </p>
@@ -125,7 +105,7 @@ export default function BlogList({ posts, total }: BlogListProps) {
             label="Sort by"
             options={sortOptions}
             value={sort}
-            onChange={setSort}
+            onChange={handleSort}
             triggerClassName="flex items-center justify-between gap-2 rounded-md border border-border bg-white py-2 pl-3 pr-2.5 text-[12px] text-heading outline-none transition-colors hover:border-primary focus:border-primary"
           />
 
@@ -161,37 +141,93 @@ export default function BlogList({ posts, total }: BlogListProps) {
         </div>
       </div>
 
+      {/* Active filters */}
+      {hasFilters && (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-[12px] text-muted">Filters:</span>
+
+          {search && (
+            <FilterChip
+              label={`Search: ${search}`}
+              href={blogUrl({ category, tag, sort })}
+            />
+          )}
+          {category && (
+            <FilterChip
+              label={`Category: ${category.replace(/-/g, " ")}`}
+              href={blogUrl({ q: search, tag, sort })}
+            />
+          )}
+          {tag && (
+            <FilterChip
+              label={`Tag: ${tag.replace(/-/g, " ")}`}
+              href={blogUrl({ q: search, category, sort })}
+            />
+          )}
+
+          <Link
+            href="/blog"
+            className="text-[12px] font-semibold text-primary hover:underline"
+          >
+            Clear all
+          </Link>
+        </div>
+      )}
+
       {/* Posts */}
-      {sorted.length === 0 ? (
+      {posts.length === 0 ? (
         <div className="mt-10 rounded-lg border border-dashed border-border bg-white py-16 text-center">
           <p className="text-[14px] font-semibold text-heading">
-            No blogs match your search.
+            No blogs match your filters.
           </p>
           <p className="mt-1.5 text-[12px] text-muted">
             Try a different keyword or browse all categories.
           </p>
+          {hasFilters && (
+            <Link
+              href="/blog"
+              className="mt-4 inline-block rounded-md bg-primary px-5 py-2.5 text-[12px] font-semibold text-white transition-colors hover:bg-primary-dark"
+            >
+              Clear filters
+            </Link>
+          )}
         </div>
       ) : view === "grid" ? (
         <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {sorted.map((post) => (
+          {posts.map((post) => (
             <BlogCard key={post.id} post={post} variant="full" />
           ))}
         </div>
       ) : (
         <div className="mt-6 flex flex-col gap-4">
-          {sorted.map((post) => (
+          {posts.map((post) => (
             <BlogListRow key={post.id} post={post} />
           ))}
         </div>
       )}
 
-      <div className="mt-8">
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-      </div>
+      {lastPage > 1 && (
+        <div className="mt-8">
+          <Pagination
+            currentPage={page}
+            totalPages={lastPage}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      )}
     </div>
+  );
+}
+
+function FilterChip({ label, href }: { label: string; href: string }) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex items-center gap-1.5 rounded-full bg-primary-light px-3 py-1.5 text-[11px] font-medium capitalize text-primary transition-colors hover:bg-primary hover:text-white"
+    >
+      {label}
+      <span aria-hidden="true">✕</span>
+      <span className="sr-only">Remove filter</span>
+    </Link>
   );
 }

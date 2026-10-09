@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
+import { useRef, useState } from "react";
 import AdminModal from "@/components/admin/AdminModal";
 import {
   adminInputClass,
@@ -16,7 +17,6 @@ import type {
 type TestimonialFormModalProps = {
   open: boolean;
   onClose: () => void;
-  /** Passed when editing; omitted when creating. */
   testimonial?: AdminTestimonial | null;
   onSubmit: (input: TestimonialInput) => Promise<void>;
 };
@@ -32,6 +32,7 @@ const emptyForm: TestimonialInput = {
   quote: "",
   status: "published",
   featured: false,
+  avatarFile: null,
 };
 
 export default function TestimonialFormModal({
@@ -41,9 +42,8 @@ export default function TestimonialFormModal({
   onSubmit,
 }: TestimonialFormModalProps) {
   const isEdit = Boolean(testimonial);
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  // Seeded from props on mount. The parent remounts this component per
-  // open via `key`, so there is no effect syncing props into state.
   const [form, setForm] = useState<TestimonialInput>(
     testimonial
       ? {
@@ -55,9 +55,11 @@ export default function TestimonialFormModal({
           quote: testimonial.quote,
           status: testimonial.status,
           featured: testimonial.featured,
+          avatarFile: null,
         }
       : emptyForm,
   );
+  const [preview, setPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -65,6 +67,15 @@ export default function TestimonialFormModal({
     key: K,
     value: TestimonialInput[K],
   ) => setForm((prev) => ({ ...prev, [key]: value }));
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    update("avatarFile", file);
+    setPreview(URL.createObjectURL(file));
+  }
+
+  const avatarSrc = preview || form.avatar || DEFAULT_AVATAR;
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -133,6 +144,37 @@ export default function TestimonialFormModal({
             {error}
           </p>
         )}
+
+        {/* Avatar upload */}
+        <div className="flex items-center gap-4">
+          <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-gray-200">
+            <Image
+              src={avatarSrc}
+              alt="Avatar preview"
+              fill
+              sizes="64px"
+              className="object-cover"
+            />
+          </div>
+          <div className="min-w-0">
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 px-3 py-1.5 text-[11px] font-semibold text-gray-700 transition-colors hover:border-primary hover:text-primary"
+            >
+              <UploadIcon />
+              {preview || (isEdit && form.avatar) ? "Change Photo" : "Upload Photo"}
+            </button>
+            <p className="mt-1 text-[10px] text-gray-400">JPG, PNG. Max 2 MB.</p>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Client Name" required>
@@ -243,5 +285,15 @@ function Field({
       <div className="mt-1.5">{children}</div>
       {hint && <p className="mt-1 text-[11px] text-gray-400">{hint}</p>}
     </div>
+  );
+}
+
+function UploadIcon() {
+  return (
+    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="17 8 12 3 7 8" />
+      <line x1="12" y1="3" x2="12" y2="15" />
+    </svg>
   );
 }

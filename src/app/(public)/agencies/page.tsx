@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Suspense } from "react";
-import AgencyCard from "@/components/agency/AgencyCard";
 import AgencySearchBar from "@/components/agency/AgencySearchBar";
 import PageBanner from "@/components/layout/PageBanner";
-import { agencies } from "@/constants/mockAgencies";
+import { serverApi } from "@/lib/api/server";
+import type { AgencyListItem } from "@/lib/api/agencies";
+import {
+  LocationPinIcon,
+  PhoneIcon,
+  UsersIcon,
+  VerifiedTickIcon,
+} from "@/components/ui/Icons";
 
 export const metadata: Metadata = {
   title: "Real Estate Agencies",
@@ -13,100 +20,52 @@ export const metadata: Metadata = {
 };
 
 type AgenciesPageProps = {
-  searchParams: Promise<{ city?: string; q?: string }>;
+  searchParams: Promise<{ city?: string; q?: string; page?: string }>;
 };
 
-export default async function AgenciesPage({
-  searchParams,
-}: AgenciesPageProps) {
-  const { city, q } = await searchParams;
+export default async function AgenciesPage({ searchParams }: AgenciesPageProps) {
+  const { city, q, page } = await searchParams;
 
-  const term = q?.trim().toLowerCase();
+  const qs = new URLSearchParams();
+  if (city) qs.set("city", city);
+  if (q) qs.set("q", q);
+  if (page) qs.set("page", page);
+  const query = qs.toString();
 
-  const results = agencies.filter((agency) => {
-    if (city && agency.city.toLowerCase() !== city.toLowerCase()) {
-      return false;
-    }
+  const res = await serverApi<{
+    data: AgencyListItem[];
+    meta: { total: number; last_page: number; current_page: number };
+  }>(`/agencies${query ? `?${query}` : ""}`);
 
-    if (!term) return true;
-
-    // Matches the agency itself, the person who runs it, or where it works.
-    return [
-      agency.name,
-      agency.owner.name,
-      agency.city,
-      agency.agencyType,
-      ...agency.locations,
-    ].some((field) => field.toLowerCase().includes(term));
-  });
-
-  /** City chips, built from the data so a new city needs no edit here. */
-  const cities = [...new Set(agencies.map((agency) => agency.city))].sort();
+  const results = res.data;
+  const total = res.meta.total;
 
   return (
     <main>
       <PageBanner
         title={city ? `Real Estate Agencies in ${city}` : "Real Estate Agencies"}
-        description={`${results.length} ${results.length === 1 ? "agency" : "agencies"} listed`}
+        description={`${total} ${total === 1 ? "agency" : "agencies"} listed`}
         crumbs={[{ label: "Home", href: "/" }, { label: "Agencies" }]}
         contentMaxWidth="720px"
         image="/images/agents-banner.jpg"
       >
-        <Suspense
-          fallback={<div className="h-[66px] rounded-lg bg-white shadow-xl" />}
-        >
+        <Suspense fallback={<div className="h-[66px] rounded-lg bg-white shadow-xl" />}>
           <AgencySearchBar />
         </Suspense>
       </PageBanner>
 
       <section className="bg-surface py-8">
         <div className="container-page">
-          {/* City filter. Each chip keeps the current search term. */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href={term ? `/agencies?q=${encodeURIComponent(term)}` : "/agencies"}
-              className={`rounded-full border px-4 py-1.5 text-[13px] font-medium transition-colors ${
-                !city
-                  ? "border-primary bg-primary text-white"
-                  : "border-border bg-white text-text hover:border-primary hover:text-primary"
-              }`}
-            >
-              All Cities
-            </Link>
-
-            {cities.map((name) => {
-              const isActive = city?.toLowerCase() === name.toLowerCase();
-              const params = new URLSearchParams({ city: name });
-              if (term) params.set("q", term);
-
-              return (
-                <Link
-                  key={name}
-                  href={`/agencies?${params.toString()}`}
-                  className={`rounded-full border px-4 py-1.5 text-[13px] font-medium transition-colors ${
-                    isActive
-                      ? "border-primary bg-primary text-white"
-                      : "border-border bg-white text-text hover:border-primary hover:text-primary"
-                  }`}
-                >
-                  {name}
-                </Link>
-              );
-            })}
-          </div>
-
           {results.length > 0 ? (
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {results.map((agency) => (
-                <AgencyCard key={agency.id} agency={agency} />
+                <AgencyApiCard key={agency.id} agency={agency} />
               ))}
             </div>
           ) : (
-            <div className="mt-6 rounded-lg border border-border bg-white py-16 text-center">
+            <div className="rounded-lg border border-border bg-white py-16 text-center">
               <p className="text-[15px] font-semibold text-heading">
-                {q
-                  ? `No agencies match “${q}”`
-                  : `No agencies found in ${city}`}
+                {q ? `No agencies match "${q}"` : city ? `No agencies found in ${city}` : "No agencies found"}
               </p>
               <p className="mt-1 text-[13px] text-muted">
                 Try a different search term or browse all agencies.
@@ -122,5 +81,117 @@ export default async function AgenciesPage({
         </div>
       </section>
     </main>
+  );
+}
+
+function AgencyApiCard({ agency }: { agency: AgencyListItem }) {
+  return (
+    <div className="flex flex-col justify-between rounded-lg border border-border bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg">
+      <div>
+        <div className="flex items-start gap-4">
+          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full shadow-sm ring-2 ring-white">
+            {agency.logo ? (
+              <Image src={agency.logo} alt={agency.name} fill sizes="56px" className="object-cover" unoptimized />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-primary-light text-[18px] font-bold text-primary">
+                {agency.name.charAt(0)}
+              </div>
+            )}
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <Link
+                href={`/agencies/${agency.slug}`}
+                className="text-[16px] font-bold text-heading transition-colors hover:text-primary"
+              >
+                {agency.name}
+              </Link>
+              {agency.verified && (
+                <span className="flex shrink-0 items-center gap-1 rounded bg-primary-light px-2 py-0.5 text-[11px] font-semibold text-primary">
+                  <VerifiedTickIcon className="h-3.5 w-3.5" />
+                  Verified
+                </span>
+              )}
+            </div>
+            <p className="mt-0.5 text-[12px] font-medium text-muted">
+              {agency.agencyType || "Real Estate Agency"}
+              {agency.city && <> • <span className="font-semibold text-heading">{agency.city}</span></>}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          <div className="rounded-md bg-primary-light px-2 py-2 text-center">
+            <p className="text-[15px] font-bold text-primary">{agency.totalAgents}</p>
+            <p className="text-[11px] font-medium text-primary/80">Agents</p>
+          </div>
+          <div className="rounded-md bg-surface px-2 py-2 text-center">
+            <p className="text-[15px] font-bold text-heading">—</p>
+            <p className="text-[11px] font-medium text-muted">For Sale</p>
+          </div>
+          <div className="rounded-md bg-surface px-2 py-2 text-center">
+            <p className="text-[15px] font-bold text-heading">—</p>
+            <p className="text-[11px] font-medium text-muted">For Rent</p>
+          </div>
+        </div>
+
+        {agency.description && (
+          <p className="mt-3 line-clamp-2 text-[13px] leading-relaxed text-text">
+            {agency.description}
+          </p>
+        )}
+
+        {agency.owner && (
+          <div className="mt-3 flex items-center gap-2.5 rounded-md border border-border bg-surface px-3 py-2">
+            <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
+              {agency.owner.avatar ? (
+                <Image src={agency.owner.avatar} alt={agency.owner.name} fill sizes="32px" className="object-cover" unoptimized />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-primary-light text-[12px] font-bold text-primary">
+                  {agency.owner.name.charAt(0)}
+                </div>
+              )}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-[12px] font-semibold text-heading">{agency.owner.name}</p>
+              <p className="truncate text-[11px] text-muted">{agency.owner.title}</p>
+            </div>
+          </div>
+        )}
+
+        {agency.locations && agency.locations.length > 0 && (
+          <p className="mt-3 flex items-center gap-1.5 text-[11px] text-muted">
+            <LocationPinIcon className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">{agency.locations.join(", ")}</span>
+          </p>
+        )}
+      </div>
+
+      <div className="mt-5 flex items-center justify-between gap-2 border-t border-border pt-4">
+        <div className="flex items-center gap-2">
+          {agency.phone && (
+            <a
+              href={`tel:${agency.phone.replace(/\s/g, "")}`}
+              aria-label={`Call ${agency.name}`}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-text transition-colors hover:border-primary hover:bg-primary-light hover:text-primary"
+            >
+              <PhoneIcon className="h-4 w-4" />
+            </a>
+          )}
+          <span className="flex items-center gap-1.5 text-[11px] text-muted">
+            <UsersIcon className="h-3.5 w-3.5" />
+            {agency.totalAgents} agents
+          </span>
+        </div>
+        <Link
+          href={`/agencies/${agency.slug}`}
+          className="group flex items-center gap-1.5 rounded-md bg-primary-light px-4 py-2 text-[13px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
+        >
+          View Agency
+          <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
+        </Link>
+      </div>
+    </div>
   );
 }

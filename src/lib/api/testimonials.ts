@@ -11,12 +11,28 @@ export async function listTestimonials(): Promise<AdminTestimonial[]> {
   return res.data;
 }
 
+function buildFormData(input: TestimonialInput): FormData {
+  const fd = new FormData();
+  fd.append("name", input.name);
+  fd.append("city", input.city);
+  fd.append("avatar", input.avatar);
+  fd.append("rating", String(input.rating));
+  fd.append("purchase", input.purchase);
+  fd.append("quote", input.quote);
+  fd.append("status", input.status);
+  fd.append("featured", input.featured ? "1" : "0");
+  if (input.avatarFile) {
+    fd.append("avatarFile", input.avatarFile);
+  }
+  return fd;
+}
+
 export async function createTestimonial(
   input: TestimonialInput,
 ): Promise<AdminTestimonial> {
   const res = await api<{ data: AdminTestimonial }>("/admin/testimonials", {
     method: "POST",
-    body: input as unknown as Record<string, unknown>,
+    body: buildFormData(input),
   });
   return res.data;
 }
@@ -25,11 +41,13 @@ export async function updateTestimonial(
   id: string,
   input: TestimonialInput,
 ): Promise<AdminTestimonial> {
+  const fd = buildFormData(input);
+  fd.append("_method", "PUT");
   const res = await api<{ data: AdminTestimonial }>(
     `/admin/testimonials/${id}`,
     {
-      method: "PUT",
-      body: input as unknown as Record<string, unknown>,
+      method: "POST",
+      body: fd,
     },
   );
   return res.data;

@@ -4,6 +4,8 @@ import { useState } from "react";
 import PropertyDescription from "@/components/property/PropertyDescription";
 import PropertyDetailsTable from "@/components/property/PropertyDetailsTable";
 import PropertyLocation from "@/components/property/PropertyLocation";
+import PropertyPaymentPlan from "@/components/property/PropertyPaymentPlan";
+import PropertySpecs from "@/components/property/PropertySpecs";
 import type { PropertyDetail } from "@/types/property";
 
 type PropertyTabsProps = {
@@ -14,27 +16,19 @@ const tabs = [
   "Overview",
   "Features & Amenities",
   "Location",
-  "Floor Plan",
   "Payment Plan",
-  "Nearby Places",
   "Video Tour",
 ];
 
-/**
- * Tabbed detail panel. Overview carries the full layout; the remaining tabs
- * reuse the pieces that belong to them, and the two with no V1 content say so
- * rather than rendering an empty panel.
- */
 export default function PropertyTabs({ property }: PropertyTabsProps) {
   const [active, setActive] = useState("Overview");
 
   return (
     <div className="overflow-hidden rounded-lg border border-border bg-white">
-      {/* Tab bar */}
       <div
         role="tablist"
         aria-label="Property details"
-        className="flex gap-1 overflow-x-auto border-b border-border px-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex overflow-x-auto border-b border-border bg-surface/40 px-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {tabs.map((tab) => (
           <button
@@ -43,9 +37,9 @@ export default function PropertyTabs({ property }: PropertyTabsProps) {
             role="tab"
             aria-selected={active === tab}
             onClick={() => setActive(tab)}
-            className={`shrink-0 border-b-2 px-3.5 py-3.5 text-[12px] font-medium transition-colors ${
+            className={`shrink-0 border-b-2 px-4 py-3.5 text-[12px] font-semibold transition-colors ${
               active === tab
-                ? "border-primary text-primary"
+                ? "border-primary bg-white text-primary"
                 : "border-transparent text-muted hover:text-heading"
             }`}
           >
@@ -54,34 +48,50 @@ export default function PropertyTabs({ property }: PropertyTabsProps) {
         ))}
       </div>
 
-      <div role="tabpanel" className="p-5">
+      <div role="tabpanel" className="p-6">
         {active === "Overview" && (
-          <div className="grid gap-8 lg:grid-cols-3 lg:divide-x lg:divide-border lg:gap-0">
+          <div className="space-y-7">
+            {/* Description */}
             <PropertyDescription property={property} />
-            <div className="lg:px-6">
+
+            {/* Property Details — full width table */}
+            <div className="rounded-lg border border-border">
               <PropertyDetailsTable property={property} />
             </div>
-            <div className="lg:pl-6">
-              <PropertyLocation property={property} />
-            </div>
+
+            {/* Type-specific specs */}
+            <PropertySpecs
+              specs={property.specs ?? {}}
+              typeSlug={property.typeSlug ?? ""}
+              purpose={property.purpose}
+            />
           </div>
         )}
 
         {active === "Features & Amenities" && (
-          <PropertyDescription property={property} />
-        )}
-
-        {(active === "Location" || active === "Nearby Places") && (
-          <div className="max-w-[380px]">
-            <PropertyLocation property={property} />
+          <div className="space-y-7">
+            <div className="rounded-lg border border-border">
+              <PropertyDetailsTable property={property} />
+            </div>
+            <PropertySpecs
+              specs={property.specs ?? {}}
+              typeSlug={property.typeSlug ?? ""}
+              purpose={property.purpose}
+            />
           </div>
         )}
 
-        {(active === "Floor Plan" ||
-          active === "Payment Plan" ||
-          active === "Video Tour") && (
+        {active === "Location" && (
+          <PropertyLocation property={property} fullWidth />
+        )}
+
+        {active === "Payment Plan" && (
+          <PropertyPaymentPlan specs={property.specs ?? {}} price={property.price} />
+        )}
+
+        {active === "Video Tour" && (
           <p className="py-8 text-center text-[12px] text-muted">
-            {active} is not available for this property.
+            Video Tour is not available for this property.
           </p>
         )}
       </div>

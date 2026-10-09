@@ -1,9 +1,13 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-export async function serverApi<T = unknown>(path: string): Promise<T> {
+export async function serverApi<T = unknown>(
+  path: string,
+  /** Seconds to cache. Pass a smaller value for CMS-driven content. */
+  revalidate = 60,
+): Promise<T> {
   const res = await fetch(`${API_URL}/api${path}`, {
     headers: { Accept: "application/json" },
-    next: { revalidate: 60 },
+    next: { revalidate },
   });
 
   if (!res.ok) {

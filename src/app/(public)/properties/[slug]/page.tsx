@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import DetailBreadcrumb from "@/components/property/DetailBreadcrumb";
 import PropertyDetailHeader from "@/components/property/PropertyDetailHeader";
 import PropertyGallery from "@/components/property/PropertyGallery";
+import PropertyPaymentSummary from "@/components/property/PropertyPaymentSummary";
+import PropertyAgentCard from "@/components/property/PropertyAgentCard";
+import PropertyInquiryForm from "@/components/property/PropertyInquiryForm";
 import PropertyPriceBox from "@/components/property/PropertyPriceBox";
 import PropertyQuickFacts from "@/components/property/PropertyQuickFacts";
 import PropertyTabs from "@/components/property/PropertyTabs";
@@ -70,25 +73,34 @@ export default async function PropertyDetailPage({
           <PropertyDetailHeader property={property} />
 
           <div className="mt-6 grid items-start gap-6 lg:grid-cols-[1fr_320px]">
-            <PropertyGallery
-              images={property.images}
-              title={property.title}
-              photoCount={property.photoCount}
-              featured={property.featured}
-              statusLabel="For Sale"
-            />
+            <div className="min-w-0 space-y-6">
+              <PropertyGallery
+                images={property.images}
+                title={property.title}
+                photoCount={property.photoCount}
+                featured={property.featured}
+                statusLabel="For Sale"
+              />
 
-            <div className="flex flex-col gap-5">
-              <PropertyPriceBox property={property} />
+              <PropertyQuickFacts property={property} />
+
+              <PropertyTabs property={property} />
             </div>
-          </div>
 
-          <div className="mt-7">
-            <PropertyQuickFacts property={property} />
-          </div>
-
-          <div className="mt-6">
-            <PropertyTabs property={property} />
+            <div className="sticky top-4 flex flex-col gap-4">
+              <PropertyPriceBox property={property} />
+              {property.purpose === "installment" && property.specs && (
+                <PropertyPaymentSummary
+                  specs={property.specs}
+                  price={property.price}
+                />
+              )}
+              <PropertyAgentCard agent={property.agent} />
+              <PropertyInquiryForm
+                propertyId={property.id}
+                title={property.title}
+              />
+            </div>
           </div>
         </div>
       </section>

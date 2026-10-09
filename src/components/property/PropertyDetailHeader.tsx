@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  CompareIcon,
   EyeCountIcon,
   HeartIcon,
   LocationPinIcon,
@@ -27,7 +26,6 @@ export default function PropertyDetailHeader({
   property,
 }: PropertyDetailHeaderProps) {
   const [saved, setSaved] = useState(false);
-  const [compared, setCompared] = useState(false);
 
   const { headline, fullLocation, propertyId, listedAgo, views, verified } =
     property;
@@ -116,19 +114,6 @@ export default function PropertyDetailHeader({
           {saved ? "Saved" : "Save"}
         </button>
 
-        <button
-          type="button"
-          aria-pressed={compared}
-          onClick={() => setCompared(!compared)}
-          className={`${actionClasses} ${
-            compared
-              ? "border-primary bg-primary-light text-primary"
-              : "border-border text-heading hover:border-primary hover:text-primary"
-          }`}
-        >
-          <CompareIcon className="h-4 w-4" />
-          Compare
-        </button>
       </div>
     </div>
   );

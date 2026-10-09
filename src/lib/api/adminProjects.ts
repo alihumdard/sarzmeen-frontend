@@ -25,6 +25,29 @@ export async function listAdminProjects(params?: string): Promise<{ data: AdminP
   return api<{ data: AdminProject[]; meta: PaginationMeta }>(`/admin/projects${params ? `?${params}` : ""}`);
 }
 
+export async function createAdminProject(data: Record<string, unknown>): Promise<{ data: AdminProject }> {
+  return api<{ data: AdminProject }>("/admin/projects", {
+    method: "POST",
+    body: data,
+  });
+}
+
+export async function updateAdminProject(id: string, data: Record<string, unknown>): Promise<{ data: AdminProject }> {
+  return api<{ data: AdminProject }>(`/admin/projects/${id}`, {
+    method: "PUT",
+    body: data,
+  });
+}
+
+export async function uploadProjectImages(id: string, files: File[]): Promise<void> {
+  const formData = new FormData();
+  files.forEach((f) => formData.append("images[]", f));
+  await api(`/admin/projects/${id}`, {
+    method: "POST",
+    body: formData,
+  });
+}
+
 export async function deleteAdminProject(id: string): Promise<void> {
   await api(`/admin/projects/${id}`, { method: "DELETE" });
 }

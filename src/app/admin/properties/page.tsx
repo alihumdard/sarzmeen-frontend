@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminFilterBar from "@/components/admin/AdminFilterBar";
 import AdminTable, { AdminTableColumn } from "@/components/admin/AdminTable";
@@ -28,6 +29,8 @@ type Property = {
   beds: number | null;
   baths: number | null;
   area: string;
+  agent?: { id: string; name: string; title: string; avatar: string } | null;
+  agency?: { id: string; name: string; slug: string } | null;
 };
 
 type PaginationMeta = {
@@ -52,6 +55,7 @@ function formatPKR(price: number): string {
 }
 
 export default function PropertiesPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
   const [properties, setProperties] = useState<Property[]>([]);
@@ -96,6 +100,28 @@ export default function PropertiesPage() {
         method: "PATCH",
         body: { status: newStatus },
       });
+      loadProperties();
+    } catch {
+      // handle error
+    }
+  };
+
+  const submitForReview = async (id: string) => {
+    try {
+      await api(`/my/properties/${id}`, {
+        method: "PUT",
+        body: { status: "pending" },
+      });
+      loadProperties();
+    } catch {
+      // handle error
+    }
+  };
+
+  const deleteProperty = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this property?")) return;
+    try {
+      await api(`/my/properties/${id}`, { method: "DELETE" });
       loadProperties();
     } catch {
       // handle error
@@ -153,6 +179,29 @@ export default function PropertiesPage() {
         <span className="max-w-[120px] leading-4 text-gray-600">{property.location || "—"}</span>
       ),
     },
+    ...(isAdmin
+      ? [
+          {
+            key: "addedBy" as const,
+            label: "Added By",
+            render: (property: Property) => (
+              <div className="min-w-0">
+                {property.agent?.name ? (
+                  <>
+                    <p className="truncate text-[11px] font-medium text-gray-800">{property.agent.name}</p>
+                    <p className="truncate text-[9px] text-gray-400">{property.agent.title || "Owner"}</p>
+                  </>
+                ) : (
+                  <span className="text-[10px] text-gray-400">—</span>
+                )}
+                {property.agency?.name && (
+                  <p className="mt-0.5 truncate text-[9px] font-medium text-primary">{property.agency.name}</p>
+                )}
+              </div>
+            ),
+          },
+        ]
+      : []),
     {
       key: "price",
       label: "Price",
@@ -186,7 +235,25 @@ export default function PropertiesPage() {
         <div onClick={(event) => event.stopPropagation()}>
           <AdminActionMenu
             actions={[
-              // Status moderation is an admin-only endpoint.
+              {
+                label: "Preview",
+                onClick: () => window.open(`/properties/${property.slug}`, "_blank"),
+                icon: <EyeIcon />,
+              },
+              {
+                label: "Edit",
+                onClick: () => router.push(`/admin/properties/${property.id}/edit`),
+                icon: <EditIcon />,
+              },
+              ...(property.status === "draft" || property.status === "rejected"
+                ? [
+                    {
+                      label: "Submit for Review",
+                      onClick: () => submitForReview(property.id),
+                      icon: <SendIcon />,
+                    },
+                  ]
+                : []),
               ...(!isAdmin ? [] : property.status === "pending"
                 ? [
                     {
@@ -216,6 +283,13 @@ export default function PropertiesPage() {
                     },
                   ]
                 : []),
+              {
+                label: "Delete",
+                onClick: () => deleteProperty(property.id),
+                icon: <TrashIcon />,
+                variant: "danger" as const,
+                dividerBefore: true,
+              },
             ]}
           />
         </div>
@@ -370,6 +444,39 @@ function DraftIcon() {
   return (
     <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
       <path d="M5 4h14v16H5zM8 8h8M8 12h6M8 16h4" />
+    </svg>
+  );
+}
+
+function EyeIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function EditIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
+    </svg>
+  );
+}
+
+function SendIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
     </svg>
   );
 }

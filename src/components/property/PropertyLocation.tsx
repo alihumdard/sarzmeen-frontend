@@ -1,27 +1,9 @@
-import { PlaneIcon, RoadIcon, ShopIcon, TreeIcon } from "@/components/ui/Icons";
-import type { NearbyPlace } from "@/types/property";
-
 type PropertyLocationProps = {
-  /** Shared by the property and project detail pages, both of which carry
-   * the same fullLocation + nearbyPlaces shape. */
-  property: { fullLocation: string; nearbyPlaces: NearbyPlace[] };
+  property: { fullLocation: string };
+  fullWidth?: boolean;
 };
 
-const placeIcons: Record<NearbyPlace["kind"], typeof TreeIcon> = {
-  park: TreeIcon,
-  road: RoadIcon,
-  airport: PlaneIcon,
-  mall: ShopIcon,
-};
-
-/**
- * Right column of the Overview tab: a live map preview and nearby landmarks.
- *
- * Uses the key-less Google Maps embed endpoint (maps.google.com/maps?...
- * &output=embed) so the real location renders without an API key; the
- * "View on Google Maps" link opens the same query in a full tab.
- */
-export default function PropertyLocation({ property }: PropertyLocationProps) {
+export default function PropertyLocation({ property, fullWidth }: PropertyLocationProps) {
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     property.fullLocation,
   )}`;
@@ -39,7 +21,7 @@ export default function PropertyLocation({ property }: PropertyLocationProps) {
       </p>
 
       <div className="mt-3 overflow-hidden rounded-lg border border-border">
-        <div className="relative h-[190px] bg-surface">
+        <div className={`relative bg-surface ${fullWidth ? "h-[400px]" : "h-[190px]"}`}>
           <iframe
             title={`Map showing ${property.fullLocation}`}
             src={embedUrl}
@@ -60,34 +42,6 @@ export default function PropertyLocation({ property }: PropertyLocationProps) {
           </a>
         </div>
       </div>
-
-      <ul className="mt-4 flex flex-col gap-2 rounded-md border border-border p-2">
-        {property.nearbyPlaces.map((place, index) => {
-          const Icon = placeIcons[place.kind];
-
-          return (
-            <li
-              key={place.name}
-              className={`flex items-center justify-between gap-3 rounded px-2 py-2 ${
-                index % 2 === 0 ? "bg-surface" : "bg-white"
-              }`}
-            >
-              <span className="flex min-w-0 items-center gap-2.5">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
-                  <Icon className="h-3.5 w-3.5" />
-                </span>
-                <span className="truncate text-[12px] font-medium text-heading">
-                  {place.name}
-                </span>
-              </span>
-
-              <span className="shrink-0 text-[11px] font-semibold text-primary">
-                {place.distance}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import Dropdown from "@/components/ui/Dropdown";
 import { SendIcon } from "@/components/ui/Icons";
-import { submitInquiry } from "@/lib/api/inquiries";
+import { submitInquiry, InquiryError } from "@/lib/api/inquiries";
 
 const interestOptions = [
   { label: "Buying a property", value: "buying" },
@@ -40,11 +40,13 @@ export default function ContactForm() {
     setError("");
     setSubmitting(true);
 
-    const fd = new FormData(e.currentTarget);
-    const name = (fd.get("name") as string).trim();
-    const email = (fd.get("email") as string).trim();
-    const phone = (fd.get("phone") as string).trim();
-    const message = (fd.get("message") as string).trim();
+    // Captured before awaiting — React nulls currentTarget after the await.
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    const name = String(fd.get("name") ?? "").trim();
+    const email = String(fd.get("email") ?? "").trim();
+    const phone = String(fd.get("phone") ?? "").trim();
+    const message = String(fd.get("message") ?? "").trim();
 
     if (!name || !email || !message) {
       setError("Please fill in all required fields.");
@@ -59,11 +61,15 @@ export default function ContactForm() {
         phone: phone || undefined,
         message: `[${interest || "general"}] ${message}`,
       });
-      setSuccess(true);
-      e.currentTarget.reset();
+      form.reset();
       setInterest("");
-    } catch {
-      setError("Something went wrong. Please try again.");
+      setSuccess(true);
+    } catch (err) {
+      setError(
+        err instanceof InquiryError
+          ? err.message
+          : "Something went wrong. Please try again.",
+      );
     } finally {
       setSubmitting(false);
     }

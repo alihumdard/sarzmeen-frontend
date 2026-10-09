@@ -33,4 +33,5 @@ export type TestimonialInput = {
   quote: string;
   status: TestimonialStatus;
   featured: boolean;
+  avatarFile?: File | null;
 };

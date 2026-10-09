@@ -24,6 +24,27 @@ export type WhyChooseSettings = {
   features: WhyChooseFeature[];
 };
 
+export type TickerItem = {
+  id: string;
+  label: string;
+  href: string;
+};
+
+export type TickerSettings = {
+  enabled: boolean;
+  label: string;
+  /** Seconds for one full scroll of the track. */
+  speed: number;
+  items: TickerItem[];
+};
+
+export const defaultTicker: TickerSettings = {
+  enabled: true,
+  label: "Latest News",
+  speed: 45,
+  items: [],
+};
+
 export type HomepageSettings = {
   hero: HeroBannerSettings;
   whyChoose: WhyChooseSettings;

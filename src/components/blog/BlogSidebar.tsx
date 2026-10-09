@@ -3,13 +3,25 @@ import { ChevronRightIcon } from "@/components/ui/Icons";
 import InvestPromo from "@/components/blog/InvestPromo";
 import NewsletterBox from "@/components/blog/NewsletterBox";
 import { serverApi } from "@/lib/api/server";
+import { blogUrl } from "@/lib/blogFilters";
 import type { BlogCategory, BlogTag } from "@/types/blog";
 
 type BlogSidebarProps = {
   activeCategory?: string;
+  activeTag?: string;
+  /**
+   * Set on the dedicated /blog/category/[slug] route, where categories are
+   * paths rather than query filters and the tag list should link back to
+   * the main listing.
+   */
+  useCategoryRoutes?: boolean;
 };
 
-export default async function BlogSidebar({ activeCategory }: BlogSidebarProps) {
+export default async function BlogSidebar({
+  activeCategory = "",
+  activeTag = "",
+  useCategoryRoutes = false,
+}: BlogSidebarProps) {
   const isAllActive = !activeCategory;
 
   let blogCategories: BlogCategory[] = [];
@@ -35,7 +47,7 @@ export default async function BlogSidebar({ activeCategory }: BlogSidebarProps) 
         <ul className="mt-4 flex flex-col gap-1">
           <li>
             <Link
-              href="/blog"
+              href={blogUrl({ tag: activeTag })}
               aria-current={isAllActive ? "page" : undefined}
               className={`flex items-center justify-between rounded-md px-3 py-2.5 text-[12px] transition-colors ${
                 isAllActive
@@ -51,10 +63,18 @@ export default async function BlogSidebar({ activeCategory }: BlogSidebarProps) 
           {blogCategories.map((category) => {
             const isActive = category.slug === activeCategory;
 
+            // Clicking the active category clears it, so it works as a toggle.
+            const href = useCategoryRoutes
+              ? `/blog/category/${category.slug}`
+              : blogUrl({
+                  category: isActive ? undefined : category.slug,
+                  tag: activeTag,
+                });
+
             return (
               <li key={category.id}>
                 <Link
-                  href={`/blog/category/${category.slug}`}
+                  href={href}
                   aria-current={isActive ? "page" : undefined}
                   className={`flex items-center justify-between gap-3 rounded-md px-3 py-2.5 text-[12px] transition-colors ${
                     isActive
@@ -77,16 +97,28 @@ export default async function BlogSidebar({ activeCategory }: BlogSidebarProps) 
           <h2 className="text-[15px] font-bold text-heading">Popular Tags</h2>
 
           <ul className="mt-4 flex flex-wrap gap-2">
-            {blogTags.map((tag) => (
-              <li key={tag.id}>
-                <Link
-                  href={`/blog?tag=${tag.slug}`}
-                  className="block rounded-md border border-border px-3 py-1.5 text-[11px] text-text transition-colors hover:border-primary hover:text-primary"
-                >
-                  {tag.name}
-                </Link>
-              </li>
-            ))}
+            {blogTags.map((tag) => {
+              const isActive = tag.slug === activeTag;
+
+              return (
+                <li key={tag.id}>
+                  <Link
+                    href={blogUrl({
+                      tag: isActive ? undefined : tag.slug,
+                      category: useCategoryRoutes ? undefined : activeCategory,
+                    })}
+                    aria-current={isActive ? "page" : undefined}
+                    className={`block rounded-md border px-3 py-1.5 text-[11px] transition-colors ${
+                      isActive
+                        ? "border-primary bg-primary-light font-semibold text-primary"
+                        : "border-border text-text hover:border-primary hover:text-primary"
+                    }`}
+                  >
+                    {tag.name}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

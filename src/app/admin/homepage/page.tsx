@@ -11,9 +11,13 @@ import {
   defaultHero,
   defaultWhyChoose,
   defaultSections,
+  defaultTicker,
   type HomepageSettings,
   type WhyChooseFeature,
+  type TickerSettings,
+  type TickerItem,
 } from "@/lib/homepageSettings";
+import { getTicker, saveTicker } from "@/lib/api/ticker";
 
 const iconOptions = [
   { value: "listings", label: "Listings" },
@@ -38,7 +42,11 @@ export default function HomepageCmsPage() {
     whyChoose: defaultWhyChoose,
     sections: defaultSections,
   });
-  const [activeTab, setActiveTab] = useState<"sections" | "hero" | "whyChoose">("sections");
+  const [activeTab, setActiveTab] = useState<"sections" | "hero" | "whyChoose" | "ticker">("sections");
+  const [ticker, setTicker] = useState<TickerSettings>(defaultTicker);
+  const [tickerLoading, setTickerLoading] = useState(true);
+  const [tickerSaving, setTickerSaving] = useState(false);
+  const [tickerMsg, setTickerMsg] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [dirty, setDirty] = useState(false);
   const [saved, setSaved] = useState(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
@@ -49,10 +57,76 @@ export default function HomepageCmsPage() {
     setLastSaved(getLastSaved());
   }, []);
 
+  useEffect(() => {
+    getTicker()
+      .then(setTicker)
+      .catch(() => setTickerMsg({ kind: "error", text: "Could not load the ticker." }))
+      .finally(() => setTickerLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (!tickerMsg) return;
+    const t = setTimeout(() => setTickerMsg(null), 3000);
+    return () => clearTimeout(t);
+  }, [tickerMsg]);
+
   const update = (partial: Partial<HomepageSettings>) => {
     setSettings((prev) => ({ ...prev, ...partial }));
     setDirty(true);
     setSaved(false);
+  };
+
+  const updateTicker = (partial: Partial<TickerSettings>) => {
+    setTicker((prev) => ({ ...prev, ...partial }));
+  };
+
+  const updateTickerItem = (id: string, partial: Partial<TickerItem>) => {
+    setTicker((prev) => ({
+      ...prev,
+      items: prev.items.map((i) => (i.id === id ? { ...i, ...partial } : i)),
+    }));
+  };
+
+  const addTickerItem = () => {
+    setTicker((prev) => ({
+      ...prev,
+      items: [
+        ...prev.items,
+        { id: `t-${Date.now()}-${prev.items.length}`, label: "", href: "" },
+      ],
+    }));
+  };
+
+  const removeTickerItem = (id: string) => {
+    setTicker((prev) => ({
+      ...prev,
+      items: prev.items.filter((i) => i.id !== id),
+    }));
+  };
+
+  const moveTickerItem = (index: number, delta: number) => {
+    setTicker((prev) => {
+      const next = [...prev.items];
+      const target = index + delta;
+      if (target < 0 || target >= next.length) return prev;
+      [next[index], next[target]] = [next[target], next[index]];
+      return { ...prev, items: next };
+    });
+  };
+
+  const handleSaveTicker = async () => {
+    setTickerSaving(true);
+    try {
+      await saveTicker(ticker);
+      setTickerMsg({ kind: "success", text: "Ticker saved and live on the site." });
+    } catch (err: unknown) {
+      setTickerMsg({
+        kind: "error",
+        text: err instanceof Error ? err.message : "Could not save the ticker.",
+      });
+    } finally {
+      setTickerSaving(false);
+    }
   };
 
   const handleSave = () => {
@@ -132,6 +206,7 @@ export default function HomepageCmsPage() {
     { id: "sections" as const, label: "Sections" },
     { id: "hero" as const, label: "Hero Banner" },
     { id: "whyChoose" as const, label: "Why Choose Us" },
+    { id: "ticker" as const, label: "News Ticker" },
   ];
 
   return (
@@ -378,6 +453,211 @@ export default function HomepageCmsPage() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {activeTab === "ticker" && (
+        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-[14px] font-bold text-gray-900">News Ticker</h2>
+              <p className="mt-0.5 text-[11px] text-gray-500">
+                The scrolling headline strip under the site header. Saved to the
+                database, so changes go live for every visitor.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleSaveTicker}
+              disabled={tickerSaving || tickerLoading}
+              className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[11px] font-semibold text-white hover:opacity-90 disabled:opacity-50"
+            >
+              <SaveIcon />
+              {tickerSaving ? "Saving..." : "Save Ticker"}
+            </button>
+          </div>
+
+          {tickerMsg && (
+            <p
+              className={`mt-3 rounded-md px-3 py-2 text-[12px] font-medium ${
+                tickerMsg.kind === "success"
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "bg-red-50 text-red-600"
+              }`}
+            >
+              {tickerMsg.text}
+            </p>
+          )}
+
+          {tickerLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="h-7 w-7 animate-spin rounded-full border-3 border-primary border-t-transparent" />
+            </div>
+          ) : (
+            <>
+              <div className="mt-5 grid gap-4 sm:grid-cols-3">
+                <div>
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+                    Label
+                  </label>
+                  <input
+                    value={ticker.label}
+                    onChange={(e) => updateTicker({ label: e.target.value })}
+                    placeholder="Latest News"
+                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-[12px] outline-none focus:border-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+                    Scroll Speed (seconds)
+                  </label>
+                  <input
+                    type="number"
+                    min={5}
+                    max={200}
+                    value={ticker.speed}
+                    onChange={(e) =>
+                      updateTicker({ speed: Number(e.target.value) || 45 })
+                    }
+                    className="w-full rounded-md border border-gray-200 px-3 py-2 text-[12px] outline-none focus:border-primary"
+                  />
+                  <p className="mt-1 text-[10px] text-gray-400">
+                    Higher is slower. Default 45.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+                    Visibility
+                  </label>
+                  <label className="flex cursor-pointer items-center gap-2 rounded-md bg-gray-50 px-3 py-2.5">
+                    <input
+                      type="checkbox"
+                      checked={ticker.enabled}
+                      onChange={(e) => updateTicker({ enabled: e.target.checked })}
+                      className="h-3.5 w-3.5 cursor-pointer accent-[var(--color-primary)]"
+                    />
+                    <span className="text-[12px] font-medium text-gray-700">
+                      Show the ticker
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="mt-6 flex items-center justify-between">
+                <h3 className="text-[12px] font-bold text-gray-800">
+                  Headlines ({ticker.items.length})
+                </h3>
+                <button
+                  type="button"
+                  onClick={addTickerItem}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-md border border-gray-200 px-3 text-[11px] font-semibold text-gray-700 hover:border-primary hover:text-primary"
+                >
+                  <PlusIcon /> Add Headline
+                </button>
+              </div>
+
+              <div className="mt-3 space-y-2">
+                {ticker.items.length === 0 && (
+                  <p className="rounded-md border border-dashed border-gray-200 py-8 text-center text-[11px] text-gray-400">
+                    No headlines yet. The ticker stays hidden until you add one.
+                  </p>
+                )}
+
+                {ticker.items.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="grid gap-2 rounded-lg border border-gray-200 p-3 sm:grid-cols-[1fr_260px_auto]"
+                  >
+                    <div>
+                      <label className="mb-1 block text-[9px] font-semibold uppercase tracking-wide text-gray-400">
+                        Headline text
+                      </label>
+                      <input
+                        value={item.label}
+                        onChange={(e) =>
+                          updateTickerItem(item.id, { label: e.target.value })
+                        }
+                        placeholder="e.g. Bahria Town Karachi | Booking Open"
+                        className="w-full rounded-md border border-gray-200 px-3 py-2 text-[12px] outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1 block text-[9px] font-semibold uppercase tracking-wide text-gray-400">
+                        Link (optional)
+                      </label>
+                      <input
+                        value={item.href}
+                        onChange={(e) =>
+                          updateTickerItem(item.id, { href: e.target.value })
+                        }
+                        placeholder="/properties?type=plot"
+                        className="w-full rounded-md border border-gray-200 px-3 py-2 text-[12px] outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    <div className="flex items-end gap-1.5">
+                      <button
+                        type="button"
+                        aria-label="Move up"
+                        disabled={index === 0}
+                        onClick={() => moveTickerItem(index, -1)}
+                        className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-primary disabled:opacity-30"
+                      >
+                        &uarr;
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Move down"
+                        disabled={index === ticker.items.length - 1}
+                        onClick={() => moveTickerItem(index, 1)}
+                        className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-primary disabled:opacity-30"
+                      >
+                        &darr;
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Remove headline"
+                        onClick={() => removeTickerItem(item.id)}
+                        className="flex h-9 w-9 items-center justify-center rounded-md border border-red-100 bg-red-50 text-red-500 hover:bg-red-100"
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {ticker.enabled && ticker.items.some((i) => i.label.trim()) && (
+                <div className="mt-6">
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+                    Preview
+                  </p>
+                  <div className="flex items-center overflow-hidden rounded-md bg-primary text-white">
+                    <span className="flex h-10 shrink-0 items-center bg-heading px-4 text-[12px] font-bold uppercase tracking-wide">
+                      {ticker.label || "Latest News"}
+                    </span>
+                    <div className="flex-1 overflow-hidden">
+                      <div className="flex w-max items-center">
+                        {ticker.items
+                          .filter((i) => i.label.trim())
+                          .map((i) => (
+                            <span key={i.id} className="flex shrink-0 items-center">
+                              <span className="mx-4 h-1.5 w-1.5 rounded-full bg-white/50" />
+                              <span className="whitespace-nowrap text-[12.5px] font-medium">
+                                {i.label}
+                              </span>
+                            </span>
+                          ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       )}
     </div>

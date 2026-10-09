@@ -72,6 +72,13 @@ const menuGroups: MenuGroup[] = [
         roles: ["admin", "agency", "agent"],
       },
       {
+        label: "My Team",
+        href: "/admin/agents",
+        icon: "agent",
+        implemented: true,
+        roles: ["agency"],
+      },
+      {
         label: "Projects",
         href: "/admin/projects",
         icon: "project",
@@ -112,12 +119,12 @@ const menuGroups: MenuGroup[] = [
         icon: "home",
         implemented: true,
       },
-      {
-        label: "Media Library",
-        href: "/admin/media",
-        icon: "media",
-        implemented: true,
-      },
+      // {
+      //   label: "Media Library",
+      //   href: "/admin/media",
+      //   icon: "media",
+      //   implemented: true,
+      // },
       {
         label: "Testimonials",
         href: "/admin/testimonials",
@@ -372,6 +379,7 @@ export default function AdminSidebar({
     "Properties",
     "Projects",
     "Users",
+    "My Team",
   ]);
 
   const toggleMenu = (label: string) => {
@@ -389,7 +397,8 @@ export default function AdminSidebar({
       item.label === "Properties" ||
       item.label === "Projects" ||
       item.label === "Users" ||
-      item.label === "Blogs";
+      item.label === "Blogs" ||
+      item.label === "My Team";
 
     const isOpen = openMenus.includes(item.label);
 
@@ -560,6 +569,25 @@ export default function AdminSidebar({
               </>
             )}
 
+            {item.label === "My Team" && (
+              <>
+                <SidebarSubLink
+                  href="/admin/agents"
+                  label="All Agents"
+                  pathname={pathname}
+                  onClose={onClose}
+                  implemented
+                />
+                <SidebarSubLink
+                  href="/admin/agents/add"
+                  label="Add New Agent"
+                  pathname={pathname}
+                  onClose={onClose}
+                  implemented
+                />
+              </>
+            )}
+
             {item.label === "Blogs" && (
               <>
                 <SidebarSubLink
@@ -574,6 +602,7 @@ export default function AdminSidebar({
                   label="Add New Blog"
                   pathname={pathname}
                   onClose={onClose}
+                  implemented
                 />
                 <SidebarSubLink
                   href="/admin/categories"

@@ -9,6 +9,7 @@ import StatusBadge from "@/components/admin/StatusBadge";
 import {
   listLocations,
   createLocation,
+  updateLocation,
   deleteLocation as apiDeleteLocation,
   type Location,
   type LocationInput,
@@ -35,8 +36,22 @@ export default function LocationsPage() {
   const [newName, setNewName] = useState("");
   const [newType, setNewType] = useState("city");
   const [newParent, setNewParent] = useState("");
+  const [newStatus, setNewStatus] = useState("active");
+  const [newFeatured, setNewFeatured] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
+
+  /** Set while editing; null means the modal is in "add" mode. */
+  const [editing, setEditing] = useState<Location | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<Location | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [toast, setToast] = useState<{ kind: "success" | "error"; text: string } | null>(null);
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 4000);
+    return () => clearTimeout(t);
+  }, [toast]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -54,11 +69,6 @@ export default function LocationsPage() {
     load();
   }, [load]);
 
-  const cityOptions = useMemo(
-    () => locations.filter((l) => l.type === "city").map((l) => l.name),
-    [locations],
-  );
-
   const filteredLocations = useMemo(() => {
     const query = search.trim().toLowerCase();
     return locations.filter((location) => {
@@ -74,33 +84,109 @@ export default function LocationsPage() {
 
   const resetFilters = () => { setSearch(""); setType(""); setStatus(""); setPage(1); };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (location: Location) => {
+    setDeleting(true);
     try {
-      await apiDeleteLocation(id);
-      setLocations((cur) => cur.filter((l) => l.id !== id));
-    } catch {
-      // handle error
+      await apiDeleteLocation(location.id);
+      setLocations((cur) => cur.filter((l) => l.id !== location.id));
+      setConfirmDelete(null);
+      setToast({ kind: "success", text: `"${location.name}" deleted.` });
+    } catch (err: unknown) {
+      // The API returns 409 with an explanation when the location is in use.
+      setToast({
+        kind: "error",
+        text: err instanceof Error ? err.message : "Could not delete the location.",
+      });
+      setConfirmDelete(null);
+    } finally {
+      setDeleting(false);
     }
   };
 
-  const handleCreate = async () => {
+  const openAddModal = () => {
+    setEditing(null);
+    setNewName("");
+    setNewType("city");
+    setNewParent("");
+    setNewStatus("active");
+    setNewFeatured(false);
+    setFormError("");
+    setAddModalOpen(true);
+  };
+
+  const openEditModal = (location: Location) => {
+    setEditing(location);
+    setNewName(location.name);
+    setNewType(location.type);
+    setNewParent(location.parent ?? "");
+    setNewStatus(location.status);
+    setNewFeatured(location.featured);
+    setFormError("");
+    setAddModalOpen(true);
+  };
+
+  const handleSave = async () => {
     if (!newName.trim()) return;
     setSaving(true);
     setFormError("");
     try {
       const slug = newName.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-      const input: LocationInput = { name: newName.trim(), slug, type: newType };
+      const input: LocationInput = {
+        name: newName.trim(),
+        slug,
+        type: newType,
+        status: newStatus,
+        featured: newFeatured,
+      };
       if (newParent) input.parent = newParent;
-      await createLocation(input);
+
+      if (editing) {
+        await updateLocation(editing.id, input);
+        setToast({ kind: "success", text: `"${input.name}" updated.` });
+      } else {
+        await createLocation(input);
+        setToast({ kind: "success", text: `"${input.name}" created.` });
+      }
+
       setAddModalOpen(false);
+      setEditing(null);
       setNewName("");
       setNewType("city");
       setNewParent("");
+      setNewStatus("active");
+      setNewFeatured(false);
       load();
     } catch (err: unknown) {
-      setFormError(err instanceof Error ? err.message : "Failed to create location");
+      setFormError(
+        err instanceof Error
+          ? err.message
+          : `Failed to ${editing ? "update" : "create"} location`,
+      );
     } finally {
       setSaving(false);
+    }
+  };
+
+  const toggleFeatured = async (location: Location) => {
+    try {
+      await updateLocation(location.id, {
+        name: location.name,
+        slug: location.slug,
+        type: location.type,
+        parent: location.parent,
+        status: location.status,
+        featured: !location.featured,
+      });
+      setLocations((cur) =>
+        cur.map((l) =>
+          l.id === location.id ? { ...l, featured: !l.featured } : l,
+        ),
+      );
+    } catch (err: unknown) {
+      setToast({
+        kind: "error",
+        text: err instanceof Error ? err.message : "Could not update featured.",
+      });
     }
   };
 
@@ -146,9 +232,22 @@ export default function LocationsPage() {
       label: "Featured",
       align: "center",
       render: (loc) => (
-        <span className={loc.featured ? "text-primary" : "text-gray-300"}>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFeatured(loc);
+          }}
+          aria-pressed={loc.featured}
+          title={loc.featured ? "Remove from featured" : "Mark as featured"}
+          className={`transition-colors ${
+            loc.featured
+              ? "text-primary hover:text-primary/70"
+              : "text-gray-300 hover:text-primary/50"
+          }`}
+        >
           <StarIcon filled={loc.featured} />
-        </span>
+        </button>
       ),
     },
     {
@@ -159,8 +258,18 @@ export default function LocationsPage() {
         <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
           <button
             type="button"
+            aria-label="Edit Location"
+            title="Edit location"
+            onClick={() => openEditModal(loc)}
+            className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-400 transition-colors hover:border-primary/40 hover:text-primary"
+          >
+            <EditIcon />
+          </button>
+          <button
+            type="button"
             aria-label="Delete Location"
-            onClick={() => handleDelete(loc.id)}
+            title="Delete location"
+            onClick={() => setConfirmDelete(loc)}
             className="flex h-8 w-8 items-center justify-center rounded-md border border-red-100 bg-red-50 text-red-500 transition-colors hover:bg-red-100"
           >
             <TrashIcon />
@@ -178,7 +287,7 @@ export default function LocationsPage() {
         action={
           <button
             type="button"
-            onClick={() => setAddModalOpen(true)}
+            onClick={openAddModal}
             className="inline-flex h-9 items-center gap-2 rounded-md bg-primary px-4 text-[11px] font-semibold text-white hover:opacity-90"
           >
             <PlusIcon />
@@ -237,10 +346,66 @@ export default function LocationsPage() {
         )}
       </section>
 
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`fixed bottom-6 right-6 z-[60] max-w-sm rounded-lg px-4 py-3 text-[12px] font-semibold shadow-lg ${
+            toast.kind === "success" ? "bg-emerald-600 text-white" : "bg-red-600 text-white"
+          }`}
+        >
+          {toast.text}
+        </div>
+      )}
+
+      {confirmDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setConfirmDelete(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-[15px] font-bold text-gray-900">
+              Delete this location?
+            </h3>
+            <p className="mt-1.5 text-[12px] leading-5 text-gray-500">
+              <span className="font-semibold text-gray-700">
+                {confirmDelete.name}
+              </span>{" "}
+              will be permanently removed. If any sub-locations, properties or
+              projects still use it, the delete will be refused.
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(null)}
+                className="h-9 rounded-md border border-gray-200 px-4 text-[12px] font-semibold text-gray-600 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={() => handleDelete(confirmDelete)}
+                className="h-9 rounded-md bg-red-600 px-4 text-[12px] font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {deleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {addModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setAddModalOpen(false)}>
           <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-[14px] font-semibold text-gray-800">Add New Location</h3>
+            <h3 className="text-[14px] font-semibold text-gray-800">
+              {editing ? `Edit ${editing.name}` : "Add New Location"}
+            </h3>
             {formError && <p className="mt-2 text-[12px] text-red-600">{formError}</p>}
             <div className="mt-4 space-y-3">
               <input
@@ -266,18 +431,51 @@ export default function LocationsPage() {
                   className="w-full rounded-md border border-gray-200 px-3 py-2 text-[12px] outline-none focus:border-primary"
                 >
                   <option value="">No parent</option>
-                  {locations.filter((l) => l.type === "city").map((l) => (
-                    <option key={l.id} value={l.slug}>{l.name}</option>
-                  ))}
+                  {locations
+                    .filter(
+                      (l) =>
+                        // A location cannot be its own parent.
+                        l.id !== editing?.id &&
+                        (newType === "area"
+                          ? l.type === "city"
+                          : l.type === "city" || l.type === "area"),
+                    )
+                    .map((l) => (
+                      <option key={l.id} value={l.slug}>
+                        {l.parent ? `${l.parent} › ` : ""}
+                        {l.name}
+                      </option>
+                    ))}
                 </select>
               )}
+
+              <select
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+                className="w-full rounded-md border border-gray-200 px-3 py-2 text-[12px] outline-none focus:border-primary"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+
+              <label className="flex cursor-pointer items-center gap-2 rounded-md bg-gray-50 px-3 py-2.5">
+                <input
+                  type="checkbox"
+                  checked={newFeatured}
+                  onChange={(e) => setNewFeatured(e.target.checked)}
+                  className="h-3.5 w-3.5 cursor-pointer accent-[var(--color-primary)]"
+                />
+                <span className="text-[12px] font-medium text-gray-700">
+                  Featured location
+                </span>
+              </label>
             </div>
             <div className="mt-5 flex justify-end gap-2">
               <button type="button" onClick={() => setAddModalOpen(false)} className="rounded-md border border-gray-200 px-4 py-2 text-[11px] font-medium text-gray-600 hover:bg-gray-50">
                 Cancel
               </button>
-              <button type="button" onClick={handleCreate} disabled={saving} className="rounded-md bg-primary px-4 py-2 text-[11px] font-semibold text-white hover:opacity-90 disabled:opacity-50">
-                {saving ? "Creating..." : "Create"}
+              <button type="button" onClick={handleSave} disabled={saving} className="rounded-md bg-primary px-4 py-2 text-[11px] font-semibold text-white hover:opacity-90 disabled:opacity-50">
+                {saving ? "Saving..." : editing ? "Save Changes" : "Create"}
               </button>
             </div>
           </div>
@@ -304,5 +502,14 @@ function LocationIcon() { return <svg className="h-5 w-5" viewBox="0 0 24 24" fi
 function CityIcon() { return <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 21V5l8-3 8 3v16" /><path d="M8 9h1M8 13h1M8 17h1M15 9h1M15 13h1M15 17h1M10 21v-4h4v4" /></svg>; }
 function AreaIcon() { return <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Z" /><path d="m3 13 9 5 9-5" /></svg>; }
 function SocietyIcon() { return <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="m3.5 10.5 8.5-7 8.5 7" /><path d="M5.5 9.5V20h13V9.5" /><path d="M9.5 20v-5h5v5" /></svg>; }
+function EditIcon() {
+  return (
+    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+  );
+}
+
 function TrashIcon() { return <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5" /></svg>; }
 function StarIcon({ filled = false }: { filled?: boolean }) { return <svg className="h-4 w-4" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.6"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" /></svg>; }

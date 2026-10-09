@@ -7,6 +7,8 @@ export type AdminTableColumn<T> = {
   label: string;
   width?: string;
   align?: "left" | "center" | "right";
+  /** Header alignment, when it should differ from the cell alignment. */
+  headerAlign?: "left" | "center" | "right";
   render?: (item: T, index: number) => ReactNode;
 };
 
@@ -18,6 +20,8 @@ type AdminTableProps<T> = {
   emptyMessage?: string;
   className?: string;
   onRowClick?: (item: T) => void;
+  /** Centers and darkens every header cell. */
+  centerHeaders?: boolean;
 };
 
 export default function AdminTable<T>({
@@ -28,6 +32,7 @@ export default function AdminTable<T>({
   emptyMessage = "No records found.",
   className = "",
   onRowClick,
+  centerHeaders = false,
 }: AdminTableProps<T>) {
   const getAlignClass = (align?: AdminTableColumn<T>["align"]) => {
     if (align === "center") return "text-center";
@@ -51,8 +56,14 @@ export default function AdminTable<T>({
                   key={column.key}
                   style={{ width: column.width }}
                   className={[
-                    "px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-gray-500",
-                    getAlignClass(column.align),
+                    "px-4 py-3 text-[10px] uppercase tracking-[0.08em]",
+                    centerHeaders
+                      ? "font-bold text-gray-700"
+                      : "font-semibold text-gray-500",
+                    getAlignClass(
+                      column.headerAlign ??
+                        (centerHeaders ? "center" : column.align),
+                    ),
                   ].join(" ")}
                 >
                   {column.label}

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { SearchIcon } from "@/components/ui/Icons";
+import { blogUrl } from "@/lib/blogFilters";
 
 /** Minimum characters typed before search filters the listing. */
 const MIN_SEARCH_LENGTH = 3;
@@ -20,6 +21,10 @@ export default function BlogSearch() {
   const [term, setTerm] = useState(searchParams.get("q") ?? "");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const category = searchParams.get("category") ?? "";
+  const tag = searchParams.get("tag") ?? "";
+  const sort = searchParams.get("sort") ?? "latest";
+
   useEffect(() => {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -28,10 +33,15 @@ export default function BlogSearch() {
 
   function pushTerm(value: string) {
     const trimmed = value.trim();
+    // Searching restarts at page 1; the other active filters are kept.
     router.push(
-      trimmed.length >= MIN_SEARCH_LENGTH
-        ? `/blog?q=${encodeURIComponent(trimmed)}`
-        : "/blog",
+      blogUrl({
+        q: trimmed.length >= MIN_SEARCH_LENGTH ? trimmed : undefined,
+        category,
+        tag,
+        sort,
+      }),
+      { scroll: false },
     );
   }
 
