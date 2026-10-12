@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
@@ -21,6 +22,7 @@ const statusVariant: Record<string, "success" | "info" | "warning" | "neutral"> 
 };
 
 export default function ProjectsPage() {
+  const router = useRouter();
   const [projects, setProjects] = useState<AdminProject[]>([]);
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [loading, setLoading] = useState(true);
@@ -94,6 +96,7 @@ export default function ProjectsPage() {
         <div onClick={(e) => e.stopPropagation()}>
           <AdminActionMenu
             actions={[
+              { label: "Edit", onClick: () => router.push(`/admin/projects/${project.id}/edit`), icon: <EditIcon /> },
               { label: "Delete", onClick: () => handleDelete(project.id), icon: <TrashIcon />, variant: "danger" },
             ]}
           />
@@ -145,3 +148,5 @@ export default function ProjectsPage() {
 
 function PlusIcon() { return <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>; }
 function TrashIcon() { return <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5" /></svg>; }
+
+function EditIcon() { return <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>; }

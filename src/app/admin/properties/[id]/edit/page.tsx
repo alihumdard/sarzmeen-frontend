@@ -16,6 +16,7 @@ import {
 import SpecFieldGroup from "@/components/admin/SpecFieldGroup";
 import type { SpecValue } from "@/components/admin/SpecFieldGroup";
 import PaymentPlanStep from "@/components/admin/PaymentPlanStep";
+import PaymentPlanCalculator from "@/components/admin/PaymentPlanCalculator";
 import {
   adminInputClass,
   adminSelectClass,
@@ -104,6 +105,9 @@ export default function EditPropertyPage() {
 
   const setSpec = (key: string, value: SpecValue) =>
     setSpecs((cur) => ({ ...cur, [key]: value }));
+
+  const applySpecs = (patch: Record<string, string>) =>
+    setSpecs((cur) => ({ ...cur, ...patch }));
 
   const loadProperty = useCallback(async () => {
     try {
@@ -361,7 +365,8 @@ export default function EditPropertyPage() {
 
           {/* Payment plan for installment */}
           {purpose === "installment" && (
-            <section className="rounded-lg border border-gray-200 bg-white p-5">
+            <section className="space-y-4 rounded-lg border border-gray-200 bg-white p-5">
+              <PaymentPlanCalculator specs={specs} onChange={setSpec} onApply={applySpecs} />
               <PaymentPlanStep specs={specs} onChange={setSpec} totalPrice={Number(price) || 0} />
             </section>
           )}

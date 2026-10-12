@@ -1,4 +1,5 @@
 import { api } from "./client";
+import type { ProjectDetail } from "@/types/project";
 
 export type AdminProject = {
   id: string;
@@ -23,6 +24,10 @@ type PaginationMeta = {
 
 export async function listAdminProjects(params?: string): Promise<{ data: AdminProject[]; meta: PaginationMeta }> {
   return api<{ data: AdminProject[]; meta: PaginationMeta }>(`/admin/projects${params ? `?${params}` : ""}`);
+}
+
+export async function getAdminProject(id: string): Promise<{ data: ProjectDetail }> {
+  return api<{ data: ProjectDetail }>(`/admin/projects/${id}`);
 }
 
 export async function createAdminProject(data: Record<string, unknown>): Promise<{ data: AdminProject }> {

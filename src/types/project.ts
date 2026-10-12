@@ -28,6 +28,14 @@ export type Project = {
   verified?: boolean;
   /** Shown as a badge on the card/gallery, same as a property's Featured tag. */
   featured?: boolean;
+  /** Residential / Commercial / Mixed Use — what the project contains. */
+  projectType?: string;
+  projectTypeLabel?: string;
+  /** High-Rise / Mall / Villas … — how it is built. Independent of type. */
+  projectFormat?: string;
+  projectFormatLabel?: string;
+  paymentType?: string;
+  paymentTypeLabel?: string;
 };
 
 /**
@@ -55,6 +63,103 @@ export type ProjectDetail = Project & {
   plotSizes: string[];
   /** Landmarks shown under the location map. */
   nearbyPlaces: NearbyPlace[];
+  /** Raw ids, sent so the admin edit form can preselect its dropdowns. */
+  categoryId?: string;
+  locationId?: string;
+  towersCount?: number | null;
+  totalFloors?: number | null;
+  basementFloors?: number | null;
+  parkingSpaces?: number | null;
+  expectedCompletion?: string | null;
+  possessionTimeline?: string | null;
+  totalUnits?: number | null;
+  metaTitle?: string;
+  metaDescription?: string;
+  /** Unit types on offer, each priced from its own area and rate. */
+  units?: ProjectUnit[];
+  /** Percentage split applied to every unit's total price. */
+  paymentTerms?: ProjectPaymentTerms | null;
+  developerId?: string | null;
+  developerProfile?: DeveloperProfile | null;
+  faqs?: ProjectFaq[];
+  documents?: ProjectDocument[];
+  floorPlans?: ProjectFloorPlan[];
+};
+
+export type InventoryCategory = "residential" | "commercial" | "hospitality" | "other";
+
+export type UnitAvailability = "available" | "limited" | "sold_out" | "coming_soon";
+
+export type ProjectUnit = {
+  id: string;
+  unitType: string;
+  unitName?: string | null;
+  category: InventoryCategory;
+  categoryLabel?: string;
+  area: number;
+  minArea?: number | null;
+  maxArea?: number | null;
+  areaUnit?: string;
+  ratePerSqft: number;
+  startingPrice?: number | null;
+  maxPrice?: number | null;
+  availability?: UnitAvailability;
+  availabilityLabel?: string;
+  /** Category-specific attributes; shape differs per inventory category. */
+  details?: Record<string, string | number | boolean>;
+  /** area x ratePerSqft, computed server-side so it cannot drift. */
+  totalPrice: number;
+};
+
+export type DeveloperProfile = {
+  id: string;
+  name: string;
+  slug: string;
+  logo: string | null;
+  description: string;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  address: string | null;
+  verified: boolean;
+  projectsCount?: number;
+};
+
+export type ProjectFaq = {
+  id: string;
+  question: string;
+  answer: string;
+};
+
+export type ProjectDocument = {
+  id: string;
+  title: string;
+  type: string;
+  url: string;
+  isPublic: boolean;
+};
+
+export type ProjectFloorPlan = {
+  id: string;
+  name: string;
+  floorNumber: string | null;
+  tower: string | null;
+  image: string | null;
+  pdf: string | null;
+  description: string;
+};
+
+export type ProjectPaymentTerms = {
+  pctBooking?: number;
+  pctConfirmation?: number;
+  pctMonthly?: number;
+  pctBalloon?: number;
+  pctGrey?: number;
+  pctPossession?: number;
+  monthlyCount?: number;
+  balloonCount?: number;
+  balloonFrequency?: number;
+  planDurationYears?: number;
 };
 
 export type City = {

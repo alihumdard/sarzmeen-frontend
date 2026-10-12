@@ -12,8 +12,13 @@ type ProjectQuickFactsProps = {
 
 /** Four-up summary strip sitting between the gallery and the detail tabs. */
 export default function ProjectQuickFacts({ project }: ProjectQuickFactsProps) {
+  const typeAndFormat =
+    project.projectTypeLabel && project.projectFormatLabel
+      ? `${project.projectTypeLabel} · ${project.projectFormatLabel}`
+      : project.category;
+
   const facts = [
-    { Icon: HomeStatIcon, label: "Category", value: project.category },
+    { Icon: HomeStatIcon, label: "Type", value: typeAndFormat },
     { Icon: StatusIcon, label: "Status", value: project.status },
     { Icon: AreaSizeIcon, label: "Total Area", value: project.totalArea },
     { Icon: TrustedAgentIcon, label: "Developer", value: project.developer },

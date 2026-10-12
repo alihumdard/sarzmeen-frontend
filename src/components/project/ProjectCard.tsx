@@ -10,7 +10,7 @@ type ProjectCardProps = {
 
 /** Project card used on the home page carousel and the projects listing. */
 export default function ProjectCard({ project }: ProjectCardProps) {
-  const { slug, name, city, category, image, status, priceFrom, verified, featured } =
+  const { slug, name, city, category, image, status, priceFrom, verified, featured, projectTypeLabel, projectFormatLabel } =
     project;
 
   return (
@@ -69,7 +69,11 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
         <p className="mt-3 flex items-center gap-1.5 border-t border-border pt-3 text-[11px] text-muted">
           <LocationPinIcon className="h-3.5 w-3.5 shrink-0" />
-          <span className="truncate">{category}</span>
+          <span className="truncate">
+            {projectTypeLabel && projectFormatLabel
+              ? `${projectTypeLabel} · ${projectFormatLabel}`
+              : category}
+          </span>
         </p>
       </div>
     </article>

@@ -37,6 +37,100 @@ function num(value: unknown): number {
   return 0;
 }
 
+/** The six components whose percentages must add up to 100%. */
+export const PERCENT_COMPONENTS = [
+  { key: "pctBooking", label: "Booking", amountKey: "bookingAmount" },
+  { key: "pctConfirmation", label: "Confirmation", amountKey: "confirmationAmount" },
+  { key: "pctMonthly", label: "Monthly", amountKey: "monthlyInstallment", countKey: "monthlyCount" },
+  { key: "pctBalloon", label: "Balloon", amountKey: "balloonPayment", countKey: "balloonCount" },
+  { key: "pctGrey", label: "Grey Structure", amountKey: "greyStructureAmount" },
+  { key: "pctPossession", label: "Possession", amountKey: "possessionPayment" },
+] as const;
+
+export type DerivedLine = {
+  label: string;
+  percent: number;
+  /** Share of the total price this component accounts for. */
+  total: number;
+  /** Per-instalment amount; equals `total` for one-off payments. */
+  each: number;
+  count: number;
+};
+
+export type DerivedPlan = {
+  area: number;
+  rate: number;
+  /** area x rate, the figure every percentage is applied to. */
+  totalPrice: number;
+  lines: DerivedLine[];
+  percentTotal: number;
+  /** Percentages add up to exactly 100 (within a rounding tolerance). */
+  valid: boolean;
+  /** True once there is a price to split, i.e. both area and rate are set. */
+  hasPrice: boolean;
+};
+
+/**
+ * Turns area + rate + percentages into per-component amounts.
+ *
+ * Kept separate from `buildPlan` because this derives the amounts while
+ * `buildPlan` sums whatever amounts are already on the listing — the derived
+ * figures are written into those same spec keys, so the two stay in agreement.
+ */
+export function derivePlan(specs: PlanInput): DerivedPlan {
+  const area = num(specs.unitArea);
+  const rate = num(specs.ratePerSqft);
+  const totalPrice = area * rate;
+
+  let percentTotal = 0;
+  const lines: DerivedLine[] = [];
+
+  for (const component of PERCENT_COMPONENTS) {
+    const percent = num(specs[component.key]);
+    percentTotal += percent;
+
+    const total = (totalPrice * percent) / 100;
+    const count = "countKey" in component ? Math.max(1, Math.round(num(specs[component.countKey]))) : 1;
+
+    lines.push({
+      label: component.label,
+      percent,
+      total,
+      each: total / count,
+      count,
+    });
+  }
+
+  return {
+    area,
+    rate,
+    totalPrice,
+    lines,
+    percentTotal,
+    // Tolerate float drift (e.g. 33.33 x 3) rather than demanding exactness.
+    valid: Math.abs(percentTotal - 100) < 0.01,
+    hasPrice: totalPrice > 0,
+  };
+}
+
+/**
+ * The spec patch that pushes a derived plan down into the amount fields the
+ * instalment builder below it reads.
+ */
+export function derivedSpecPatch(plan: DerivedPlan): Record<string, string> {
+  const patch: Record<string, string> = {};
+
+  PERCENT_COMPONENTS.forEach((component, i) => {
+    const line = plan.lines[i];
+    patch[component.amountKey] = line.each > 0 ? String(Math.round(line.each * 100) / 100) : "";
+    if ("countKey" in component) {
+      patch[component.countKey] = line.total > 0 ? String(line.count) : "";
+    }
+  });
+
+  return patch;
+}
+
 export function buildPlan(specs: PlanInput, totalPrice: number): PlanSummary {
   const lines: PlanLine[] = [];
 
@@ -64,6 +158,11 @@ export function buildPlan(specs: PlanInput, totalPrice: number): PlanSummary {
     if (each > 0 && count > 0) {
       lines.push({ label, each, count, total: each * count, recurring: true });
     }
+  }
+
+  const grey = num(specs.greyStructureAmount);
+  if (grey > 0) {
+    lines.push({ label: "Grey Structure", each: grey, count: 1, total: grey, recurring: false });
   }
 
   const possession = num(specs.possessionPayment);

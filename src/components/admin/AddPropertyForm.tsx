@@ -12,6 +12,7 @@ import {
 } from "@/lib/api/propertySchema";
 import SpecFieldGroup, { type SpecValue } from "@/components/admin/SpecFieldGroup";
 import PaymentPlanStep from "@/components/admin/PaymentPlanStep";
+import PaymentPlanCalculator from "@/components/admin/PaymentPlanCalculator";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import {
   adminInputClass,
@@ -151,6 +152,9 @@ export default function AddPropertyForm() {
 
   const setSpec = (key: string, value: SpecValue) =>
     setSpecs((cur) => ({ ...cur, [key]: value }));
+
+  const applySpecs = (patch: Record<string, string>) =>
+    setSpecs((cur) => ({ ...cur, ...patch }));
 
   const priceLabel =
     purpose === "rent" ? "Monthly Rent (PKR)" : purpose === "installment" ? "Total Price (PKR)" : "Price (PKR)";
@@ -531,7 +535,8 @@ export default function AddPropertyForm() {
               <p className="mt-1 text-[12px] text-gray-500">
                 Break the price into booking, instalments and possession. Totals update as you type.
               </p>
-              <div className="mt-5">
+              <div className="mt-5 space-y-4">
+                <PaymentPlanCalculator specs={specs} onChange={setSpec} onApply={applySpecs} />
                 <PaymentPlanStep specs={specs} onChange={setSpec} totalPrice={totalPrice} />
               </div>
             </div>

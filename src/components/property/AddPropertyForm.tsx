@@ -18,6 +18,7 @@ import {
 import SpecFieldGroup from "@/components/admin/SpecFieldGroup";
 import type { SpecValue } from "@/components/admin/SpecFieldGroup";
 import PaymentPlanStep from "@/components/admin/PaymentPlanStep";
+import PaymentPlanCalculator from "@/components/admin/PaymentPlanCalculator";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 
 const inputClasses =
@@ -89,6 +90,9 @@ export default function AddPropertyForm() {
 
   const setSpec = (key: string, value: SpecValue) =>
     setSpecs((cur) => ({ ...cur, [key]: value }));
+
+  const applySpecs = (patch: Record<string, string>) =>
+    setSpecs((cur) => ({ ...cur, ...patch }));
 
   useEffect(() => {
     Promise.all([
@@ -443,7 +447,8 @@ export default function AddPropertyForm() {
       {purpose === "installment" && (
         <div>
           <h3 className="mb-3 text-[14px] font-semibold text-heading">Payment Plan</h3>
-          <div className="rounded-lg border border-border p-4">
+          <div className="space-y-4 rounded-lg border border-border p-4">
+            <PaymentPlanCalculator specs={specs} onChange={setSpec} onApply={applySpecs} />
             <PaymentPlanStep specs={specs} onChange={setSpec} totalPrice={Number(price) || 0} />
           </div>
         </div>

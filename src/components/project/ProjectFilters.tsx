@@ -19,9 +19,42 @@ const areaOptions = [
 ];
 
 const statusOptions = [
+  "Pre-Launch",
+  "Booking Open",
   "Under Construction",
+  "Near Completion",
   "Ready to Move",
-  "Launching Soon",
+  "Possession Available",
+  "Completed",
+];
+
+const typeOptions = [
+  { value: "residential", label: "Residential" },
+  { value: "commercial", label: "Commercial" },
+  { value: "mixed_use", label: "Mixed Use" },
+];
+
+const formatOptions = [
+  { value: "high_rise", label: "High-Rise" },
+  { value: "mid_rise", label: "Mid-Rise" },
+  { value: "low_rise", label: "Low-Rise" },
+  { value: "mall", label: "Mall" },
+  { value: "plaza", label: "Plaza" },
+  { value: "villas", label: "Villas" },
+  { value: "housing_community", label: "Housing Community" },
+  { value: "other", label: "Other" },
+];
+
+const inventoryOptions = [
+  "Studio", "1 Bed", "2 Bed", "3 Bed", "4 Bed", "Penthouse",
+  "Shop", "Office", "Showroom", "Hotel Suite", "Villa", "Plot",
+];
+
+const paymentOptions = [
+  { value: "full_payment", label: "Full Payment" },
+  { value: "installment", label: "Installment" },
+  { value: "booking_open", label: "Booking Open" },
+  { value: "cash_installment", label: "Cash + Installment" },
 ];
 
 const categoryOptions = [
@@ -35,6 +68,10 @@ const categoryOptions = [
 export default function ProjectFilters() {
   const [areas, setAreas] = useState<string[]>([]);
   const [statuses, setStatuses] = useState<string[]>([]);
+  const [types, setTypes] = useState<string[]>([]);
+  const [formats, setFormats] = useState<string[]>([]);
+  const [payments, setPayments] = useState<string[]>([]);
+  const [inventory, setInventory] = useState<string[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
 
   const [minPrice, setMinPrice] = useState("");
@@ -142,6 +179,70 @@ export default function ProjectFilters() {
               className="h-11 w-full rounded-lg border border-gray-300 bg-white px-3 text-[13px] text-heading outline-none transition-colors placeholder:text-gray-400 focus:border-primary focus:ring-1 focus:ring-primary/20"
             />
           </div>
+        </div>
+      </FilterSection>
+
+      <FilterSection title="Project Type">
+        <div className="space-y-2.5">
+          {typeOptions.map((o) => (
+            <label key={o.value} className="flex min-h-8 cursor-pointer items-center gap-3">
+              <input
+                type="checkbox"
+                checked={types.includes(o.value)}
+                onChange={() => toggle(o.value, types, setTypes)}
+                className="h-4 w-4 shrink-0 cursor-pointer rounded border-gray-300 accent-primary"
+              />
+              <span className="text-[13px] leading-5 text-gray-700">{o.label}</span>
+            </label>
+          ))}
+        </div>
+      </FilterSection>
+
+      <FilterSection title="Project Format">
+        <div className="space-y-2.5">
+          {formatOptions.map((o) => (
+            <label key={o.value} className="flex min-h-8 cursor-pointer items-center gap-3">
+              <input
+                type="checkbox"
+                checked={formats.includes(o.value)}
+                onChange={() => toggle(o.value, formats, setFormats)}
+                className="h-4 w-4 shrink-0 cursor-pointer rounded border-gray-300 accent-primary"
+              />
+              <span className="text-[13px] leading-5 text-gray-700">{o.label}</span>
+            </label>
+          ))}
+        </div>
+      </FilterSection>
+
+      <FilterSection title="Inventory Type">
+        <div className="space-y-2.5">
+          {inventoryOptions.map((o) => (
+            <label key={o} className="flex min-h-8 cursor-pointer items-center gap-3">
+              <input
+                type="checkbox"
+                checked={inventory.includes(o)}
+                onChange={() => toggle(o, inventory, setInventory)}
+                className="h-4 w-4 shrink-0 cursor-pointer rounded border-gray-300 accent-primary"
+              />
+              <span className="text-[13px] leading-5 text-gray-700">{o}</span>
+            </label>
+          ))}
+        </div>
+      </FilterSection>
+
+      <FilterSection title="Payment">
+        <div className="space-y-2.5">
+          {paymentOptions.map((o) => (
+            <label key={o.value} className="flex min-h-8 cursor-pointer items-center gap-3">
+              <input
+                type="checkbox"
+                checked={payments.includes(o.value)}
+                onChange={() => toggle(o.value, payments, setPayments)}
+                className="h-4 w-4 shrink-0 cursor-pointer rounded border-gray-300 accent-primary"
+              />
+              <span className="text-[13px] leading-5 text-gray-700">{o.label}</span>
+            </label>
+          ))}
         </div>
       </FilterSection>
 
