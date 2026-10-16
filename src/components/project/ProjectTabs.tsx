@@ -5,6 +5,7 @@ import PropertyLocation from "@/components/property/PropertyLocation";
 import ProjectAmenities from "@/components/project/ProjectAmenities";
 import ProjectDescription from "@/components/project/ProjectDescription";
 import ProjectPaymentPlan from "@/components/project/ProjectPaymentPlan";
+import ProjectTowers from "@/components/project/ProjectTowers";
 import ProjectSpecifications from "@/components/project/ProjectSpecifications";
 import ProjectDeveloper from "@/components/project/ProjectDeveloper";
 import ProjectFaqs from "@/components/project/ProjectFaqs";
@@ -30,6 +31,7 @@ export default function ProjectTabs({ project }: ProjectTabsProps) {
   const tabs = [
     "Overview",
     ...((project.units?.length ?? 0) > 0 ? ["Inventory"] : []),
+    ...((project.towers?.length ?? 0) > 0 ? ["Towers"] : []),
     ...BASE_TABS.slice(1),
     ...((project.floorPlans?.length ?? 0) > 0 || (project.documents?.length ?? 0) > 0
       ? ["Floor Plans"]
@@ -88,6 +90,8 @@ export default function ProjectTabs({ project }: ProjectTabsProps) {
         )}
 
         {active === "Inventory" && <ProjectInventory project={project} />}
+
+        {active === "Towers" && <ProjectTowers project={project} />}
 
         {active === "Payment Plan" && <ProjectPaymentPlan project={project} />}
 

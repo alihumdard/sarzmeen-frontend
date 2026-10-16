@@ -32,9 +32,30 @@ export async function generateMetadata({
   const { slug } = await params;
   const project = await getProject(slug);
 
+  // Per-project SEO wins; anything unset falls back to the project's own data.
+  const seo = project.seo ?? {};
+  const title = seo.metaTitle || project.name;
+  const description = seo.metaDescription || project.description;
+  const image = seo.ogImage || project.images?.[0];
+
   return {
-    title: project.name,
-    description: project.description,
+    title,
+    description,
+    keywords: seo.focusKeyword ? [seo.focusKeyword] : undefined,
+    alternates: seo.canonicalUrl ? { canonical: seo.canonicalUrl } : undefined,
+    openGraph: {
+      title: seo.ogTitle || title,
+      description: seo.ogDescription || description,
+      type: "website",
+      url: seo.canonicalUrl ?? undefined,
+      images: image ? [image] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seo.ogTitle || title,
+      description: seo.ogDescription || description,
+      images: image ? [image] : undefined,
+    },
   };
 }
 

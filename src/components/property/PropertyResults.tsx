@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import PropertyCard from "@/components/property/PropertyCard";
 import PropertyListRow from "@/components/property/PropertyListRow";
 import { GridViewIcon, ListViewIcon } from "@/components/ui/Icons";
@@ -36,11 +36,16 @@ export default function PropertyResults({
   const [sort, setSort] = useState("newest");
   const [page, setPage] = useState(1);
 
-  const sorted = [...properties].sort((a, b) => {
-    if (sort === "price-asc") return a.price - b.price;
-    if (sort === "price-desc") return b.price - a.price;
-    return 0;
-  });
+  // Memoised: this re-ran on every view toggle and pagination click.
+  const sorted = useMemo(
+    () =>
+      [...properties].sort((a, b) => {
+        if (sort === "price-asc") return a.price - b.price;
+        if (sort === "price-desc") return b.price - a.price;
+        return 0;
+      }),
+    [properties, sort],
+  );
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 

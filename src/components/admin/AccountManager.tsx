@@ -19,6 +19,16 @@ import type {
 
 const PER_PAGE = 8;
 
+/** Initials stand in for the avatar when a user has not uploaded one. */
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
 type AccountManagerProps = {
   role: AccountRole;
   title: string;
@@ -152,14 +162,20 @@ export default function AccountManager({
       label: nameLabel,
       render: (account) => (
         <div className="flex items-center gap-3">
-          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full">
-            <Image
-              src={account.avatar}
-              alt=""
-              fill
-              sizes="36px"
-              className="object-cover"
-            />
+          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-primary/10">
+            {account.avatar ? (
+              <Image
+                src={account.avatar}
+                alt=""
+                fill
+                sizes="36px"
+                className="object-cover"
+              />
+            ) : (
+              <span className="flex h-full w-full items-center justify-center text-[11px] font-semibold text-primary">
+                {getInitials(account.name)}
+              </span>
+            )}
           </div>
           <div className="min-w-0">
             <p className="truncate text-[12px] font-semibold text-gray-900">

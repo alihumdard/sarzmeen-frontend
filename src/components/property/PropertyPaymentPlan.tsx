@@ -18,6 +18,9 @@ export default function PropertyPaymentPlan({ specs, price }: Props) {
   const plan = useMemo(() => buildPlan(specs, price), [specs, price]);
   const schedule = useMemo(() => yearlyBreakdown(plan), [plan]);
 
+  // A row of zeros reads as broken; hide it until instalments are published.
+  const scheduleHasAmounts = schedule.some((row) => row.amount > 0);
+
   if (plan.lines.length === 0) {
     return (
       <p className="py-8 text-center text-[12px] text-muted">
@@ -81,7 +84,7 @@ export default function PropertyPaymentPlan({ specs, price }: Props) {
         </table>
       </div>
 
-      {schedule.length > 0 && (
+      {scheduleHasAmounts && (
         <div>
           <h4 className="mb-2 text-[13px] font-semibold text-heading">
             Yearly Instalment Schedule

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import DetailBreadcrumb from "@/components/property/DetailBreadcrumb";
 import PropertyDetailHeader from "@/components/property/PropertyDetailHeader";
@@ -45,17 +46,19 @@ export default async function PropertyDetailPage({
   params,
 }: PropertyDetailPageProps) {
   const { slug } = await params;
-  const property = await getProperty(slug);
 
-  let similarProperties: Property[] = [];
-  try {
-    const res = await serverApi<{ data: Property[] }>(
-      `/properties?per_page=4&featured=1`,
-    );
-    similarProperties = res.data.filter((p) => p.slug !== slug);
-  } catch {
-    // non-critical
-  }
+  /*
+   * Both requests key only on the slug, so they run together rather than one
+   * waiting on the other.
+   */
+  const [property, similarResult] = await Promise.all([
+    getProperty(slug),
+    serverApi<{ data: Property[] }>(`/properties?per_page=4&featured=1`).catch(
+      () => ({ data: [] as Property[] }),
+    ),
+  ]);
+
+  const similarProperties = similarResult.data.filter((p) => p.slug !== slug);
 
   return (
     <main>
@@ -95,6 +98,18 @@ export default async function PropertyDetailPage({
                   price={property.price}
                 />
               )}
+              {/* Pre-fills the calculator so the buyer starts from this listing. */}
+              <Link
+                href={`/calculator?price=${property.price}${
+                  property.specs?.unitArea ? `&area=${property.specs.unitArea}` : ""
+                }${
+                  property.specs?.ratePerSqft ? `&rate=${property.specs.ratePerSqft}` : ""
+                }`}
+                className="flex items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary-light py-3 text-[12.5px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
+              >
+                Calculate your payment plan
+              </Link>
+
               <PropertyAgentCard agent={property.agent} />
               <PropertyInquiryForm
                 propertyId={property.id}

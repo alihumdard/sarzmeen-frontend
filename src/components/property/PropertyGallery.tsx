@@ -39,17 +39,26 @@ export default function PropertyGallery({
   const [active, setActive] = useState(0);
   const [saved, setSaved] = useState(false);
 
+  /*
+   * A listing can have no photos at all, and the API returns "" for an image
+   * whose file is missing. Passing either to next/image throws, so drop them
+   * and fall back to a placeholder.
+   */
+  const usableImages = images.filter((src) => typeof src === "string" && src.trim() !== "");
+
   function step(delta: number) {
     setActive((current) => {
+      if (usableImages.length === 0) return 0;
       const next = current + delta;
-      if (next < 0) return images.length - 1;
-      if (next >= images.length) return 0;
+      if (next < 0) return usableImages.length - 1;
+      if (next >= usableImages.length) return 0;
       return next;
     });
   }
+  const mainImage = usableImages[active] ?? usableImages[0];
 
-  const thumbnails = images.slice(0, THUMBNAIL_LIMIT);
-  const remaining = photoCount - thumbnails.length;
+  const thumbnails = usableImages.slice(0, THUMBNAIL_LIMIT);
+  const remaining = Math.max(0, photoCount - thumbnails.length);
 
   const arrowClasses =
     "absolute top-1/2 z-20 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-heading shadow-md transition-colors hover:bg-white hover:text-primary";
@@ -58,14 +67,25 @@ export default function PropertyGallery({
     <div>
       {/* Main image */}
       <div className="relative h-[280px] overflow-hidden rounded-lg sm:h-[360px] lg:h-[420px]">
-        <Image
-          src={images[active]}
-          alt={`${title} — photo ${active + 1}`}
-          fill
-          priority
-          sizes="(min-width: 1024px) 620px, 100vw"
-          className="object-cover"
-        />
+        {mainImage ? (
+          <Image
+            src={mainImage}
+            alt={`${title} — photo ${active + 1}`}
+            fill
+            priority
+            sizes="(min-width: 1024px) 620px, 100vw"
+            className="object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-surface text-muted">
+            <svg className="h-10 w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="m21 15-5-5L5 21" />
+            </svg>
+            <p className="text-[12px]">No photos yet</p>
+          </div>
+        )}
 
         {featured && (
           <span className="pointer-events-none absolute left-4 top-4 z-20 rounded-full bg-primary px-3.5 py-1.5 text-[11px] font-semibold text-white">
@@ -95,7 +115,7 @@ export default function PropertyGallery({
           <HeartIcon className="h-4 w-4" filled={saved} />
         </button>
 
-        {images.length > 1 && (
+        {usableImages.length > 1 && (
           <>
             <button
               type="button"

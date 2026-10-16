@@ -3,7 +3,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  listNotifications,
+  getUnreadCount,
+  markAllAsRead,
+  markAsRead,
+  describeNotification,
+  relativeTime,
+  notificationHref,
+  type AppNotification,
+} from "@/lib/api/notifications";
 import { useAuth } from "@/context/AuthContext";
+import { can } from "@/lib/permissions";
 
 type AdminTopbarProps = {
   onMenuClick?: () => void;
@@ -16,29 +28,6 @@ const roleLabels: Record<string, string> = {
   user: "Website User",
 };
 
-const mockNotifications = [
-  {
-    id: "n1",
-    title: "New inquiry received",
-    detail: "Ali Hassan asked about a 1 Kanal House in DHA Phase 6.",
-    time: "5m ago",
-    unread: true,
-  },
-  {
-    id: "n2",
-    title: "Property approved",
-    detail: "\"3 Marla House for Sale\" is now live.",
-    time: "1h ago",
-    unread: true,
-  },
-  {
-    id: "n3",
-    title: "New agent registered",
-    detail: "Capital Property Advisors signed up.",
-    time: "Yesterday",
-    unread: false,
-  },
-];
 
 
 export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
@@ -88,7 +77,90 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
     };
   }, []);
 
-  const unreadCount = mockNotifications.filter((n) => n.unread).length;
+  const router = useRouter();
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [search, setSearch] = useState("");
+
+  /*
+   * Polled rather than pushed: there is no websocket layer, and a 30s badge
+   * refresh is cheap next to the complexity of adding one.
+   */
+  useEffect(() => {
+    let cancelled = false;
+
+    const refreshCount = async () => {
+      try {
+        const count = await getUnreadCount();
+        if (!cancelled) setUnreadCount(count);
+      } catch {
+        // A failed poll should not disturb the page.
+      }
+    };
+
+    refreshCount();
+    const timer = setInterval(refreshCount, 30_000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, []);
+
+  // The list is only needed once the panel is actually opened.
+  useEffect(() => {
+    if (!notificationsOpen) return;
+
+    let cancelled = false;
+    listNotifications(10)
+      .then((rows) => {
+        if (!cancelled) setNotifications(rows.slice(0, 10));
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [notificationsOpen]);
+
+  const handleOpenNotification = async (n: AppNotification) => {
+    if (!n.read) {
+      setNotifications((cur) =>
+        cur.map((x) => (x.id === n.id ? { ...x, read: true } : x)),
+      );
+      setUnreadCount((c) => Math.max(0, c - 1));
+      try {
+        await markAsRead(n.id);
+      } catch {
+        // Optimistic: the badge corrects itself on the next poll.
+      }
+    }
+
+    const href = notificationHref(n);
+    if (href) {
+      setNotificationsOpen(false);
+      router.push(href);
+    }
+  };
+
+  const handleMarkAll = async () => {
+    setNotifications((cur) => cur.map((n) => ({ ...n, read: true })));
+    setUnreadCount(0);
+    try {
+      await markAllAsRead();
+    } catch {
+      // Same: the next poll restores the true count.
+    }
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = search.trim();
+    if (!q) return;
+    setSearch("");
+    // Properties is the broadest admin list, so it is the sensible target.
+    router.push(`/admin/properties?search=${encodeURIComponent(q)}`);
+  };
 
   return (
     <header className="sticky top-0 z-30 h-[72px] border-b border-gray-200 bg-white">
@@ -99,21 +171,24 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
           <button
             type="button"
             onClick={onMenuClick}
-            aria-label="Open sidebar"
+            aria-label="Toggle sidebar"
+            title="Toggle sidebar"
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900"
           >
             <MenuIcon />
           </button>
 
           {/* Search */}
-          <div className="relative hidden sm:block">
+          <form onSubmit={handleSearch} role="search" className="relative hidden sm:block">
             <div className="flex h-10 w-[240px] items-center gap-2 rounded-md border border-gray-200 bg-white px-3 text-gray-400 transition-colors focus-within:border-primary">
               <SearchIcon />
 
               <input
                 ref={searchInputRef}
                 type="search"
-                placeholder="Search anything..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search properties..."
                 className="min-w-0 flex-1 bg-transparent text-[12px] text-gray-700 outline-none placeholder:text-gray-400"
               />
 
@@ -121,12 +196,13 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
                 Ctrl + K
               </span>
             </div>
-          </div>
+          </form>
 
           {/* Mobile Search */}
           <button
             type="button"
             aria-label="Search"
+            onClick={() => searchInputRef.current?.focus()}
             className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 sm:hidden"
           >
             <SearchIcon />
@@ -163,36 +239,56 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
                     Notifications
                   </p>
                   {unreadCount > 0 && (
-                    <span className="text-[10px] font-medium text-primary">
-                      {unreadCount} new
-                    </span>
+                    <button
+                      type="button"
+                      onClick={handleMarkAll}
+                      className="text-[10px] font-semibold text-primary hover:underline"
+                    >
+                      Mark all read
+                    </button>
                   )}
                 </div>
 
                 <div className="max-h-72 overflow-y-auto">
-                  {mockNotifications.map((notification) => (
-                    <div
-                      key={notification.id}
-                      className="flex items-start gap-2.5 border-b border-gray-50 px-4 py-3 last:border-0 hover:bg-gray-50"
-                    >
-                      <span
-                        className={`mt-1 h-1.5 w-1.5 shrink-0 rounded-full ${
-                          notification.unread ? "bg-primary" : "bg-transparent"
-                        }`}
-                      />
-                      <div className="min-w-0">
-                        <p className="text-[11.5px] font-semibold text-gray-900">
-                          {notification.title}
-                        </p>
-                        <p className="mt-0.5 text-[11px] text-gray-500">
-                          {notification.detail}
-                        </p>
-                        <p className="mt-1 text-[10px] text-gray-400">
-                          {notification.time}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                  {notifications.length === 0 ? (
+                    <p className="px-4 py-8 text-center text-[11.5px] text-gray-400">
+                      No notifications yet.
+                    </p>
+                  ) : (
+                    notifications.map((notification) => {
+                      const { title, detail } = describeNotification(notification);
+
+                      return (
+                        <button
+                          key={notification.id}
+                          type="button"
+                          onClick={() => handleOpenNotification(notification)}
+                          className={`flex w-full items-start gap-2.5 border-b border-gray-50 px-4 py-3 text-left last:border-0 hover:bg-gray-50 ${
+                            notificationHref(notification) ? "cursor-pointer" : "cursor-default"
+                          }`}
+                        >
+                          <span
+                            className={`mt-1 h-1.5 w-1.5 shrink-0 rounded-full ${
+                              !notification.read ? "bg-primary" : "bg-transparent"
+                            }`}
+                          />
+                          <div className="min-w-0">
+                            <p className="text-[11.5px] font-semibold text-gray-900">
+                              {title}
+                            </p>
+                            {detail && (
+                              <p className="mt-0.5 line-clamp-2 text-[11px] text-gray-500">
+                                {detail}
+                              </p>
+                            )}
+                            <p className="mt-1 text-[10px] text-gray-400">
+                              {relativeTime(notification.createdAt)}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })
+                  )}
                 </div>
               </div>
             )}
@@ -250,20 +346,23 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
                 </div>
 
                 <Link
-                  href="/admin"
+                  href="/admin/profile"
                   onClick={() => setProfileOpen(false)}
                   className="flex w-full px-4 py-2.5 text-left text-[11px] text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                 >
                   My Profile
                 </Link>
 
-                <Link
-                  href="/admin/settings"
-                  onClick={() => setProfileOpen(false)}
-                  className="flex w-full px-4 py-2.5 text-left text-[11px] text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                >
-                  Account Settings
-                </Link>
+                {/* Site-wide settings, so only shown to roles that can manage them. */}
+                {can(user, "settings.manage") && (
+                  <Link
+                    href="/admin/settings"
+                    onClick={() => setProfileOpen(false)}
+                    className="flex w-full px-4 py-2.5 text-left text-[11px] text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  >
+                    Account Settings
+                  </Link>
+                )}
 
                 <div className="my-1 border-t border-gray-100" />
 

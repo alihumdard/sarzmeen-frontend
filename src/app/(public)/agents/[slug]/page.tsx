@@ -39,19 +39,18 @@ export async function generateMetadata({ params }: AgentPageProps): Promise<Meta
 export default async function AgentPage({ params }: AgentPageProps) {
   const { slug } = await params;
 
-  let agent: AgentDetail;
-  try {
-    const res = await serverApi<{ data: AgentDetail }>(`/agents/${slug}`);
-    agent = res.data;
-  } catch {
-    notFound();
-  }
+  // Both key only on the slug, so they are fetched together.
+  const [agentResult, listingsResult] = await Promise.all([
+    serverApi<{ data: AgentDetail }>(`/agents/${slug}`).catch(() => null),
+    serverApi<{ data: Property[] }>(`/properties?agent=${slug}&per_page=8`).catch(
+      () => ({ data: [] as Property[] }),
+    ),
+  ]);
 
-  let listings: Property[] = [];
-  try {
-    const res = await serverApi<{ data: Property[] }>(`/properties?agent=${slug}&per_page=8`);
-    listings = res.data;
-  } catch {}
+  if (!agentResult) notFound();
+
+  const agent: AgentDetail = agentResult.data;
+  const listings: Property[] = listingsResult.data;
 
   const stats = [
     {

@@ -3,10 +3,13 @@
 import { useMemo } from "react";
 import {
   PERCENT_COMPONENTS,
-  derivePlan,
   formatExact,
   formatPKR,
 } from "@/lib/paymentPlan";
+import {
+  computePlan,
+  type PlanComponent,
+} from "@/lib/paymentPlanBuilder";
 import { adminInputClass, adminSelectClass } from "@/components/admin/AdminFormField";
 import type {
   InventoryCategory,
@@ -113,13 +116,40 @@ export default function ProjectUnitsStep({
   onTermChange,
   error,
 }: Props) {
+  /*
+   * Components the admin left blank share whatever percentage is unallocated,
+   * so the structure reaches 100% without overwriting a figure typed on
+   * purpose. The resolved share is shown as the field's placeholder.
+   */
+  const shared = useMemo(() => {
+    const components: PlanComponent[] = PERCENT_COMPONENTS.map((c) => {
+      const raw = terms[c.key];
+      const typed = raw !== undefined && String(raw).trim() !== "";
+      const countKey = "countKey" in c ? (c.countKey as string) : null;
+
+      return {
+        key: c.key as PlanComponent["key"],
+        label: c.label,
+        percent: typed ? Number(raw) : undefined,
+        count: countKey ? Math.max(1, Number(terms[countKey]) || 1) : 1,
+        frequency: "once" as const,
+        pinned: typed ? ("percent" as const) : ("none" as const),
+      };
+    });
+
+    // 100 as the base makes resolvedPercent read directly as a percentage.
+    return computePlan(components, 100);
+  }, [terms]);
+
   const percentTotal = useMemo(
     () => PERCENT_COMPONENTS.reduce((sum, c) => sum + (Number(terms[c.key]) || 0), 0),
     [terms],
   );
 
-  const valid = Math.abs(percentTotal - 100) < 0.01;
-  const untouched = percentTotal === 0;
+  const anyBlank = shared.components.some((c) => c.derived);
+  // Blank components absorb the rest, so the structure still resolves to 100%.
+  const valid = anyBlank ? !shared.overAllocated : Math.abs(percentTotal - 100) < 0.01;
+  const untouched = percentTotal === 0 && !anyBlank;
 
   const updateUnit = (index: number, patch: Partial<UnitDraft>) =>
     onUnitsChange(units.map((u, i) => (i === index ? { ...u, ...patch } : u)));
@@ -144,15 +174,20 @@ export default function ProjectUnitsStep({
         </p>
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          {PERCENT_COMPONENTS.map((c) => (
-            <Num
-              key={c.key}
-              label={`${c.label} %`}
-              value={terms[c.key] ?? ""}
-              onChange={(v) => onTermChange(c.key, v)}
-              placeholder="0"
-            />
-          ))}
+          {PERCENT_COMPONENTS.map((c, i) => {
+            const resolved = shared.components[i];
+            const auto = resolved?.derived ?? false;
+
+            return (
+              <Num
+                key={c.key}
+                label={`${c.label} %${auto ? " (auto)" : ""}`}
+                value={terms[c.key] ?? ""}
+                onChange={(v) => onTermChange(c.key, v)}
+                placeholder={auto ? resolved.resolvedPercent.toFixed(2) : "0"}
+              />
+            );
+          })}
         </div>
 
         <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -347,12 +382,34 @@ export default function ProjectUnitsStep({
 }
 
 function UnitPreview({ units, terms }: { units: UnitDraft[]; terms: Record<string, string> }) {
+  // Uses the same auto-balancing engine as the inputs above, so a blank
+  // component previews at the share it will actually take.
   const rows = units
     .filter((u) => Number(u.area) > 0 && Number(u.ratePerSqft) > 0)
-    .map((u) => ({
-      unit: u.unitType || "(unnamed unit)",
-      plan: derivePlan({ ...terms, unitArea: u.area, ratePerSqft: u.ratePerSqft }),
-    }));
+    .map((u) => {
+      const totalPrice = Number(u.area) * Number(u.ratePerSqft);
+
+      const components: PlanComponent[] = PERCENT_COMPONENTS.map((c) => {
+        const raw = terms[c.key];
+        const typed = raw !== undefined && String(raw).trim() !== "";
+        const countKey = "countKey" in c ? (c.countKey as string) : null;
+
+        return {
+          key: c.key as PlanComponent["key"],
+          label: c.label,
+          percent: typed ? Number(raw) : undefined,
+          count: countKey ? Math.max(1, Number(terms[countKey]) || 1) : 1,
+          frequency: "once" as const,
+          pinned: typed ? ("percent" as const) : ("none" as const),
+        };
+      });
+
+      return {
+        unit: u.unitType || "(unnamed unit)",
+        totalPrice,
+        plan: computePlan(components, totalPrice),
+      };
+    });
 
   return (
     <fieldset className="rounded-lg border border-primary/30 bg-primary/[0.02] p-4">
@@ -362,30 +419,33 @@ function UnitPreview({ units, terms }: { units: UnitDraft[]; terms: Record<strin
       </p>
 
       <div className="space-y-4">
-        {rows.map(({ unit, plan }) => (
+        {rows.map(({ unit, plan, totalPrice }) => (
           <div key={unit} className="overflow-x-auto rounded-md border border-gray-200 bg-white">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-3 py-2">
               <span className="text-[12px] font-bold text-gray-900">{unit}</span>
               <span className="text-[12px] font-bold text-primary">
-                {formatPKR(plan.totalPrice)}
+                {formatPKR(totalPrice)}
               </span>
             </div>
             <table className="w-full text-[11.5px]">
               <tbody>
-                {plan.lines
-                  .filter((l) => l.total > 0)
+                {plan.components
+                  .filter((l) => l.resolvedTotal > 0.005)
                   .map((line) => (
                     <tr key={line.label} className="border-t border-gray-50 text-gray-700">
                       <td className="px-3 py-1.5">{line.label}</td>
-                      <td className="px-3 py-1.5 text-right text-gray-500">{line.percent}%</td>
+                      <td className="px-3 py-1.5 text-right text-gray-500">
+                        {line.resolvedPercent}%
+                        {line.derived && <span className="ml-1 text-blue-500">auto</span>}
+                      </td>
                       <td className="px-3 py-1.5 text-right">
-                        {formatExact(line.each)}
+                        {formatExact(line.resolvedEach)}
                         {line.count > 1 && (
                           <span className="text-gray-400"> × {line.count}</span>
                         )}
                       </td>
                       <td className="px-3 py-1.5 text-right font-semibold text-gray-900">
-                        {formatExact(line.total)}
+                        {formatExact(line.resolvedTotal)}
                       </td>
                     </tr>
                   ))}

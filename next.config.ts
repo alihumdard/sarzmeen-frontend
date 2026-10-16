@@ -16,10 +16,17 @@ const nextConfig: NextConfig = {
         hostname: "i.pravatar.cc",
         pathname: "/**",
       },
+      // The API port moves between environments, so allow both local ports.
       {
         protocol: "http",
         hostname: "localhost",
         port: "8000",
+        pathname: "/storage/**",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "8001",
         pathname: "/storage/**",
       },
     ],

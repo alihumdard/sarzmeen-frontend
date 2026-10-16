@@ -23,10 +23,13 @@ const fallback: TickerSettings = {
 
 async function getTicker(): Promise<TickerSettings> {
   try {
-    // Short cache: CMS edits should appear quickly after saving.
+    /*
+     * This blocks every public page's render, so it is cached for a minute
+     * rather than 10s. CMS edits still appear within that window.
+     */
     const res = await serverApi<{ data: { ticker?: Partial<TickerSettings> } }>(
       "/site-settings/homepage",
-      10,
+      60,
     );
     const t = res.data?.ticker;
     if (!t) return fallback;

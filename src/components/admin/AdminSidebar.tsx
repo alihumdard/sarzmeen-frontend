@@ -5,10 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { canAny } from "@/lib/permissions";
 
 type AdminSidebarProps = {
   mobileOpen?: boolean;
   onClose?: () => void;
+  /** Desktop only: slides the fixed sidebar out of view. */
+  collapsed?: boolean;
 };
 
 type IconName =
@@ -33,6 +36,8 @@ type IconName =
 type MenuItem = {
   label: string;
   href: string;
+  /** Hidden unless the user holds at least one of these permissions. */
+  anyPermission?: string[];
   icon: IconName;
   /** True once a real page exists at `href`. False renders it inert with a "Soon" tag. */
   implemented?: boolean;
@@ -81,24 +86,28 @@ const menuGroups: MenuGroup[] = [
       {
         label: "Projects",
         href: "/admin/projects",
+        anyPermission: ["projects.edit.any"],
         icon: "project",
         implemented: true,
       },
       {
         label: "Locations",
         href: "/admin/locations",
+        anyPermission: ["categories.manage"],
         icon: "location",
         implemented: true,
       },
       {
         label: "Users",
         href: "/admin/users/website",
+        anyPermission: ["users.view"],
         icon: "users",
         implemented: true,
       },
       {
         label: "Inquiries",
         href: "/admin/inquiries",
+        anyPermission: ["inquiries.view.any"],
         icon: "inquiry",
         implemented: true,
       },
@@ -110,12 +119,14 @@ const menuGroups: MenuGroup[] = [
       {
         label: "Blogs",
         href: "/admin/blogs",
+        anyPermission: ["blogs.manage"],
         icon: "blog",
         implemented: true,
       },
       {
         label: "Homepage CMS",
         href: "/admin/homepage",
+        anyPermission: ["settings.manage"],
         icon: "home",
         implemented: true,
       },
@@ -128,12 +139,14 @@ const menuGroups: MenuGroup[] = [
       {
         label: "Testimonials",
         href: "/admin/testimonials",
+        anyPermission: ["testimonials.manage"],
         icon: "testimonial",
         implemented: true,
       },
       {
         label: "FAQs",
         href: "/admin/faqs",
+        anyPermission: ["faqs.manage"],
         icon: "faq",
         implemented: true,
       },
@@ -145,6 +158,7 @@ const menuGroups: MenuGroup[] = [
       {
         label: "Roles & Permissions",
         href: "/admin/roles",
+        anyPermission: ["roles.manage"],
         icon: "roles",
         implemented: true,
       },
@@ -160,20 +174,10 @@ const menuGroups: MenuGroup[] = [
     title: "SETTINGS",
     items: [
       {
-        label: "SEO Settings",
-        href: "/admin/settings/seo",
-        icon: "seo",
-        implemented: false,
-      },
-      {
-        label: "Appearance",
-        href: "/admin/settings/appearance",
-        icon: "appearance",
-        implemented: false,
-      },
-      {
-        label: "System Settings",
+        // SEO and Appearance are tabs inside this page, not separate routes.
+        label: "Settings",
         href: "/admin/settings",
+        anyPermission: ["settings.manage"],
         icon: "settings",
         implemented: true,
       },
@@ -361,6 +365,7 @@ function isActivePath(pathname: string, href: string) {
 export default function AdminSidebar({
   mobileOpen = false,
   onClose,
+  collapsed = false,
 }: AdminSidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
@@ -369,9 +374,18 @@ export default function AdminSidebar({
   const visibleGroups = menuGroups
     .map((group) => ({
       ...group,
-      items: group.items.filter((item) =>
-        item.roles ? item.roles.includes(user?.role ?? "") : user?.role === "admin",
-      ),
+      items: group.items.filter((item) => {
+        /*
+         * Permission wins when the item declares one, so any role granted
+         * e.g. `blogs.manage` sees Blogs. Items without a permission fall
+         * back to the role list (or admin-only). Mirrors the API.
+         */
+        if (item.anyPermission) return canAny(user, item.anyPermission);
+
+        return item.roles
+          ? item.roles.includes(user?.role ?? "")
+          : user?.role === "admin";
+      }),
     }))
     .filter((group) => group.items.length > 0);
 
@@ -718,7 +732,12 @@ export default function AdminSidebar({
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] bg-[#031c20] lg:block">
+      <aside
+        className={[
+          "fixed inset-y-0 left-0 z-40 hidden w-[260px] bg-[#031c20] transition-transform duration-300 lg:block",
+          collapsed ? "-translate-x-full" : "translate-x-0",
+        ].join(" ")}
+      >
         {sidebarContent}
       </aside>
 

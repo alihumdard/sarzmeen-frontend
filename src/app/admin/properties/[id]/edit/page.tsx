@@ -1,11 +1,21 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
-import RichTextEditor from "@/components/admin/RichTextEditor";
+// TipTap is heavy and sits in a later step, so it loads on demand.
+const RichTextEditor = dynamic(
+  () => import("@/components/admin/RichTextEditor"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[220px] animate-pulse rounded-lg border border-gray-200 bg-gray-50" />
+    ),
+  },
+);
 import { api } from "@/lib/api/client";
 import {
   fetchPropertySchema,

@@ -24,6 +24,16 @@ import type {
 
 const PER_PAGE = 8;
 
+/** Initials stand in for the avatar when a testimonial has no image. */
+function testimonialInitials(name: string) {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
 export default function TestimonialsPage() {
   const [testimonials, setTestimonials] = useState<AdminTestimonial[]>([]);
   const [loading, setLoading] = useState(true);
@@ -137,14 +147,20 @@ export default function TestimonialsPage() {
       label: "Client",
       render: (testimonial) => (
         <div className="flex items-center gap-3">
-          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full">
-            <Image
-              src={testimonial.avatar}
-              alt=""
-              fill
-              sizes="36px"
-              className="object-cover"
-            />
+          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-primary/10">
+            {testimonial.avatar ? (
+              <Image
+                src={testimonial.avatar}
+                alt=""
+                fill
+                sizes="36px"
+                className="object-cover"
+              />
+            ) : (
+              <span className="flex h-full w-full items-center justify-center text-[11px] font-semibold text-primary">
+                {testimonialInitials(testimonial.name)}
+              </span>
+            )}
           </div>
           <div className="min-w-0">
             <p className="flex items-center gap-1.5 truncate text-[12px] font-semibold text-gray-900">

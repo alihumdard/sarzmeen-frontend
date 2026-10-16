@@ -105,7 +105,7 @@ export default function Header() {
                       openDropdown === item.name ? null : item.name,
                     )
                   }
-                  className="flex items-center gap-1 rounded-md px-3.5 py-2 text-[14px] font-semibold text-heading transition-colors hover:bg-surface hover:text-primary"
+                  className="flex items-center gap-1 whitespace-nowrap rounded-md px-2.5 py-2 text-[13.5px] font-semibold text-heading transition-colors hover:bg-surface hover:text-primary"
                 >
                   {item.name}
                   <ChevronDownIcon
@@ -134,7 +134,7 @@ export default function Header() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="rounded-md px-3.5 py-2 text-[14px] font-semibold text-heading transition-colors hover:bg-surface hover:text-primary"
+                className="whitespace-nowrap rounded-md px-2.5 py-2 text-[13.5px] font-semibold text-heading transition-colors hover:bg-surface hover:text-primary"
               >
                 {item.name}
               </Link>
@@ -143,7 +143,7 @@ export default function Header() {
         </nav>
 
         {/* Desktop actions */}
-        <div className="hidden shrink-0 items-center justify-self-end gap-3 xl:flex">
+        <div className="hidden shrink-0 items-center justify-self-end gap-2.5 xl:flex">
           {user ? (
             <>
               <div ref={userMenuRef} className="relative">
@@ -189,7 +189,7 @@ export default function Header() {
             <>
               <Link
                 href="/login"
-                className="flex items-center gap-1.5 rounded-lg border-[1.5px] border-border px-4 py-2 text-[13px] font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
+                className="flex items-center gap-1.5 whitespace-nowrap rounded-lg border-[1.5px] border-border px-3.5 py-2 text-[12.5px] font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
               >
                 <UserCircleIcon className="h-4.5 w-4.5" />
                 Login
@@ -197,7 +197,7 @@ export default function Header() {
 
               <Link
                 href="/register"
-                className="rounded-lg bg-heading px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-heading/90"
+                className="whitespace-nowrap rounded-lg bg-heading px-3.5 py-2 text-[12.5px] font-semibold text-white transition-colors hover:bg-heading/90"
               >
                 Register
               </Link>
@@ -206,7 +206,7 @@ export default function Header() {
 
           <Link
             href="/properties/add"
-            className="flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-[14px] font-semibold text-white shadow-[0_2px_10px_rgba(31,122,77,0.3)] transition-all hover:bg-primary-dark hover:shadow-[0_4px_14px_rgba(31,122,77,0.45)]"
+            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-4 py-2.5 text-[13px] font-semibold text-white shadow-[0_2px_10px_rgba(31,122,77,0.3)] transition-all hover:bg-primary-dark hover:shadow-[0_4px_14px_rgba(31,122,77,0.45)]"
           >
             <PlusCircleIcon className="h-[18px] w-[18px]" />
             Add Property

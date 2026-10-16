@@ -9,4 +9,6 @@ export type AuthUser = {
   status: "pending" | "approved" | "rejected" | "suspended";
   emailVerified: boolean;
   joinedAt: string;
+  /** Permission names granted via this user's role; the API enforces these too. */
+  permissions?: string[];
 };

@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -19,7 +20,16 @@ import SpecFieldGroup from "@/components/admin/SpecFieldGroup";
 import type { SpecValue } from "@/components/admin/SpecFieldGroup";
 import PaymentPlanStep from "@/components/admin/PaymentPlanStep";
 import PaymentPlanCalculator from "@/components/admin/PaymentPlanCalculator";
-import RichTextEditor from "@/components/admin/RichTextEditor";
+// TipTap is heavy and sits in a later step, so it loads on demand.
+const RichTextEditor = dynamic(
+  () => import("@/components/admin/RichTextEditor"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[220px] animate-pulse rounded-lg border border-gray-200 bg-gray-50" />
+    ),
+  },
+);
 
 const inputClasses =
   "w-full rounded-md border border-border bg-white px-4 py-3 text-[13px] text-heading outline-none transition-colors placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/10";

@@ -1,9 +1,11 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { api } from "@/lib/api/client";
+import { cachedGet } from "@/lib/api/taxonomyCache";
 import {
   fetchPropertySchema,
   groupsFor,
@@ -13,7 +15,16 @@ import {
 import SpecFieldGroup, { type SpecValue } from "@/components/admin/SpecFieldGroup";
 import PaymentPlanStep from "@/components/admin/PaymentPlanStep";
 import PaymentPlanCalculator from "@/components/admin/PaymentPlanCalculator";
-import RichTextEditor from "@/components/admin/RichTextEditor";
+// TipTap is heavy and sits in a later step, so it loads on demand.
+const RichTextEditor = dynamic(
+  () => import("@/components/admin/RichTextEditor"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-[220px] animate-pulse rounded-lg border border-gray-200 bg-gray-50" />
+    ),
+  },
+);
 import {
   adminInputClass,
   adminSelectClass,
@@ -84,9 +95,10 @@ export default function AddPropertyForm() {
 
   useEffect(() => {
     fetchPropertySchema().then(setSchema).catch(() => {});
-    api<{ data: Category[] }>("/categories").then((r) => setCategories(r.data)).catch(() => {});
-    api<{ data: PropertyType[] }>("/property-types").then((r) => setPropertyTypes(r.data)).catch(() => {});
-    api<{ data: Location[] }>("/locations").then((r) => setLocations(r.data)).catch(() => {});
+    // Cached: this taxonomy rarely changes and is refetched on every visit.
+    cachedGet<{ data: Category[] }>("/categories").then((r) => setCategories(r.data)).catch(() => {});
+    cachedGet<{ data: PropertyType[] }>("/property-types").then((r) => setPropertyTypes(r.data)).catch(() => {});
+    cachedGet<{ data: Location[] }>("/locations").then((r) => setLocations(r.data)).catch(() => {});
   }, []);
 
   const typesInCategory = useMemo(

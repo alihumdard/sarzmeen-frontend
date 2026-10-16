@@ -24,6 +24,13 @@ export default function PaymentPlanStep({ specs, onChange, totalPrice }: Props) 
   const plan = useMemo(() => buildPlan(specs, totalPrice), [specs, totalPrice]);
   const schedule = useMemo(() => yearlyBreakdown(plan), [plan]);
 
+  /*
+   * The breakdown reads the saved instalment amounts, which stay empty until
+   * "Fill plan below" is used in the calculator. Showing a row of zeros looks
+   * broken, so hide the panel until there is something to spread.
+   */
+  const scheduleHasAmounts = schedule.some((row) => row.amount > 0);
+
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     onChange(key, e.target.value);
 
@@ -109,20 +116,6 @@ export default function PaymentPlanStep({ specs, onChange, totalPrice }: Props) 
         <Money label="Possession Payment" value={value("possessionPayment")} onChange={set("possessionPayment")} total={totalPrice} />
         <Money label="Development Charges" value={value("developmentCharges")} onChange={set("developmentCharges")} total={0} />
         <Money label="Other Charges" value={value("otherCharges")} onChange={set("otherCharges")} total={0} />
-        <div>
-          <label className="mb-1.5 block text-[12px] font-medium text-gray-600">
-            Plan Duration (Years)
-          </label>
-          <input
-            type="number"
-            min={0}
-            max={30}
-            step="0.5"
-            value={value("planDurationYears")}
-            onChange={set("planDurationYears")}
-            className={adminInputClass}
-          />
-        </div>
       </Section>
 
       {plan.lines.length > 0 && (
@@ -175,7 +168,7 @@ export default function PaymentPlanStep({ specs, onChange, totalPrice }: Props) 
         </div>
       )}
 
-      {schedule.length > 0 && (
+      {scheduleHasAmounts && (
         <div className="rounded-lg border border-gray-200">
           <div className="border-b border-gray-100 px-4 py-2.5">
             <h4 className="text-[12px] font-semibold text-gray-700">

@@ -33,6 +33,7 @@ export const mainNavigation: NavItem[] = [
   { name: "Projects", href: "/projects" },
   { name: "Agents", href: "/agents" },
   { name: "Blogs", href: "/blog" },
+  { name: "Calculator", href: "/calculator" },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
 ];

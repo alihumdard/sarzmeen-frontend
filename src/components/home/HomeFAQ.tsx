@@ -14,7 +14,7 @@ export default function HomeFAQ() {
   const [openId, setOpenId] = useState<string | null>(null);
 
   useEffect(() => {
-    api<{ data: Faq[] }>("/faqs")
+    api<{ data: Faq[] }>("/faqs?per_page=6")
       .then((res) => {
         const items = res.data.slice(0, 6);
         setFaqs(items);

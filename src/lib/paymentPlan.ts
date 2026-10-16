@@ -13,6 +13,12 @@ export type PlanLine = {
   total: number;
   /** Instalments repeat; one-off payments do not. */
   recurring: boolean;
+  /**
+   * Months between instalments (1 monthly, 3 quarterly, 6 bi-annual).
+   * 0 for one-off payments. Needed to place each instalment in the right
+   * year rather than smearing them across the whole plan.
+   */
+  intervalMonths: number;
 };
 
 export type PlanSummary = {
@@ -142,32 +148,32 @@ export function buildPlan(specs: PlanInput, totalPrice: number): PlanSummary {
 
   for (const [label, key] of oneOff) {
     const each = num(specs[key]);
-    if (each > 0) lines.push({ label, each, count: 1, total: each, recurring: false });
+    if (each > 0) lines.push({ label, each, count: 1, total: each, recurring: false, intervalMonths: 0 });
   }
 
-  const recurring: Array<[string, string, string]> = [
-    ["Monthly Instalment", "monthlyInstallment", "monthlyCount"],
-    ["Quarterly Instalment", "quarterlyInstallment", "quarterlyCount"],
-    ["Bi-Annual Instalment", "biAnnualInstallment", "biAnnualCount"],
-    ["Balloon Payment", "balloonPayment", "balloonCount"],
+  const recurring: Array<[string, string, string, number]> = [
+    ["Monthly Instalment", "monthlyInstallment", "monthlyCount", 1],
+    ["Quarterly Instalment", "quarterlyInstallment", "quarterlyCount", 3],
+    ["Bi-Annual Instalment", "biAnnualInstallment", "biAnnualCount", 6],
+    ["Balloon Payment", "balloonPayment", "balloonCount", 6],
   ];
 
-  for (const [label, amountKey, countKey] of recurring) {
+  for (const [label, amountKey, countKey, intervalMonths] of recurring) {
     const each = num(specs[amountKey]);
     const count = num(specs[countKey]);
     if (each > 0 && count > 0) {
-      lines.push({ label, each, count, total: each * count, recurring: true });
+      lines.push({ label, each, count, total: each * count, recurring: true, intervalMonths });
     }
   }
 
   const grey = num(specs.greyStructureAmount);
   if (grey > 0) {
-    lines.push({ label: "Grey Structure", each: grey, count: 1, total: grey, recurring: false });
+    lines.push({ label: "Grey Structure", each: grey, count: 1, total: grey, recurring: false, intervalMonths: 0 });
   }
 
   const possession = num(specs.possessionPayment);
   if (possession > 0) {
-    lines.push({ label: "On Possession", each: possession, count: 1, total: possession, recurring: false });
+    lines.push({ label: "On Possession", each: possession, count: 1, total: possession, recurring: false, intervalMonths: 0 });
   }
 
   const scheduled = lines.reduce((sum, l) => sum + l.total, 0);
@@ -212,10 +218,18 @@ export function yearlyBreakdown(plan: PlanSummary): Array<{ year: number; amount
   for (const line of plan.lines) {
     if (!line.recurring) continue;
 
-    // Spread this line's instalments evenly across the plan duration.
-    const perYearCount = line.count / years;
-    for (let y = 0; y < years; y++) {
-      perYear[y] += perYearCount * line.each;
+    /*
+     * Walk the instalments in time rather than dividing by the duration:
+     * 12 monthly payments on a 2-year plan all land in year one, so year two
+     * is genuinely zero. Dividing by the duration would wrongly show half in
+     * each year.
+     */
+    const interval = line.intervalMonths > 0 ? line.intervalMonths : 1;
+
+    for (let i = 0; i < line.count; i++) {
+      const monthOffset = i * interval;
+      const yearIndex = Math.min(Math.floor(monthOffset / 12), years - 1);
+      perYear[yearIndex] += line.each;
     }
   }
 

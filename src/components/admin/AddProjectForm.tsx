@@ -16,6 +16,9 @@ import {
   adminSelectClass,
   adminTextareaClass,
 } from "@/components/admin/AdminFormField";
+import ProjectTowersStep, {
+  type TowerDraft,
+} from "@/components/admin/ProjectTowersStep";
 import ProjectUnitsStep, {
   termsPayload,
   unitsPayload,
@@ -31,9 +34,10 @@ const steps = [
   { id: 1, title: "Basic Information", description: "Name, type, location" },
   { id: 2, title: "Project Details", description: "Units, description, features" },
   { id: 3, title: "Payment Plan", description: "Unit types and instalments" },
-  { id: 4, title: "Media & Gallery", description: "Images, brochure, video" },
-  { id: 5, title: "Amenities & Features", description: "Facilities and highlights" },
-  { id: 6, title: "SEO & Settings", description: "Meta, status, featured" },
+  { id: 4, title: "Towers & Floors", description: "High-rise structure (optional)" },
+  { id: 5, title: "Media & Gallery", description: "Images, brochure, video" },
+  { id: 6, title: "Amenities & Features", description: "Facilities and highlights" },
+  { id: 7, title: "SEO & Settings", description: "Meta, status, featured" },
 ];
 
 const COMMON_AMENITIES = [
@@ -127,8 +131,14 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
     { name: string; floorNumber: string; tower: string; description: string }[]
   >([]);
 
+  const [towers, setTowers] = useState<TowerDraft[]>([]);
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
+  const [focusKeyword, setFocusKeyword] = useState("");
+  const [canonicalUrl, setCanonicalUrl] = useState("");
+  const [ogTitle, setOgTitle] = useState("");
+  const [ogDescription, setOgDescription] = useState("");
+  const [ogImage, setOgImage] = useState("");
   const [verified, setVerified] = useState(false);
   const [featured, setFeatured] = useState(false);
 
@@ -177,8 +187,25 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
         setAmenities(data.amenities ?? []);
         setHighlights(data.highlights?.length ? data.highlights : [""]);
         setPlotSizes(data.plotSizes?.length ? data.plotSizes : [""]);
+        setTowers(
+          (data.towers ?? []).map((t) => ({
+            name: t.name ?? "",
+            floorsCount: t.floorsCount != null ? String(t.floorsCount) : "",
+            unitsCount: t.unitsCount != null ? String(t.unitsCount) : "",
+            description: t.description ?? "",
+            floors: (t.floors ?? []).map((f) => ({
+              floorNumber: String(f.floorNumber),
+              name: f.name ?? "",
+            })),
+          })),
+        );
         setMetaTitle(data.metaTitle ?? "");
         setMetaDescription(data.metaDescription ?? "");
+        setFocusKeyword(data.seo?.focusKeyword ?? "");
+        setCanonicalUrl(data.seo?.canonicalUrl ?? "");
+        setOgTitle(data.seo?.ogTitle ?? "");
+        setOgDescription(data.seo?.ogDescription ?? "");
+        setOgImage(data.seo?.ogImage ?? "");
         setVerified(Boolean(data.verified));
         setFeatured(Boolean(data.featured));
 
@@ -291,8 +318,27 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
         amenities: amenities.length > 0 ? amenities : undefined,
         highlights: highlights.filter(Boolean),
         plotSizes: plotSizes.filter(Boolean),
+        towers: towers
+          .filter((t) => t.name.trim())
+          .map((t) => ({
+            name: t.name.trim(),
+            floorsCount: t.floorsCount ? Number(t.floorsCount) : undefined,
+            unitsCount: t.unitsCount ? Number(t.unitsCount) : undefined,
+            description: t.description || undefined,
+            floors: t.floors
+              .filter((f) => f.floorNumber !== "")
+              .map((f) => ({
+                floorNumber: Number(f.floorNumber),
+                name: f.name || undefined,
+              })),
+          })),
         metaTitle: metaTitle || undefined,
         metaDescription: metaDescription || undefined,
+        focusKeyword: focusKeyword || undefined,
+        canonicalUrl: canonicalUrl || undefined,
+        ogTitle: ogTitle || undefined,
+        ogDescription: ogDescription || undefined,
+        ogImage: ogImage || undefined,
         units: unitsPayload(units),
         paymentTerms: termsPayload(terms),
         projectType,
@@ -345,9 +391,10 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
           if (["name", "slug", "projectCategoryId", "developer", "locationId", "status"].includes(firstErrorKey)) setStep(1);
           else if (["totalUnits", "description"].includes(firstErrorKey)) setStep(2);
           else if (firstErrorKey === "paymentTerms" || firstErrorKey.startsWith("units")) setStep(3);
-          else if (firstErrorKey === "images") setStep(4);
-          else if (["amenities", "highlights"].includes(firstErrorKey)) setStep(5);
-          else setStep(6);
+          else if (firstErrorKey.startsWith("towers")) setStep(4);
+          else if (firstErrorKey === "images") setStep(5);
+          else if (["amenities", "highlights"].includes(firstErrorKey)) setStep(6);
+          else setStep(7);
         }
       }
     } finally {
@@ -547,6 +594,10 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
           )}
 
           {step === 4 && (
+            <ProjectTowersStep towers={towers} onChange={setTowers} />
+          )}
+
+          {step === 5 && (
             <div>
               <h3 className="text-[15px] font-bold text-gray-900">Media & Gallery</h3>
               <p className="mt-1 text-[12px] text-gray-500">Upload images for the project.</p>
@@ -575,7 +626,7 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
             </div>
           )}
 
-          {step === 5 && (
+          {step === 6 && (
             <div>
               <h3 className="text-[15px] font-bold text-gray-900">Amenities & Features</h3>
               <p className="mt-1 text-[12px] text-gray-500">Select amenities and add highlights.</p>
@@ -659,7 +710,7 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
             </div>
           )}
 
-          {step === 6 && (
+          {step === 7 && (
             <div>
               <h3 className="text-[15px] font-bold text-gray-900">SEO & Settings</h3>
               <p className="mt-1 text-[12px] text-gray-500">Meta information and visibility.</p>
@@ -670,6 +721,50 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                 <Field label="Meta Description" error={fieldError("metaDescription")}>
                   <textarea autoComplete="off" value={metaDescription} onChange={(e) => setMetaDescription(e.target.value)} placeholder="Short SEO description..." className={adminTextareaClass} maxLength={160} />
                 </Field>
+
+                {/* How the project will look in search results. */}
+                <div className="rounded-lg bg-gray-50 p-4">
+                  <p className="mb-2 text-[11px] font-medium text-gray-400">Search Engine Preview</p>
+                  <p className="truncate text-[16px] font-medium leading-snug text-[#1a0dab]">
+                    {metaTitle || name || "Project title"}
+                  </p>
+                  <p className="mt-0.5 truncate text-[12px] text-green-700">
+                    {canonicalUrl || `sarzameen.com/projects/${slug || "project-slug"}`}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-gray-500">
+                    {metaDescription || "Add a meta description to see it previewed here."}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Field label="Focus Keyword" error={fieldError("focusKeyword")}>
+                    <input autoComplete="off" value={focusKeyword} onChange={(e) => setFocusKeyword(e.target.value)} placeholder="e.g. apartments in dha lahore" className={adminInputClass} />
+                  </Field>
+                  <Field label="Canonical URL" error={fieldError("canonicalUrl")}>
+                    <input autoComplete="off" value={canonicalUrl} onChange={(e) => setCanonicalUrl(e.target.value)} placeholder="https://sarzameen.com/projects/..." className={adminInputClass} />
+                  </Field>
+                </div>
+
+                <details className="group rounded-lg border border-gray-200 p-3">
+                  <summary className="cursor-pointer list-none text-[12px] font-semibold text-gray-700">
+                    <span className="group-open:hidden">\u25b8 Social sharing (Open Graph)</span>
+                    <span className="hidden group-open:inline">\u25be Social sharing (Open Graph)</span>
+                  </summary>
+                  <p className="mt-1.5 text-[10.5px] text-gray-400">
+                    Used when the project is shared on WhatsApp, Facebook or LinkedIn. Falls back to the meta fields above.
+                  </p>
+                  <div className="mt-3 space-y-3">
+                    <Field label="OG Title" error={fieldError("ogTitle")}>
+                      <input autoComplete="off" value={ogTitle} onChange={(e) => setOgTitle(e.target.value)} placeholder={metaTitle || "Shared title"} className={adminInputClass} />
+                    </Field>
+                    <Field label="OG Description" error={fieldError("ogDescription")}>
+                      <textarea autoComplete="off" value={ogDescription} onChange={(e) => setOgDescription(e.target.value)} placeholder={metaDescription || "Shared description"} className={adminTextareaClass} />
+                    </Field>
+                    <Field label="OG Image URL" error={fieldError("ogImage")}>
+                      <input autoComplete="off" value={ogImage} onChange={(e) => setOgImage(e.target.value)} placeholder="https://... (1200x630 recommended)" className={adminInputClass} />
+                    </Field>
+                  </div>
+                </details>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <label className="flex items-center gap-2 text-[12px] text-gray-700">
                     <input type="checkbox" checked={verified} onChange={(e) => setVerified(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-primary" />

@@ -56,7 +56,18 @@ export type ProjectDetail = Project & {
   /** Amenities grid, e.g. ["Parks", "Mosque", "Community Center"]. */
   amenities: string[];
   /** Payment plan rows, e.g. { label: "Down Payment", value: "20%" }. */
-  paymentPlan: { label: string; value: string }[];
+  paymentPlan: {
+    label: string;
+    value: string;
+    /** Structured fields; null `component` means the row is still free text. */
+    component?: string | null;
+    percent?: number | null;
+    amount?: number | null;
+    count?: number;
+    frequency?: string;
+    pinned?: string;
+    planName?: string | null;
+  }[];
   /** Total land area of the development, e.g. "500 Kanal". */
   totalArea: string;
   /** Plot sizes on offer, e.g. ["5 Marla", "10 Marla", "1 Kanal"]. */
@@ -73,6 +84,32 @@ export type ProjectDetail = Project & {
   expectedCompletion?: string | null;
   possessionTimeline?: string | null;
   totalUnits?: number | null;
+  /** Per-project SEO; each field falls back to the site-wide settings. */
+  seo?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    focusKeyword?: string | null;
+    canonicalUrl?: string | null;
+    ogTitle?: string | null;
+    ogDescription?: string | null;
+    ogImage?: string | null;
+  };
+  /** Project -> Tower -> Floor hierarchy; empty when not modelled. */
+  towers?: {
+    id: string;
+    name: string;
+    floorsCount?: number | null;
+    unitsCount?: number | null;
+    image?: string | null;
+    description?: string | null;
+    floors: {
+      id: string;
+      name: string;
+      floorNumber: number;
+      floorPlanImage?: string | null;
+      floorPlanPdf?: string | null;
+    }[];
+  }[];
   metaTitle?: string;
   metaDescription?: string;
   /** Unit types on offer, each priced from its own area and rate. */
@@ -91,6 +128,10 @@ export type InventoryCategory = "residential" | "commercial" | "hospitality" | "
 export type UnitAvailability = "available" | "limited" | "sold_out" | "coming_soon";
 
 export type ProjectUnit = {
+  /** Tower/floor placement; null when the project does not model towers. */
+  towerId?: string | null;
+  floorId?: string | null;
+  unitNumber?: string | null;
   id: string;
   unitType: string;
   unitName?: string | null;

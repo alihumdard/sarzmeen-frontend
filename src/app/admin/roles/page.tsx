@@ -61,16 +61,25 @@ export default function RolesPage() {
     );
   }, [activeRole, draft]);
 
-  const toggle = (name: string) =>
+  /*
+   * `roles.manage` is admin-only and mandatory there: granting it elsewhere
+   * would let that role rewrite every role, and removing it from admin would
+   * lock everyone out of this screen. The API rejects both cases too.
+   */
+  const isLocked = (name: string) => name === "roles.manage";
+
+  const toggle = (name: string) => {
+    if (isLocked(name)) return;
     setDraft((cur) => {
       const next = new Set(cur);
       if (next.has(name)) next.delete(name);
       else next.add(name);
       return next;
     });
+  };
 
   const toggleGroup = (group: PermissionGroup) => {
-    const names = group.permissions.map((p) => p.name);
+    const names = group.permissions.map((p) => p.name).filter((n) => !isLocked(n));
     const allOn = names.every((n) => draft.has(n));
     setDraft((cur) => {
       const next = new Set(cur);
@@ -208,17 +217,36 @@ export default function RolesPage() {
                         {group.permissions.map((permission) => (
                           <label
                             key={permission.name}
-                            className="flex cursor-pointer items-center gap-2.5 rounded-md border border-gray-100 bg-gray-50/40 px-3 py-2 hover:border-primary/30"
+                            title={
+                              isLocked(permission.name)
+                                ? "Role management is reserved for the Administrator role."
+                                : undefined
+                            }
+                            className={`flex items-center gap-2.5 rounded-md border px-3 py-2 ${
+                              isLocked(permission.name)
+                                ? "cursor-not-allowed border-gray-100 bg-gray-100/60"
+                                : "cursor-pointer border-gray-100 bg-gray-50/40 hover:border-primary/30"
+                            }`}
                           >
                             <input
                               type="checkbox"
-                              checked={draft.has(permission.name)}
+                              checked={
+                                isLocked(permission.name)
+                                  ? activeRole?.name === "admin"
+                                  : draft.has(permission.name)
+                              }
+                              disabled={isLocked(permission.name)}
                               onChange={() => toggle(permission.name)}
-                              className="h-4 w-4 shrink-0 cursor-pointer rounded border-gray-300 accent-primary"
+                              className="h-4 w-4 shrink-0 rounded border-gray-300 accent-primary disabled:cursor-not-allowed"
                             />
                             <span className="min-w-0">
                               <span className="block truncate text-[12px] text-gray-700">
                                 {permission.label}
+                                {isLocked(permission.name) && (
+                                  <span className="ml-1.5 rounded bg-gray-200 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-gray-500">
+                                    Admin only
+                                  </span>
+                                )}
                               </span>
                               <span className="block truncate text-[10px] text-gray-400">
                                 {permission.name}
