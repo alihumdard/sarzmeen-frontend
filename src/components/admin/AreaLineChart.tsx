@@ -70,8 +70,13 @@ export default function AreaLineChart({
     <div className="w-full overflow-x-auto">
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        className="h-[220px] w-full min-w-[560px]"
-        preserveAspectRatio="none"
+        className="h-[220px] w-full"
+        /*
+          `none` stretched the drawing to fill the box, which smeared the
+          labels and squashed the point circles into ovals. Letting it scale
+          evenly keeps the text legible.
+        */
+        preserveAspectRatio="xMidYMid meet"
       >
         <defs>
           <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
@@ -102,20 +107,32 @@ export default function AreaLineChart({
           />
         ))}
 
-        {labels.map((label, index) => (
-          <text
-            key={label}
-            x={labels.length > 1 ? index * (width / (labels.length - 1)) : width / 2}
-            y={height - 6}
-            fontSize="10"
-            fill="#9ca3af"
-            textAnchor={
-              index === 0 ? "start" : index === labels.length - 1 ? "end" : "middle"
-            }
-          >
-            {label}
-          </text>
-        ))}
+        {/*
+          A month of daily labels cannot fit across this width — drawn in
+          full they overlapped into an unreadable smear. Show roughly six,
+          evenly spaced, always including the last so the series ends on a
+          dated point.
+        */}
+        {labels.map((label, index) => {
+          const step = Math.max(1, Math.ceil(labels.length / 6));
+          const isLast = index === labels.length - 1;
+          if (!isLast && index % step !== 0) return null;
+          // Drop a label that would collide with the last one.
+          if (!isLast && labels.length - 1 - index < step / 2) return null;
+
+          return (
+            <text
+              key={label}
+              x={labels.length > 1 ? index * (width / (labels.length - 1)) : width / 2}
+              y={height - 6}
+              fontSize="11"
+              fill="#9ca3af"
+              textAnchor={index === 0 ? "start" : isLast ? "end" : "middle"}
+            >
+              {label}
+            </text>
+          );
+        })}
       </svg>
     </div>
   );
