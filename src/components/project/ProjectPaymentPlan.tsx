@@ -35,11 +35,108 @@ export default function ProjectPaymentPlan({ project }: ProjectPaymentPlanProps)
   const units = project.units ?? [];
   const terms = project.paymentTerms;
 
-  if (units.length === 0 || !terms) {
-    return <LegacyPlan project={project} />;
+  if (terms && units.length > 0) {
+    return <UnitPlan units={units} terms={terms} />;
   }
 
-  return <UnitPlan units={units} terms={terms} />;
+  /*
+   * A project can carry a percentage split without any unit types yet. That
+   * used to fall through to the legacy branch, which only looks at
+   * `paymentPlan` rows and so reported "no payment plan has been published"
+   * for a project that plainly had one. Derive it from the starting price
+   * instead, which is the same basis the admin calculator uses.
+   */
+  if (terms) {
+    const price = parsePrice(project.priceFrom);
+    if (price > 0) {
+      return <PriceBasedPlan terms={terms} price={price} />;
+    }
+  }
+
+  return <LegacyPlan project={project} />;
+}
+
+/**
+ * Schedule for a project with a percentage split but no unit types, worked
+ * out against the starting price.
+ */
+function PriceBasedPlan({
+  terms,
+  price,
+}: {
+  terms: NonNullable<ProjectDetail["paymentTerms"]>;
+  price: number;
+}) {
+  // derivePlan multiplies area by rate, so a unit area of 1 makes the rate
+  // the total price.
+  const plan = useMemo(
+    () => derivePlan({ ...terms, unitArea: 1, ratePerSqft: price }),
+    [terms, price],
+  );
+
+  const lines = plan.lines.filter((line) => line.total > 0);
+
+  if (lines.length === 0) {
+    return (
+      <p className="py-8 text-center text-[12px] text-muted">
+        No payment plan has been published for this project.
+      </p>
+    );
+  }
+
+  return (
+    <div className="max-w-[640px]">
+      <h2 className="text-[16px] font-bold text-heading">Payment Plan</h2>
+      <p className="mt-1.5 text-[12px] text-muted">
+        Calculated on the starting price of {formatPKR(price)}. Final figures
+        depend on the unit you choose.
+      </p>
+
+      <div className="mt-4 overflow-x-auto rounded-lg border border-border">
+        <table className="w-full text-[12.5px]">
+          <thead className="bg-surface">
+            <tr className="text-left text-[11px] uppercase tracking-wide text-muted">
+              <th className="px-4 py-2.5 font-medium">Payment</th>
+              <th className="px-4 py-2.5 text-right font-medium">Amount</th>
+              <th className="px-4 py-2.5 text-right font-medium">Schedule</th>
+            </tr>
+          </thead>
+          <tbody>
+            {lines.map((line) => (
+              <tr key={line.label} className="border-t border-border">
+                <td className="px-4 py-2.5 text-heading">{line.label}</td>
+                <td className="whitespace-nowrap px-4 py-2.5 text-right text-text">
+                  PKR {formatExact(line.each)}
+                </td>
+                <td className="px-4 py-2.5 text-right text-muted">
+                  {line.count > 1
+                    ? `× ${line.count} ${line.label === "Monthly" ? "Months" : "Payments"}`
+                    : (SCHEDULE_LABEL[line.label] ?? "—")}
+                </td>
+              </tr>
+            ))}
+            <tr className="border-t border-border bg-surface">
+              <td className="px-4 py-2.5 font-semibold text-heading">Total</td>
+              <td className="whitespace-nowrap px-4 py-2.5 text-right font-bold text-primary">
+                {formatPKR(plan.totalPrice)}
+              </td>
+              <td className="px-4 py-2.5 text-right text-muted">
+                {plan.percentTotal.toFixed(0)}%
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {Number(terms.planDurationYears) > 0 && (
+        <p className="mt-3 text-[11.5px] text-muted">
+          Plan duration: {terms.planDurationYears} years
+          {Number(terms.balloonFrequency) > 0 &&
+            ` · Balloon every ${terms.balloonFrequency} months`}
+        </p>
+      )}
+    </div>
+  );
 }
 
 function UnitPlan({
