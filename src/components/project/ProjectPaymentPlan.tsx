@@ -344,16 +344,34 @@ function StructuredPlan({
                   </td>
                 </tr>
               ))}
+            {/*
+              The total is what these rows actually add up to, not the full
+              price. A project can list only some stages as percentages and
+              leave the rest as prose ("Quarterly Installments — 3 years"),
+              and claiming 100% there made the table contradict itself.
+            */}
             <tr className="border-t border-border bg-surface font-bold">
-              <td className="px-4 py-2.5 text-heading">Total</td>
+              <td className="px-4 py-2.5 text-heading">Listed above</td>
               <td className="whitespace-nowrap px-4 py-2.5 text-right text-primary">
-                {formatPKR(price)}
+                {formatPKR(
+                  plan.components.reduce((sum, c) => sum + c.resolvedTotal, 0),
+                )}
               </td>
-              <td className="px-4 py-2.5 text-muted">100%</td>
+              <td className="px-4 py-2.5 text-muted">
+                {plan.percentTotal.toFixed(0)}% of price
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      {plan.percentTotal < 99.5 && (
+        <p className="text-[11.5px] leading-5 text-muted">
+          The remaining {(100 - plan.percentTotal).toFixed(0)}% of the{" "}
+          {formatPKR(price)} price is spread across the instalments below.
+          Contact us for the full schedule.
+        </p>
+      )}
 
       {extras.length > 0 && (
         <dl className="overflow-hidden rounded-md border border-border">
