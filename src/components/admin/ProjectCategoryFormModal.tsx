@@ -81,8 +81,21 @@ export default function ProjectCategoryFormModal({
         description: form.description.trim(),
       });
       onClose();
-    } catch {
-      setError("Could not save the category. Please try again.");
+    } catch (err: unknown) {
+      /*
+       * The API explains why it refused — a duplicate slug, a field
+       * over its limit. Swallowing that left the user re-pressing
+       * Save against an error that would never clear on its own.
+       */
+      const e = err as Error & { errors?: Record<string, string[]> };
+      const fieldMessages = e.errors
+        ? Array.from(new Set(Object.values(e.errors).flat()))
+        : [];
+      setError(
+        fieldMessages.join(" ") ||
+          e.message ||
+          "Could not save the category. Please try again.",
+      );
     } finally {
       setSaving(false);
     }
