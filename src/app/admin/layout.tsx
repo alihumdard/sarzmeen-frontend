@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import AdminFooter from "@/components/admin/AdminFooter";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminTopbar from "@/components/admin/AdminTopbar";
+import AdminBottomNav from "@/components/admin/AdminBottomNav";
 import AdminHelpFloating from "@/components/admin/AdminHelpFloating";
 import { useAuth } from "@/context/AuthContext";
 
@@ -101,7 +102,12 @@ export default function AdminLayout({
         </main>
 
         <AdminFooter />
+
+        {/* Clears the fixed bottom bar so the footer is never under it. */}
+        <div className="h-[62px] lg:hidden" aria-hidden="true" />
       </div>
+
+      <AdminBottomNav />
 
       <AdminHelpFloating />
     </div>
