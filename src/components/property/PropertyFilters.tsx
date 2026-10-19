@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import FilterSection from "@/components/property/FilterSection";
 import SearchSelect from "@/components/ui/SearchSelect";
@@ -26,6 +27,18 @@ const MAX_PRICE = 500000000;
  * propertyTypes) to its matching sidebar checkbox value (propertyTypeFilters)
  * so a hero-search selection shows as pre-checked here too.
  */
+/**
+ * Each sidebar group maps to the API type slugs it covers. Must stay in step
+ * with the grouping in PropertyController::facets().
+ */
+const FILTER_TO_API_SLUGS: Record<string, string[]> = {
+  house: ["house", "villa", "townhouse", "duplex", "upper-portion", "lower-portion", "farm-house"],
+  plot: ["residential-plot", "commercial-plot", "agricultural-land", "industrial-land", "plot-file"],
+  flat: ["flat-apartment", "penthouse", "room"],
+  commercial: ["shop", "office", "showroom", "factory", "warehouse", "building", "commercial-plaza", "commercial-floor", "commercial-unit", "corporate-office", "high-rise-office", "high-rise-shop", "high-rise-showroom", "restaurant", "food-court"],
+  apartment: ["studio-apartment", "two-bed-apartment", "three-bed-apartment", "3-bed-apartment", "four-bed-apartment", "luxury-apartment", "serviced-apartment", "hotel-apartment", "high-rise-penthouse", "duplex-penthouse"],
+};
+
 const HERO_TYPE_TO_FILTER: Record<string, string> = {
   house: "house",
   flat: "flat",
@@ -41,24 +54,51 @@ const HERO_TYPE_TO_FILTER: Record<string, string> = {
 type PropertyFiltersProps = {
   /** Pre-checks the matching sidebar type, e.g. from the hero search. */
   initialType?: string;
+  /** Live per-group listing counts from the API, keyed by filter value. */
+  counts?: Record<string, number>;
 };
 
 /**
  * Filter sidebar for the properties listing.
  *
- * V1 keeps every selection in local state - nothing is applied to the results
- * until the Laravel API is wired up and the listing reads real query params.
- * The one exception is the initial Property Type checkbox, which mirrors
- * whatever type the hero search or listing search bar was submitted with.
+ * Selections are written to the URL, which the listing page reads server-side
+ * to query the API. Keeping the state in the URL means a filtered view can be
+ * shared or reloaded and still show the same results.
  */
-export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
+export default function PropertyFilters({
+  initialType,
+  counts,
+}: PropertyFiltersProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  /*
+   * Seeded from the URL so a shared or reloaded link shows the same boxes
+   * ticked as the results it produced. `type` carries API slugs, which are
+   * mapped back to the sidebar group that covers them.
+   */
   const [types, setTypes] = useState<string[]>(() => {
+    const fromUrl = searchParams.get("type");
+    if (fromUrl) {
+      const slugs = fromUrl.split(",");
+      const groups = Object.entries(FILTER_TO_API_SLUGS)
+        .filter(([, covered]) => covered.some((slug) => slugs.includes(slug)))
+        .map(([group]) => group);
+      if (groups.length) return groups;
+    }
     const mapped = initialType ? HERO_TYPE_TO_FILTER[initialType] : undefined;
     return mapped ? [mapped] : [];
   });
-  const [maxPrice, setMaxPrice] = useState(MAX_PRICE);
-  const [beds, setBeds] = useState<string | null>(null);
-  const [baths, setBaths] = useState<string | null>(null);
+  const [maxPrice, setMaxPrice] = useState(() => {
+    const price = searchParams.get("price");
+    const max = price?.split("-")[1];
+    return max ? Number(max) : MAX_PRICE;
+  });
+  const [beds, setBeds] = useState<string | null>(
+    () => searchParams.get("beds"),
+  );
+  const [baths, setBaths] = useState<string | null>(
+    () => searchParams.get("baths"),
+  );
   const [features, setFeatures] = useState<string[]>([]);
   const [showAllTypes, setShowAllTypes] = useState(false);
   const [showAllFeatures, setShowAllFeatures] = useState(false);
@@ -89,12 +129,49 @@ export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
       : [...list, value];
   }
 
+  /**
+   * Writes the current selection to the URL. The listing page reads these
+   * params server-side and queries the API with them, so navigating is what
+   * actually applies a filter.
+   */
+  function applyFilters(next?: {
+    types?: string[];
+    maxPrice?: number;
+    beds?: string | null;
+    baths?: string | null;
+  }) {
+    const chosenTypes = next?.types ?? types;
+    const chosenMax = next?.maxPrice ?? maxPrice;
+    const chosenBeds = next?.beds !== undefined ? next.beds : beds;
+    const chosenBaths = next?.baths !== undefined ? next.baths : baths;
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    // Each sidebar group covers several API slugs.
+    const slugs = chosenTypes.flatMap((value) => FILTER_TO_API_SLUGS[value] ?? []);
+    if (slugs.length) params.set("type", slugs.join(","));
+    else params.delete("type");
+
+    if (chosenMax < MAX_PRICE) params.set("price", `0-${chosenMax}`);
+    else params.delete("price");
+
+    if (chosenBeds) params.set("beds", chosenBeds.replace("+", ""));
+    else params.delete("beds");
+
+    if (chosenBaths) params.set("baths", chosenBaths.replace("+", ""));
+    else params.delete("baths");
+
+    const qs = params.toString();
+    router.push(qs ? `/properties?${qs}` : "/properties", { scroll: false });
+  }
+
   function handleReset() {
     setTypes([]);
     setMaxPrice(MAX_PRICE);
     setBeds(null);
     setBaths(null);
     setFeatures([]);
+    router.push("/properties", { scroll: false });
   }
 
   const visibleTypes = showAllTypes
@@ -118,13 +195,19 @@ export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
                 <input
                   type="checkbox"
                   checked={types.includes(type.value)}
-                  onChange={() => setTypes(toggle(types, type.value))}
+                  onChange={() => {
+                    const nextTypes = toggle(types, type.value);
+                    setTypes(nextTypes);
+                    applyFilters({ types: nextTypes });
+                  }}
                   className="h-3.5 w-3.5 shrink-0 cursor-pointer accent-[var(--color-primary)]"
                 />
                 <span className="flex-1 text-[11px] text-text">
                   {type.label}
                 </span>
-                <span className="text-[10px] text-muted">{type.count}</span>
+                <span className="text-[10px] text-muted">
+                  {counts?.[type.value] ?? 0}
+                </span>
               </label>
             </li>
           ))}
@@ -168,6 +251,8 @@ export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
           step={1000000}
           value={maxPrice}
           onChange={(event) => setMaxPrice(Number(event.target.value))}
+          onMouseUp={() => applyFilters()}
+          onTouchEnd={() => applyFilters()}
           className="w-full cursor-pointer accent-[var(--color-primary)]"
         />
 
@@ -203,7 +288,11 @@ export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
               <button
                 type="button"
                 aria-pressed={beds === count}
-                onClick={() => setBeds(beds === count ? null : count)}
+                onClick={() => {
+                  const nextBeds = beds === count ? null : count;
+                  setBeds(nextBeds);
+                  applyFilters({ beds: nextBeds });
+                }}
                 className={`${chipClasses} ${
                   beds === count
                     ? "border-primary bg-primary text-white"
@@ -224,7 +313,11 @@ export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
               <button
                 type="button"
                 aria-pressed={baths === count}
-                onClick={() => setBaths(baths === count ? null : count)}
+                onClick={() => {
+                  const nextBaths = baths === count ? null : count;
+                  setBaths(nextBaths);
+                  applyFilters({ baths: nextBaths });
+                }}
                 className={`${chipClasses} ${
                   baths === count
                     ? "border-primary bg-primary text-white"
@@ -346,7 +439,10 @@ export default function PropertyFilters({ initialType }: PropertyFiltersProps) {
             <div className="shrink-0 border-t border-border bg-white p-4">
               <button
                 type="button"
-                onClick={() => setDrawerOpen(false)}
+                onClick={() => {
+                  applyFilters();
+                  setDrawerOpen(false);
+                }}
                 className="w-full rounded-md bg-primary py-2.5 text-[12px] font-semibold text-white transition-colors hover:bg-primary-dark"
               >
                 Apply Filters

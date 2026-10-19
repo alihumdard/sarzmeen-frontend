@@ -22,6 +22,8 @@ type PropertiesPageProps = {
     location?: string;
     type?: string;
     price?: string;
+    beds?: string;
+    baths?: string;
   }>;
 };
 
@@ -50,12 +52,23 @@ export default async function PropertiesPage({
     if (min) qs.set("price_min", min);
     if (max) qs.set("price_max", max);
   }
+  if (params.beds) qs.set("beds", params.beds);
+  if (params.baths) qs.set("baths", params.baths);
 
   const query = qs.toString();
-  const res = await serverApi<{
-    data: Property[];
-    meta: { total: number };
-  }>(`/properties${query ? `?${query}` : ""}`);
+
+  // Facets are fetched alongside the results so the sidebar counts reflect
+  // what is actually in the database rather than hardcoded figures.
+  const [res, facets] = await Promise.all([
+    serverApi<{
+      data: Property[];
+      meta: { total: number };
+    }>(`/properties${query ? `?${query}` : ""}`),
+    serverApi<{ data: { types: Record<string, number> } }>(
+      `/properties/facets${params.purpose ? `?purpose=${params.purpose}` : ""}`,
+      60,
+    ).catch(() => ({ data: { types: {} } })),
+  ]);
 
   const results = res.data;
   const total = res.meta.total;
@@ -75,7 +88,10 @@ export default async function PropertiesPage({
 
       <section className="bg-surface py-8">
         <div className="container-page grid items-start gap-6 lg:grid-cols-[250px_1fr]">
-          <PropertyFilters initialType={params.type} />
+          <PropertyFilters
+            initialType={params.type}
+            counts={facets.data.types}
+          />
           <PropertyResults properties={results} total={total} />
         </div>
       </section>
