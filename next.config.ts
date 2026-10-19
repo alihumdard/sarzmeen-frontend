@@ -29,6 +29,12 @@ const nextConfig: NextConfig = {
         port: "8001",
         pathname: "/storage/**",
       },
+      // Staging server: uploads are served from the VPS IP.
+      {
+        protocol: "http",
+        hostname: "187.77.147.55",
+        pathname: "/storage/**",
+      },
     ],
   },
 };
