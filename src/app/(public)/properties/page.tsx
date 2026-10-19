@@ -86,7 +86,8 @@ export default async function PropertiesPage({
         <ListingSearchBar initialTerm={params.search} />
       </PageBanner>
 
-      <section className="bg-surface py-8">
+      {/* Anchor for the search bar, which scrolls results into view. */}
+      <section id="listing-results" className="bg-surface py-8 scroll-mt-4">
         <div className="container-page grid items-start gap-6 lg:grid-cols-[250px_1fr]">
           <PropertyFilters
             initialType={params.type}

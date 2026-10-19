@@ -46,6 +46,17 @@ export default function ListingSearchBar({ initialTerm }: ListingSearchBarProps)
 
     const query = params.toString();
     router.push(query ? `/properties?${query}` : "/properties");
+
+    /*
+     * The banner fills the screen, so new results land below the fold and a
+     * search can look like nothing happened. Scroll them into view once the
+     * navigation has rendered.
+     */
+    requestAnimationFrame(() => {
+      document
+        .getElementById("listing-results")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
