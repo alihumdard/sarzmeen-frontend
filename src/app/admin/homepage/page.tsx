@@ -5,9 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import {
-  loadSettings,
-  saveSettings,
-  getLastSaved,
+
   defaultHero,
   defaultWhyChoose,
   defaultSections,
@@ -18,6 +16,7 @@ import {
   type TickerItem,
 } from "@/lib/homepageSettings";
 import { getTicker, saveTicker } from "@/lib/api/ticker";
+import { getHomepageSettings, saveHomepageSettings } from "@/lib/api/homepage";
 
 const iconOptions = [
   { value: "listings", label: "Listings" },
@@ -48,13 +47,18 @@ export default function HomepageCmsPage() {
   const [tickerSaving, setTickerSaving] = useState(false);
   const [tickerMsg, setTickerMsg] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
 
   useEffect(() => {
-    setSettings(loadSettings());
-    setLastSaved(getLastSaved());
+    getHomepageSettings()
+      .then(setSettings)
+      .catch(() => setSaveError("Could not load homepage settings."))
+      .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -129,12 +133,28 @@ export default function HomepageCmsPage() {
     }
   };
 
-  const handleSave = () => {
-    saveSettings(settings);
-    setLastSaved(getLastSaved());
-    setDirty(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const handleSave = async () => {
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await saveHomepageSettings(settings);
+      setLastSaved(
+        new Date().toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        }),
+      );
+      setDirty(false);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err: unknown) {
+      setSaveError(
+        err instanceof Error ? err.message : "Could not save the homepage.",
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   const toggleSection = (id: string) => {
@@ -231,18 +251,24 @@ export default function HomepageCmsPage() {
             <button
               type="button"
               onClick={handleSave}
-              disabled={!dirty}
+              disabled={!dirty || saving || loading}
               className={[
                 "inline-flex h-9 items-center gap-2 rounded-md px-4 text-[11px] font-semibold text-white shadow-sm transition-all",
-                dirty ? "bg-primary hover:opacity-90" : saved ? "bg-emerald-600" : "bg-gray-300 cursor-not-allowed",
+                dirty && !saving ? "bg-primary hover:opacity-90" : saved ? "bg-emerald-600" : "bg-gray-300 cursor-not-allowed",
               ].join(" ")}
             >
               <SaveIcon />
-              {saved ? "Saved!" : "Save Changes"}
+              {saving ? "Saving..." : saved ? "Saved!" : "Save Changes"}
             </button>
           </div>
         }
       />
+
+      {saveError && (
+        <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-[12px] font-medium text-red-700">
+          {saveError}
+        </div>
+      )}
 
       {/* Stats */}
       <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">

@@ -1,35 +1,33 @@
-"use client";
-
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
 import HeroSearch from "@/components/home/HeroSearch";
 import { LocationPinIcon, ShieldCheckIcon } from "@/components/ui/Icons";
-import { loadSettings, defaultHero, SETTINGS_CHANGED_EVENT, type HeroBannerSettings } from "@/lib/homepageSettings";
+import { serverApi } from "@/lib/api/server";
+import { defaultHero, type HeroBannerSettings } from "@/lib/homepageSettings";
 
 const heroLandmarkPins = [
   { label: "Badshahi Mosque", left: "52%", top: "34%" },
   { label: "Minar-e-Pakistan", left: "70%", top: "22%" },
 ] as const;
 
-export default function Hero() {
-  const [hero, setHero] = useState<HeroBannerSettings>(defaultHero);
+/**
+ * Banner copy comes from the `homepage.hero` setting, edited in the admin
+ * Homepage CMS. This used to read localStorage, so an edit was only ever
+ * visible in the browser that made it.
+ */
+async function getHero(): Promise<HeroBannerSettings> {
+  try {
+    const res = await serverApi<{ data: { hero?: Partial<HeroBannerSettings> } }>(
+      "/site-settings/homepage",
+      30,
+    );
+    return { ...defaultHero, ...res.data?.hero };
+  } catch {
+    return defaultHero;
+  }
+}
 
-  const refresh = useCallback(() => {
-    setHero(loadSettings().hero);
-  }, []);
-
-  useEffect(() => {
-    refresh();
-    const onVisible = () => { if (document.visibilityState === "visible") refresh(); };
-    window.addEventListener(SETTINGS_CHANGED_EVENT, refresh);
-    window.addEventListener("storage", refresh);
-    document.addEventListener("visibilitychange", onVisible);
-    return () => {
-      window.removeEventListener(SETTINGS_CHANGED_EVENT, refresh);
-      window.removeEventListener("storage", refresh);
-      document.removeEventListener("visibilitychange", onVisible);
-    };
-  }, [refresh]);
+export default async function Hero() {
+  const hero = await getHero();
 
   const headingLines = hero.heading.split("\n");
 

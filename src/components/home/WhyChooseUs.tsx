@@ -1,14 +1,12 @@
-"use client";
-
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
 import {
   ListingsIcon,
   SmartSearchIcon,
   SupportIcon,
   VerifiedTrustIcon,
 } from "@/components/ui/Icons";
-import { loadSettings, defaultWhyChoose, SETTINGS_CHANGED_EVENT, type WhyChooseSettings } from "@/lib/homepageSettings";
+import { serverApi } from "@/lib/api/server";
+import { defaultWhyChoose, type WhyChooseSettings } from "@/lib/homepageSettings";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   listings: ListingsIcon,
@@ -17,25 +15,27 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   support: SupportIcon,
 };
 
-export default function WhyChooseUs() {
-  const [settings, setSettings] = useState<WhyChooseSettings>(defaultWhyChoose);
-
-  const refresh = useCallback(() => {
-    setSettings(loadSettings().whyChoose);
-  }, []);
-
-  useEffect(() => {
-    refresh();
-    const onVisible = () => { if (document.visibilityState === "visible") refresh(); };
-    window.addEventListener(SETTINGS_CHANGED_EVENT, refresh);
-    window.addEventListener("storage", refresh);
-    document.addEventListener("visibilitychange", onVisible);
-    return () => {
-      window.removeEventListener(SETTINGS_CHANGED_EVENT, refresh);
-      window.removeEventListener("storage", refresh);
-      document.removeEventListener("visibilitychange", onVisible);
+/** Content comes from the `homepage.whyChoose` setting (admin Homepage CMS). */
+export async function getWhyChoose(): Promise<WhyChooseSettings> {
+  try {
+    const res = await serverApi<{
+      data: { whyChoose?: Partial<WhyChooseSettings> };
+    }>("/site-settings/homepage", 30);
+    const stored = res.data?.whyChoose;
+    return {
+      ...defaultWhyChoose,
+      ...stored,
+      features: stored?.features?.length
+        ? stored.features
+        : defaultWhyChoose.features,
     };
-  }, [refresh]);
+  } catch {
+    return defaultWhyChoose;
+  }
+}
+
+export default async function WhyChooseUs() {
+  const settings = await getWhyChoose();
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">

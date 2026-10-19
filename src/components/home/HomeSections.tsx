@@ -1,7 +1,8 @@
-"use client";
-
-import { useCallback, useEffect, useState } from "react";
-import { loadSettings, defaultSections, SETTINGS_CHANGED_EVENT, type SectionVisibility } from "@/lib/homepageSettings";
+import { serverApi } from "@/lib/api/server";
+import {
+  defaultSections,
+  type SectionVisibility,
+} from "@/lib/homepageSettings";
 import BrowsePropertiesByCategory from "@/components/home/BrowsePropertiesByCategory";
 import CtaStrip from "@/components/home/CtaStrip";
 import FeaturedProperties from "@/components/home/FeaturedProperties";
@@ -24,29 +25,28 @@ const sectionComponents: Record<string, React.ComponentType> = {
   cta: CtaStrip,
 };
 
-export default function HomeSections() {
-  const [sections, setSections] = useState<SectionVisibility[]>(defaultSections);
+/**
+ * Order and visibility come from the `homepage.sections` setting, edited in
+ * the admin Homepage CMS.
+ *
+ * This used to read localStorage from the browser, so hiding a section only
+ * affected the machine that hid it — every other visitor still saw it.
+ */
+async function getSections(): Promise<SectionVisibility[]> {
+  try {
+    const res = await serverApi<{ data: { sections?: SectionVisibility[] } }>(
+      "/site-settings/homepage",
+      30,
+    );
+    const stored = res.data?.sections;
+    return Array.isArray(stored) && stored.length ? stored : defaultSections;
+  } catch {
+    return defaultSections;
+  }
+}
 
-  const refresh = useCallback(() => {
-    setSections(loadSettings().sections);
-  }, []);
-
-  useEffect(() => {
-    refresh();
-
-    const onVisible = () => {
-      if (document.visibilityState === "visible") refresh();
-    };
-
-    window.addEventListener(SETTINGS_CHANGED_EVENT, refresh);
-    window.addEventListener("storage", refresh);
-    document.addEventListener("visibilitychange", onVisible);
-    return () => {
-      window.removeEventListener(SETTINGS_CHANGED_EVENT, refresh);
-      window.removeEventListener("storage", refresh);
-      document.removeEventListener("visibilitychange", onVisible);
-    };
-  }, [refresh]);
+export default async function HomeSections() {
+  const sections = await getSections();
 
   return (
     <>
