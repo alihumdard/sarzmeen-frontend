@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import LoginForm from "@/components/auth/LoginForm";
+import RedirectIfAuthenticated from "@/components/auth/RedirectIfAuthenticated";
 
 export const metadata: Metadata = {
   title: "Login",
@@ -10,28 +11,32 @@ export const metadata: Metadata = {
 /** Plain centered auth page, matching the register page. */
 export default function LoginPage() {
   return (
-    <main className="bg-surface py-10 sm:py-14">
-      <div className="container-page">
-        <div className="mx-auto max-w-[720px]">
-          <div className="text-center">
-            <p className="text-[13px] font-bold uppercase tracking-wide text-primary">
-              Welcome Back
-            </p>
+    <>
+      <RedirectIfAuthenticated />
 
-            <h1 className="mt-2 text-[26px] font-bold text-heading sm:text-[30px]">
-              Login to Your Account
-            </h1>
+      <main className="bg-surface py-10 sm:py-14">
+        <div className="container-page">
+          <div className="mx-auto max-w-[720px]">
+            <div className="text-center">
+              <p className="text-[13px] font-bold uppercase tracking-wide text-primary">
+                Welcome Back
+              </p>
 
-            <p className="mx-auto mt-3 max-w-[460px] text-[13px] leading-relaxed text-muted">
-              Access your saved properties, inquiries, alerts and much more.
-            </p>
-          </div>
+              <h1 className="mt-2 text-[26px] font-bold text-heading sm:text-[30px]">
+                Login to Your Account
+              </h1>
 
-          <div className="mt-8 rounded-xl border border-border bg-white p-6 shadow-[0_4px_24px_rgba(15,35,28,0.06)] sm:p-9">
-            <LoginForm />
+              <p className="mx-auto mt-3 max-w-[460px] text-[13px] leading-relaxed text-muted">
+                Access your saved properties, inquiries, alerts and much more.
+              </p>
+            </div>
+
+            <div className="mt-8 rounded-xl border border-border bg-white p-6 shadow-[0_4px_24px_rgba(15,35,28,0.06)] sm:p-9">
+              <LoginForm />
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
