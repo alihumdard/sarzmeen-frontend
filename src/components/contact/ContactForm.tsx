@@ -12,8 +12,12 @@ const interestOptions = [
   { label: "General support", value: "support" },
 ];
 
+/*
+ * `border-border` (#e5e7eb) is faint enough that a field reads as having no
+ * edge at all on a phone screen, so the controls use a darker grey.
+ */
 const fieldClasses =
-  "w-full rounded-md border border-border bg-white px-4 py-3 text-[13px] text-heading outline-none transition-colors placeholder:text-muted focus:border-primary";
+  "w-full rounded-md border border-gray-300 bg-white px-4 py-3 text-[13px] text-heading outline-none transition-colors placeholder:text-muted focus:border-primary";
 
 function FieldLabel({
   htmlFor,
@@ -166,7 +170,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-[13px] font-semibold text-white shadow-[0_10px_22px_rgba(31,122,77,0.24)] transition-colors hover:bg-primary-dark disabled:opacity-50"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-[13px] font-semibold text-white shadow-[0_10px_22px_rgba(31,122,77,0.24)] transition-colors hover:bg-primary-dark disabled:opacity-50 sm:w-auto"
       >
         <SendIcon className="h-4 w-4" />
         {submitting ? "Sending..." : "Send Message"}

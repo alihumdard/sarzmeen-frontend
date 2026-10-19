@@ -81,11 +81,14 @@ export default function AgentsContent() {
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               placeholder="Search agents by name, agency, or city..."
-              className="h-11 w-full min-w-0 flex-1 rounded-md border border-border bg-white px-4 text-[13px] text-heading outline-none placeholder:text-muted focus:border-primary"
+              /* `flex-1` only from sm:, where the row is horizontal. In a
+                 column it stretches the field along the wrong axis and
+                 flattens it against the button. */
+              className="h-11 w-full min-w-0 rounded-md border border-gray-300 bg-white px-4 text-[13px] text-heading outline-none placeholder:text-muted focus:border-primary sm:flex-1"
             />
             <button
               type="submit"
-              className="flex h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-6 text-[13px] font-semibold text-white hover:opacity-90"
+              className="flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-6 text-[13px] font-semibold text-white hover:opacity-90 sm:w-auto"
             >
               <SearchIcon className="h-4 w-4" />
               Search
@@ -218,7 +221,9 @@ function AgentApiCard({ agent }: { agent: AgentListItem }) {
         )}
       </div>
 
-      <div className="mt-5 flex items-center justify-between gap-2 border-t border-border pt-4">
+      {/* Wraps rather than pushing "View Profile" past the card edge when the
+          card is narrow. */}
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
         <div className="flex items-center gap-2">
           {agent.email && (
             <a
@@ -241,7 +246,7 @@ function AgentApiCard({ agent }: { agent: AgentListItem }) {
         </div>
         <Link
           href={`/agents/${agent.slug}`}
-          className="group flex items-center gap-1.5 rounded-md bg-primary-light px-4 py-2 text-[13px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
+          className="group flex shrink-0 items-center gap-1.5 rounded-md bg-primary-light px-4 py-2 text-[13px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
         >
           View Profile
           <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">→</span>
