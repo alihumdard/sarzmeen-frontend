@@ -24,8 +24,29 @@ export default function AreaLineChart({
     );
   }
 
-  const max = Math.max(...data);
-  const min = Math.min(...data);
+  // One point cannot describe a trend, and the area path collapses to a
+  // sliver. Say so rather than drawing an empty box.
+  if (data.length === 1) {
+    return (
+      <div className="flex h-[220px] w-full flex-col items-center justify-center gap-1 text-gray-400">
+        <span className="text-[22px] font-bold text-gray-700">
+          {data[0].toLocaleString()}
+        </span>
+        <span className="text-[12px]">{labels[0]}</span>
+        <span className="mt-1 text-[11px]">
+          More days of data are needed to show a trend.
+        </span>
+      </div>
+    );
+  }
+
+  /*
+   * Baseline at zero rather than the lowest value. Scaling from the minimum
+   * puts a flat series — every day the same, which a new site has — along the
+   * very bottom edge, where the line is invisible against the axis.
+   */
+  const max = Math.max(...data, 0);
+  const min = 0;
   const range = max - min || 1;
 
   const stepX = data.length > 1 ? width / (data.length - 1) : 0;
