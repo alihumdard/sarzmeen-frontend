@@ -376,6 +376,15 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
         imgData.append("developer", developer);
         imgData.append("locationId", locationId);
         imgData.append("status", status);
+        /*
+         * The update endpoint revalidates the whole project, not just the
+         * images, so every required field has to ride along. Leaving these
+         * three out failed the save with "project type is required" even
+         * though the form had them filled in.
+         */
+        imgData.append("projectType", projectType);
+        imgData.append("projectFormat", projectFormat);
+        imgData.append("paymentType", paymentType);
         images.forEach((f) => imgData.append("images[]", f));
         await api(`/admin/projects/${id}`, { method: "POST", body: imgData });
       }
@@ -383,12 +392,24 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
       router.push("/admin/projects");
     } catch (err: unknown) {
       const e = err as Error & { errors?: Record<string, string[]> };
-      setError(e.message || "Failed to create project");
+      /*
+       * Laravel sends only the first problem plus "(and N more errors)",
+       * which leaves the other fields unnamed — and they are often on a
+       * different step than the one showing the banner. List them all.
+       */
+      const messages = e.errors
+        ? Array.from(new Set(Object.values(e.errors).flat()))
+        : [];
+      setError(
+        messages.length > 1
+          ? `Please fix ${messages.length} fields: ${messages.join(" ")}`
+          : messages[0] || e.message || "Failed to create project",
+      );
       if (e.errors) {
         setFieldErrors(e.errors);
         const firstErrorKey = Object.keys(e.errors)[0];
         if (firstErrorKey) {
-          if (["name", "slug", "projectCategoryId", "developer", "locationId", "status"].includes(firstErrorKey)) setStep(1);
+          if (["name", "slug", "projectCategoryId", "developer", "locationId", "status", "projectType", "projectFormat", "paymentType", "priceFrom"].includes(firstErrorKey)) setStep(1);
           else if (["totalUnits", "description"].includes(firstErrorKey)) setStep(2);
           else if (firstErrorKey === "paymentTerms" || firstErrorKey.startsWith("units")) setStep(3);
           else if (firstErrorKey.startsWith("towers")) setStep(4);
