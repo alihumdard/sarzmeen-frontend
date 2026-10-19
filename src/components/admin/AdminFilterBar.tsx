@@ -65,8 +65,12 @@ export default function AdminFilterBar({
           />
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/*
+          Each select sized to its own content, so on a phone they came out
+          ragged and stacked one per row. A two-column grid keeps them equal
+          and paired; from sm: they flow in a row as before.
+        */}
+        <div className="grid grid-cols-2 items-center gap-2 sm:flex sm:flex-wrap">
           {filters.map((filter) => (
             <select
               key={filter.label}
@@ -74,7 +78,7 @@ export default function AdminFilterBar({
               onChange={(event) =>
                 filter.onChange?.(event.target.value)
               }
-              className="h-10 min-w-[130px] rounded-md border border-gray-200 bg-white px-3 text-[11px] text-gray-600 outline-none transition-colors focus:border-primary"
+              className="h-10 w-full rounded-md border border-gray-200 bg-white px-3 text-[11px] text-gray-600 outline-none transition-colors focus:border-primary sm:w-auto sm:min-w-[130px]"
               aria-label={filter.label}
             >
               <option value="">{filter.label}</option>
@@ -93,7 +97,7 @@ export default function AdminFilterBar({
             <button
               type="button"
               onClick={onReset}
-              className="h-10 rounded-md px-3 text-[11px] font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900"
+              className="h-10 w-full rounded-md px-3 text-[11px] font-medium text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900 sm:w-auto"
             >
               Reset
             </button>

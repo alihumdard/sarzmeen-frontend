@@ -38,6 +38,8 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSearchRef = useRef<HTMLInputElement>(null);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const menuRootRef = useRef<HTMLDivElement>(null);
 
   // Ctrl/Cmd+K jumps focus to the search field, matching the shortcut hint
@@ -198,11 +200,15 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
             </div>
           </form>
 
-          {/* Mobile Search */}
+          {/*
+            The desktop form is `hidden sm:block`, so focusing its input from
+            a phone did nothing — the element is not rendered. The button now
+            opens a search row of its own instead.
+          */}
           <button
             type="button"
             aria-label="Search"
-            onClick={() => searchInputRef.current?.focus()}
+            onClick={() => setMobileSearchOpen((open) => !open)}
             className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 sm:hidden"
           >
             <SearchIcon />
@@ -381,6 +387,31 @@ export default function AdminTopbar({ onMenuClick }: AdminTopbarProps) {
           </div>
         </div>
       </div>
+
+      {/* Mobile search row, revealed by the icon above. */}
+      {mobileSearchOpen && (
+        <form
+          onSubmit={(event) => {
+            handleSearch(event);
+            setMobileSearchOpen(false);
+          }}
+          role="search"
+          className="border-t border-gray-100 px-4 py-2.5 sm:hidden"
+        >
+          <div className="flex h-10 items-center gap-2 rounded-md border border-gray-300 bg-white px-3 text-gray-400 focus-within:border-primary">
+            <SearchIcon />
+            <input
+              ref={mobileSearchRef}
+              type="search"
+              autoFocus
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search properties..."
+              className="min-w-0 flex-1 bg-transparent text-[12.5px] text-gray-700 outline-none placeholder:text-gray-400"
+            />
+          </div>
+        </form>
+      )}
     </header>
   );
 }

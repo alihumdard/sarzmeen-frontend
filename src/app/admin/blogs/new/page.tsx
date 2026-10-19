@@ -183,7 +183,7 @@ export default function BlogFormPage() {
     <div className="-mx-2 -mt-2 sm:-mx-4 sm:-mt-4">
       {/* ── Top Action Bar (WordPress-style) ── */}
       <div className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur-sm">
-        <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-6">
+        <div className="flex items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-6">
           <div className="flex items-center gap-3">
             <Link
               href="/admin/blogs"
@@ -197,7 +197,7 @@ export default function BlogFormPage() {
                 {isEdit ? "Edit Blog" : "Add New Blog"}
               </h1>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="hidden items-center gap-1.5 sm:flex">
               <span className={`h-2 w-2 rounded-full ${statusColor}`} />
               <span className="text-[11px] font-medium text-gray-500">{statusLabel}</span>
             </div>
@@ -209,7 +209,7 @@ export default function BlogFormPage() {
                 type="button"
                 onClick={() => save("draft")}
                 disabled={savingDraft || saving}
-                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-200 px-4 text-[12px] font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
+                className="inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-gray-200 px-2.5 text-[11.5px] font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50 sm:px-4 sm:text-[12px]"
               >
                 {savingDraft ? <Spinner /> : <DraftIcon />}
                 {savingDraft ? "Saving..." : "Save Draft"}
@@ -228,7 +228,7 @@ export default function BlogFormPage() {
               type="button"
               onClick={() => save(isEdit ? form.status : "published")}
               disabled={saving || savingDraft}
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary px-5 text-[12px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-primary px-3 text-[11.5px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 sm:px-5 sm:text-[12px]"
             >
               {saving ? <Spinner /> : <PublishIcon />}
               {saving ? "Saving..." : isEdit ? "Update Blog" : "Publish Blog"}
