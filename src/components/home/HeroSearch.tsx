@@ -390,14 +390,35 @@ export default function HeroSearch() {
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
 
+    /*
+     * The whole search state used to be copied into the URL as-is, but the
+     * listing reads a different set of names: a free-text term is `search`,
+     * not `location`; the type filter is `type`; prices are `price`. And
+     * `purpose=buy` is not one of the API's purposes (sale/rent/installment),
+     * so it matched nothing and zeroed the sidebar counts.
+     */
     const params = new URLSearchParams();
-    Object.entries(searchState).forEach(([key, value]) => {
-      if (value) params.set(key, value);
-    });
 
-    // Rentals live on their own page, so the purpose picks the destination.
+    if (searchState.city) params.set("city", searchState.city);
+
+    // Society/area is free text here, so it searches rather than filters.
+    if (searchState.location) params.set("search", searchState.location);
+
+    const type = searchState.propertySubType || searchState.propertyType;
+    if (type) params.set("type", type);
+
+    if (searchState.beds) params.set("beds", searchState.beds);
+
+    const min = searchState.priceMin || "0";
+    if (searchState.priceMin || searchState.priceMax) {
+      params.set("price", `${min}-${searchState.priceMax || ""}`);
+    }
+
+    // Rentals live on their own page, so the purpose picks the destination
+    // rather than travelling as a filter.
     const basePath = searchState.purpose === "rent" ? "/rent" : "/properties";
-    router.push(`${basePath}?${params.toString()}`);
+    const query = params.toString();
+    router.push(query ? `${basePath}?${query}` : basePath);
   }
 
   const areaUnits = [

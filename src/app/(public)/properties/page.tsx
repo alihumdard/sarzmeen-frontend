@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import CantFindBanner from "@/components/property/CantFindBanner";
 import ListingSearchBar from "@/components/property/ListingSearchBar";
-import PopularSearches from "@/components/property/PopularSearches";
 import PropertyFilters from "@/components/property/PropertyFilters";
 import PropertyResults from "@/components/property/PropertyResults";
 import PageBanner from "@/components/layout/PageBanner";
@@ -24,6 +23,7 @@ type PropertiesPageProps = {
     price?: string;
     beds?: string;
     baths?: string;
+    search?: string;
   }>;
 };
 
@@ -52,6 +52,7 @@ export default async function PropertiesPage({
     if (min) qs.set("price_min", min);
     if (max) qs.set("price_max", max);
   }
+  if (params.search) qs.set("search", params.search);
   if (params.beds) qs.set("beds", params.beds);
   if (params.baths) qs.set("baths", params.baths);
 
@@ -82,8 +83,7 @@ export default async function PropertiesPage({
         contentMaxWidth="720px"
         image="/images/city-lahore-skyline.jpg"
       >
-        <ListingSearchBar />
-        <PopularSearches />
+        <ListingSearchBar initialTerm={params.search} />
       </PageBanner>
 
       <section className="bg-surface py-8">

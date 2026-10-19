@@ -18,15 +18,28 @@ export type NavItem = {
 
 export const mainNavigation: NavItem[] = [
   {
+    /*
+     * `purpose=buy` is not one of the API's purposes (sale/rent/installment)
+     * and `type=home` is not a type slug, so these links filtered nothing.
+     * Each now carries the slugs its group actually covers.
+     */
     name: "Buy Properties",
-    href: "/properties?purpose=buy",
+    href: "/properties?purpose=sale",
     children: [
-      { name: "Homes for Sale", href: "/properties?purpose=buy&type=home" },
-      { name: "Plots for Sale", href: "/properties?purpose=buy&type=plot" },
+      {
+        name: "Homes for Sale",
+        href: "/properties?purpose=sale&type=house,villa,townhouse,duplex,upper-portion,lower-portion,farm-house",
+      },
+      {
+        name: "Plots for Sale",
+        href: "/properties?purpose=sale&type=residential-plot,commercial-plot,agricultural-land,industrial-land,plot-file",
+      },
       {
         name: "Commercial for Sale",
-        href: "/properties?purpose=buy&type=commercial",
+        href: "/properties?purpose=sale&type=shop,office,showroom,factory,warehouse,building,commercial-plaza",
       },
+      // Sits last so the dropdown always offers a way to the full listing.
+      { name: "View All Properties", href: "/properties" },
     ],
   },
   { name: "Rent", href: "/rent" },

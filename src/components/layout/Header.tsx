@@ -117,16 +117,27 @@ export default function Header() {
 
                 {openDropdown === item.name && (
                   <div className="absolute left-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-lg border border-border bg-white py-1.5 shadow-lg">
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.name}
-                        href={child.href}
-                        onClick={() => setOpenDropdown(null)}
-                        className="block px-4 py-2.5 text-[13px] text-text transition-colors hover:bg-primary-light hover:text-primary"
-                      >
-                        {child.name}
-                      </Link>
-                    ))}
+                    {item.children.map((child, index) => {
+                      // The last entry is the catch-all link to the full
+                      // listing, set apart so it reads as a way out rather
+                      // than another filter.
+                      const isViewAll = index === item.children!.length - 1;
+
+                      return (
+                        <Link
+                          key={child.name}
+                          href={child.href}
+                          onClick={() => setOpenDropdown(null)}
+                          className={
+                            isViewAll
+                              ? "mt-1 block border-t border-border px-4 py-2 text-center text-[11.5px] font-semibold text-primary transition-colors hover:bg-primary-light"
+                              : "block px-4 py-2.5 text-[13px] text-text transition-colors hover:bg-primary-light hover:text-primary"
+                          }
+                        >
+                          {child.name}
+                        </Link>
+                      );
+                    })}
                   </div>
                 )}
               </div>
