@@ -279,7 +279,112 @@ export default function PaymentCalculator({
           remainder automatically so the plan totals 100%.
         </p>
 
-        <div className="mt-4 overflow-x-auto rounded-md border border-border">
+        {/*
+          Five columns cannot be read on a phone — scrolling sideways to reach
+          Count and Total makes the plan hard to follow. Below md: each
+          component becomes a card instead.
+        */}
+        <div className="mt-4 flex flex-col gap-3 md:hidden">
+          {FIELDS.map((f, i) => {
+            const c = plan.components[i];
+            const row = rows[f.key] ?? emptyRow;
+            const auto = c?.derived ?? false;
+
+            return (
+              <div
+                key={f.key}
+                className="rounded-md border border-border bg-white p-3"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[13px] font-semibold text-heading">
+                    {f.label}
+                    {auto && hasPrice && (
+                      <span className="ml-1.5 rounded bg-primary-light px-1.5 py-0.5 text-[9px] font-semibold uppercase text-primary">
+                        auto
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-[13px] font-bold text-primary">
+                    {hasPrice && c && c.resolvedTotal > 0
+                      ? formatPKR(c.resolvedTotal)
+                      : "—"}
+                  </span>
+                </div>
+
+                <div className="mt-2.5 grid grid-cols-2 gap-2">
+                  <label className="block">
+                    <span className="mb-1 block text-[10px] uppercase tracking-wide text-muted">
+                      Percentage
+                    </span>
+                    <input
+                      type="number"
+                      min={0}
+                      step="any"
+                      inputMode="decimal"
+                      value={row.percent}
+                      onChange={(e) => setPercent(f.key, e.target.value)}
+                      placeholder={
+                        auto && hasPrice && c ? c.resolvedPercent.toFixed(2) : "—"
+                      }
+                      className={inputClass}
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-1 block text-[10px] uppercase tracking-wide text-muted">
+                      Amount each
+                    </span>
+                    <input
+                      type="number"
+                      min={0}
+                      step="any"
+                      inputMode="decimal"
+                      value={row.amount}
+                      onChange={(e) => setAmount(f.key, e.target.value)}
+                      placeholder={
+                        hasPrice && c ? String(Math.round(c.resolvedEach)) : "—"
+                      }
+                      className={inputClass}
+                    />
+                  </label>
+                </div>
+
+                {f.countable && (
+                  <label className="mt-2 block">
+                    <span className="mb-1 block text-[10px] uppercase tracking-wide text-muted">
+                      Number of payments
+                    </span>
+                    <input
+                      type="number"
+                      min={1}
+                      step={1}
+                      inputMode="numeric"
+                      value={row.count}
+                      onChange={(e) => setCount(f.key, e.target.value)}
+                      placeholder={String(deriveCount(f.key, durationYears) ?? 1)}
+                      className={inputClass}
+                    />
+                  </label>
+                )}
+              </div>
+            );
+          })}
+
+          <div className="flex items-center justify-between rounded-md border border-border bg-surface px-3 py-2.5">
+            <span className="text-[13px] font-bold text-heading">
+              Total · {plan.percentTotal.toFixed(2)}%
+            </span>
+            <span className="text-[13px] font-bold text-primary">
+              {hasPrice
+                ? formatPKR(
+                    plan.components.reduce((s, c) => s + c.resolvedTotal, 0),
+                  )
+                : "—"}
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-4 hidden overflow-x-auto rounded-md border border-border md:block">
           <table className="w-full min-w-[640px] text-[12px]">
             <thead>
               <tr className="bg-surface text-left text-[10px] uppercase tracking-wide text-muted">
