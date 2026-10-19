@@ -1,7 +1,7 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import BottomNavBar from "@/components/layout/BottomNavBar";
 import {
   BuildingIcon,
   HomeStatIcon,
@@ -38,8 +38,9 @@ const items: NavItem[] = [
  * main sections two taps deep. This keeps them one tap away, as a native app
  * would. Hidden from lg: up, where the full header is already visible.
  *
- * The open tab lifts out of the bar into a raised circle, so the current
- * section is readable at a glance rather than only by colour.
+ * Kept deliberately plain — a white bar with the open tab marked by a soft
+ * rounded highlight. The admin panel uses the curved variant instead, so the
+ * two can be compared side by side.
  */
 export default function MobileBottomNav() {
   const pathname = usePathname();
@@ -55,9 +56,41 @@ export default function MobileBottomNav() {
     );
   }
 
-  const activeIndex = items.findIndex(isActive);
-
   return (
-    <BottomNavBar items={items} activeIndex={activeIndex} ariaLabel="Primary" />
+    <nav
+      aria-label="Primary"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white lg:hidden"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+    >
+      <ul className="flex items-stretch">
+        {items.map((item) => {
+          const active = isActive(item);
+
+          return (
+            <li key={item.href} className="flex-1">
+              <Link
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className={[
+                  "flex flex-col items-center justify-center gap-1 px-1 pb-2 pt-2.5 text-[10px] font-medium transition-colors",
+                  active ? "text-primary" : "text-muted",
+                ].join(" ")}
+              >
+                {/* Soft highlight behind the icon of the open tab. */}
+                <span
+                  className={[
+                    "flex h-7 w-12 items-center justify-center rounded-full transition-colors",
+                    active ? "bg-primary-light" : "bg-transparent",
+                  ].join(" ")}
+                >
+                  <item.Icon className="h-[18px] w-[18px]" />
+                </span>
+                {item.label}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }
