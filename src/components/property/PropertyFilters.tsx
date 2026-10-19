@@ -56,6 +56,11 @@ type PropertyFiltersProps = {
   initialType?: string;
   /** Live per-group listing counts from the API, keyed by filter value. */
   counts?: Record<string, number>;
+  /**
+   * Page the filters belong to. The rent listing has its own URL, and
+   * hardcoding /properties sent anyone filtering on /rent to the sales page.
+   */
+  basePath?: string;
 };
 
 /**
@@ -68,6 +73,7 @@ type PropertyFiltersProps = {
 export default function PropertyFilters({
   initialType,
   counts,
+  basePath = "/properties",
 }: PropertyFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -162,7 +168,7 @@ export default function PropertyFilters({
     else params.delete("baths");
 
     const qs = params.toString();
-    router.push(qs ? `/properties?${qs}` : "/properties", { scroll: false });
+    router.push(qs ? `${basePath}?${qs}` : basePath, { scroll: false });
   }
 
   function handleReset() {
@@ -171,7 +177,7 @@ export default function PropertyFilters({
     setBeds(null);
     setBaths(null);
     setFeatures([]);
-    router.push("/properties", { scroll: false });
+    router.push(basePath, { scroll: false });
   }
 
   const visibleTypes = showAllTypes

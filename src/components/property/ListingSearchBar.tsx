@@ -17,6 +17,8 @@ const POPULAR_SEARCHES = [
 type ListingSearchBarProps = {
   /** Keeps the field filled when arriving on an already-searched page. */
   initialTerm?: string;
+  /** Where a search lands — the rent page searches its own listing. */
+  basePath?: string;
 };
 
 /**
@@ -27,7 +29,10 @@ type ListingSearchBarProps = {
  * had been searched. Picking one now fills the field, replacing whatever was
  * there, and searches.
  */
-export default function ListingSearchBar({ initialTerm }: ListingSearchBarProps) {
+export default function ListingSearchBar({
+  initialTerm,
+  basePath = "/properties",
+}: ListingSearchBarProps) {
   const router = useRouter();
   const [term, setTerm] = useState(initialTerm ?? "");
 
@@ -45,7 +50,7 @@ export default function ListingSearchBar({ initialTerm }: ListingSearchBarProps)
     if (trimmed) params.set("search", trimmed);
 
     const query = params.toString();
-    router.push(query ? `/properties?${query}` : "/properties");
+    router.push(query ? `${basePath}?${query}` : basePath);
 
     /*
      * The banner fills the screen, so new results land below the fold and a
