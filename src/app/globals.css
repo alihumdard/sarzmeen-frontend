@@ -231,3 +231,104 @@
 .shine-border.shine-border-animated::before {
   animation: card-shine 5s ease-in-out infinite;
 }
+/*
+ * Article body (blog posts, and anywhere else editor HTML is rendered).
+ *
+ * The pages used Tailwind's `prose` classes, but @tailwindcss/typography is
+ * not installed, so those classes resolved to nothing and every heading
+ * rendered at body size — an article read as one undifferentiated wall.
+ */
+.blog-content {
+  color: var(--color-muted);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.blog-content > * + * {
+  margin-top: 1.1em;
+}
+
+.blog-content h2,
+.blog-content h3,
+.blog-content h4 {
+  color: var(--color-heading);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 1.9em;
+  margin-bottom: 0.6em;
+}
+
+.blog-content h2 {
+  font-size: 20px;
+}
+
+.blog-content h3 {
+  font-size: 17px;
+}
+
+.blog-content h4 {
+  font-size: 15px;
+}
+
+/* The first heading sits right under the lead paragraph. */
+.blog-content > :first-child {
+  margin-top: 0;
+}
+
+.blog-content a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.blog-content strong {
+  color: var(--color-heading);
+  font-weight: 650;
+}
+
+.blog-content ul,
+.blog-content ol {
+  padding-left: 1.4em;
+}
+
+.blog-content ul {
+  list-style: disc;
+}
+
+.blog-content ol {
+  list-style: decimal;
+}
+
+.blog-content li + li {
+  margin-top: 0.45em;
+}
+
+.blog-content blockquote {
+  border-left: 3px solid var(--color-primary);
+  padding-left: 1em;
+  font-style: italic;
+  color: var(--color-heading);
+}
+
+.blog-content img {
+  border-radius: 10px;
+}
+
+.blog-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.blog-content th,
+.blog-content td {
+  border: 1px solid var(--color-border);
+  padding: 0.55em 0.75em;
+  text-align: left;
+}
+
+.blog-content th {
+  background: var(--color-surface);
+  color: var(--color-heading);
+  font-weight: 600;
+}

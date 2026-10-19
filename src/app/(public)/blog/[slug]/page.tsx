@@ -171,7 +171,7 @@ export default async function BlogDetailPage({
               {/* Article Content */}
               <div className="mt-8 rounded-2xl border border-border bg-white p-5 shadow-sm sm:p-8 lg:p-10">
                 <div
-                  className="prose prose-sm max-w-none prose-headings:text-heading prose-p:text-muted prose-p:leading-7"
+                  className="blog-content"
                   dangerouslySetInnerHTML={{ __html: post.content }}
                 />
 
