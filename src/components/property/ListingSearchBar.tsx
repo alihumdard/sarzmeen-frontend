@@ -50,7 +50,13 @@ export default function ListingSearchBar({
     if (trimmed) params.set("search", trimmed);
 
     const query = params.toString();
-    router.push(query ? `${basePath}?${query}` : basePath);
+
+    /*
+     * `scroll: false` because the default jumps to the top of the page first,
+     * which fought the scroll below and showed as a jolt upward before the
+     * results slid into view.
+     */
+    router.push(query ? `${basePath}?${query}` : basePath, { scroll: false });
 
     /*
      * The banner fills the screen, so new results land below the fold and a

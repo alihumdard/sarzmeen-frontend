@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import FilterSection from "@/components/property/FilterSection";
 import {
   CloseIcon,
@@ -58,21 +59,49 @@ const paymentOptions = [
 ];
 
 const categoryOptions = [
-  "Residential Project",
-  "Commercial Project",
-  "Mixed-Use Project",
-  "Farmhouse Society",
-  "Overseas Housing Scheme",
+  { value: "residential-project", label: "Residential Project" },
+  { value: "commercial-project", label: "Commercial Project" },
+  { value: "mixed-use-project", label: "Mixed-Use Project" },
+  { value: "high-raise-project", label: "High Raise Project" },
+  { value: "farmhouse-society", label: "Farmhouse Society" },
+  { value: "overseas-housing-scheme", label: "Overseas Housing Scheme" },
+  { value: "industrial-estate", label: "Industrial Estate" },
 ];
 
+/** Reads a comma-separated URL param back into checkbox state. */
+function fromParam(value: string | null): string[] {
+  return value ? value.split(",").filter(Boolean) : [];
+}
+
 export default function ProjectFilters() {
-  const [areas, setAreas] = useState<string[]>([]);
-  const [statuses, setStatuses] = useState<string[]>([]);
-  const [types, setTypes] = useState<string[]>([]);
-  const [formats, setFormats] = useState<string[]>([]);
-  const [payments, setPayments] = useState<string[]>([]);
-  const [inventory, setInventory] = useState<string[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  /*
+   * Seeded from the URL so a shared or reloaded link shows the same boxes
+   * ticked as the results it produced.
+   */
+  const [areas, setAreas] = useState<string[]>(() =>
+    fromParam(searchParams.get("area")),
+  );
+  const [statuses, setStatuses] = useState<string[]>(() =>
+    fromParam(searchParams.get("status")),
+  );
+  const [types, setTypes] = useState<string[]>(() =>
+    fromParam(searchParams.get("type")),
+  );
+  const [formats, setFormats] = useState<string[]>(() =>
+    fromParam(searchParams.get("format")),
+  );
+  const [payments, setPayments] = useState<string[]>(() =>
+    fromParam(searchParams.get("payment")),
+  );
+  const [inventory, setInventory] = useState<string[]>(() =>
+    fromParam(searchParams.get("unit_type")),
+  );
+  const [categories, setCategories] = useState<string[]>(() =>
+    fromParam(searchParams.get("category")),
+  );
 
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -94,24 +123,46 @@ export default function ProjectFilters() {
     };
   }, [drawerOpen]);
 
+  /**
+   * Writes a selection to the URL, which the page reads server-side to query
+   * the API. Nothing was applied before — ticking a box changed the sidebar
+   * and left the results untouched.
+   */
+  const applyParam = (key: string, values: string[]) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (values.length) params.set(key, values.join(","));
+    else params.delete(key);
+
+    const query = params.toString();
+    router.push(query ? `/projects?${query}` : "/projects", { scroll: false });
+  };
+
   const toggle = (
     value: string,
     currentValues: string[],
-    setValues: React.Dispatch<React.SetStateAction<string[]>>
+    setValues: React.Dispatch<React.SetStateAction<string[]>>,
+    param?: string,
   ) => {
-    setValues(
-      currentValues.includes(value)
-        ? currentValues.filter((item) => item !== value)
-        : [...currentValues, value]
-    );
+    const next = currentValues.includes(value)
+      ? currentValues.filter((item) => item !== value)
+      : [...currentValues, value];
+
+    setValues(next);
+    if (param) applyParam(param, next);
   };
 
   const handleReset = () => {
     setAreas([]);
     setStatuses([]);
+    setTypes([]);
+    setFormats([]);
+    setPayments([]);
+    setInventory([]);
     setCategories([]);
     setMinPrice("");
     setMaxPrice("");
+    router.push("/projects", { scroll: false });
   };
 
   const filterSections = (
@@ -127,7 +178,7 @@ export default function ProjectFilters() {
               <input
                 type="checkbox"
                 checked={areas.includes(area)}
-                onChange={() => toggle(area, areas, setAreas)}
+                onChange={() => toggle(area, areas, setAreas, "area")}
                 className="h-4 w-4 shrink-0 cursor-pointer rounded border-gray-300 accent-primary"
               />
 
@@ -189,7 +240,7 @@ export default function ProjectFilters() {
               <input
                 type="checkbox"
                 checked={types.includes(o.value)}
-                onChange={() => toggle(o.value, types, setTypes)}
+                onChange={() => toggle(o.value, types, setTypes, "type")}
                 className="h-4 w-4 shrink-0 cursor-pointer rounded border-gray-300 accent-primary"
               />
               <span className="text-[13px] leading-5 text-gray-700">{o.label}</span>
@@ -205,7 +256,7 @@ export default function ProjectFilters() {
               <input
                 type="checkbox"
                 checked={formats.includes(o.value)}
-                onChange={() => toggle(o.value, formats, setFormats)}
+                onChange={() => toggle(o.value, formats, setFormats, "format")}
                 className="h-4 w-4 shrink-0 cursor-pointer rounded border-gray-300 accent-primary"
               />
               <span className="text-[13px] leading-5 text-gray-700">{o.label}</span>
@@ -221,7 +272,7 @@ export default function ProjectFilters() {
               <input
                 type="checkbox"
                 checked={inventory.includes(o)}
-                onChange={() => toggle(o, inventory, setInventory)}
+                onChange={() => toggle(o, inventory, setInventory, "unit_type")}
                 className="h-4 w-4 shrink-0 cursor-pointer rounded border-gray-300 accent-primary"
               />
               <span className="text-[13px] leading-5 text-gray-700">{o}</span>
@@ -237,7 +288,7 @@ export default function ProjectFilters() {
               <input
                 type="checkbox"
                 checked={payments.includes(o.value)}
-                onChange={() => toggle(o.value, payments, setPayments)}
+                onChange={() => toggle(o.value, payments, setPayments, "payment")}
                 className="h-4 w-4 shrink-0 cursor-pointer rounded border-gray-300 accent-primary"
               />
               <span className="text-[13px] leading-5 text-gray-700">{o.label}</span>
@@ -257,7 +308,7 @@ export default function ProjectFilters() {
               <input
                 type="checkbox"
                 checked={statuses.includes(status)}
-                onChange={() => toggle(status, statuses, setStatuses)}
+                onChange={() => toggle(status, statuses, setStatuses, "status")}
                 className="h-4 w-4 shrink-0 cursor-pointer rounded border-gray-300 accent-primary"
               />
 
@@ -274,20 +325,20 @@ export default function ProjectFilters() {
         <div className="space-y-2.5">
           {categoryOptions.map((category) => (
             <label
-              key={category}
+              key={category.value}
               className="flex min-h-8 cursor-pointer items-center gap-3"
             >
               <input
                 type="checkbox"
-                checked={categories.includes(category)}
+                checked={categories.includes(category.value)}
                 onChange={() =>
-                  toggle(category, categories, setCategories)
+                  toggle(category.value, categories, setCategories, "category")
                 }
                 className="h-4 w-4 shrink-0 cursor-pointer rounded border-gray-300 accent-primary"
               />
 
               <span className="text-[13px] leading-5 text-gray-700">
-                {category}
+                {category.label}
               </span>
             </label>
           ))}

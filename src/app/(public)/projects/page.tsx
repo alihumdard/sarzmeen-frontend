@@ -14,10 +14,15 @@ export const metadata: Metadata = {
 
 type ProjectsPageProps = {
   searchParams: Promise<{
-    location?: string;
+    search?: string;
     city?: string;
+    area?: string;
     status?: string;
     category?: string;
+    type?: string;
+    format?: string;
+    payment?: string;
+    unit_type?: string;
   }>;
 };
 
@@ -29,6 +34,20 @@ export default async function ProjectsPage({
   const qs = new URLSearchParams();
   if (params.category) qs.set("category", params.category);
   if (params.city) qs.set("city", params.city);
+  if (params.status) qs.set("status", params.status);
+  if (params.type) qs.set("type", params.type);
+  if (params.format) qs.set("format", params.format);
+  if (params.payment) qs.set("payment", params.payment);
+  if (params.unit_type) qs.set("unit_type", params.unit_type);
+
+  /*
+   * Area is a society name rather than a slug, so it searches alongside any
+   * typed term — the API matches it against the name and full location.
+   */
+  const terms = [params.search, params.area?.split(",").join(" ")]
+    .filter(Boolean)
+    .join(" ");
+  if (terms) qs.set("search", terms);
 
   const query = qs.toString();
   const res = await serverApi<{
@@ -48,10 +67,11 @@ export default async function ProjectsPage({
         contentMaxWidth="720px"
         image="/images/city-lahore-skyline.jpg"
       >
-        <ProjectSearchBar />
+        <ProjectSearchBar initialTerm={params.search} />
       </PageBanner>
 
-      <section className="bg-surface py-8">
+      {/* Anchor for the search bar, which scrolls results into view. */}
+      <section id="project-results" className="bg-surface py-8 scroll-mt-4">
         <div className="container-page grid items-start gap-6 lg:grid-cols-[250px_1fr]">
           <ProjectFilters />
           <ProjectResults projects={results} total={total} />
