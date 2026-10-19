@@ -1,4 +1,4 @@
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import type { ProjectDetail } from "@/types/project";
 
 type Props = {
@@ -31,7 +31,7 @@ export default function ProjectDeveloper({ project }: Props) {
 
       <div className="mt-4 flex items-start gap-4 rounded-lg border border-border bg-surface p-4">
         {dev.logo && (
-          <Image
+          <SafeImage
             src={dev.logo}
             alt={dev.name}
             width={64}

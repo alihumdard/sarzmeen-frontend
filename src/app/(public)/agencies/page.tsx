@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { Suspense } from "react";
 import AgencySearchBar from "@/components/agency/AgencySearchBar";
 import PageBanner from "@/components/layout/PageBanner";
@@ -91,7 +91,7 @@ function AgencyApiCard({ agency }: { agency: AgencyListItem }) {
         <div className="flex items-start gap-4">
           <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full shadow-sm ring-2 ring-white">
             {agency.logo ? (
-              <Image src={agency.logo} alt={agency.name} fill sizes="56px" className="object-cover" unoptimized />
+              <SafeImage src={agency.logo} alt={agency.name} fill sizes="56px" className="object-cover" unoptimized />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-primary-light text-[18px] font-bold text-primary">
                 {agency.name.charAt(0)}
@@ -146,7 +146,7 @@ function AgencyApiCard({ agency }: { agency: AgencyListItem }) {
           <div className="mt-3 flex items-center gap-2.5 rounded-md border border-border bg-surface px-3 py-2">
             <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
               {agency.owner.avatar ? (
-                <Image src={agency.owner.avatar} alt={agency.owner.name} fill sizes="32px" className="object-cover" unoptimized />
+                <SafeImage src={agency.owner.avatar} alt={agency.owner.name} fill sizes="32px" className="object-cover" unoptimized />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-primary-light text-[12px] font-bold text-primary">
                   {agency.owner.name.charAt(0)}

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageBanner from "@/components/layout/PageBanner";
@@ -90,7 +90,7 @@ export default async function AgentPage({ params }: AgentPageProps) {
               <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
                 <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full ring-2 ring-primary-light">
                   {agent.avatar ? (
-                    <Image src={agent.avatar} alt={agent.name} fill sizes="96px" className="object-cover" unoptimized />
+                    <SafeImage src={agent.avatar} alt={agent.name} fill sizes="96px" className="object-cover" unoptimized />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-primary-light text-[28px] font-bold text-primary">
                       {agent.name.charAt(0)}

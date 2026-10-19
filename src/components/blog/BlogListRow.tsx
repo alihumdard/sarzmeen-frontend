@@ -1,4 +1,4 @@
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import {
   ArrowRightIcon,
@@ -14,22 +14,33 @@ type BlogListRowProps = {
 
 /** Horizontal blog row used when the listing is switched to list view. */
 export default function BlogListRow({ post }: BlogListRowProps) {
-  const { slug, title, category, excerpt, publishedAt, readTime, image, author } =
-    post;
+  const {
+    slug,
+    title,
+    category,
+    excerpt,
+    publishedAt,
+    readTime,
+    image,
+    author,
+  } = post;
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-lg border border-border bg-white transition-shadow hover:shadow-lg sm:flex-row">
       <div className="relative h-[180px] shrink-0 overflow-hidden sm:h-auto sm:w-[240px]">
         {image ? (
-          <Image
+          <SafeImage
             src={image}
             alt={title}
             fill
             sizes="(min-width: 640px) 240px, 100vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
+            fallbackText="No image"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400 text-sm">No Image</div>
+          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400 text-sm">
+            No Image
+          </div>
         )}
 
         <span className="pointer-events-none absolute left-3 top-3 z-20 rounded bg-primary px-2.5 py-1 text-[10px] font-semibold text-white">
@@ -72,15 +83,18 @@ export default function BlogListRow({ post }: BlogListRowProps) {
           <div className="flex min-w-0 items-center gap-2.5">
             <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
               {author.avatar ? (
-                <Image
+                <SafeImage
                   src={author.avatar}
                   alt={author.name}
                   fill
                   sizes="32px"
                   className="object-cover"
+                  fallbackText="No image"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-gray-200 text-xs font-semibold text-gray-500">{author.name?.charAt(0)?.toUpperCase()}</div>
+                <div className="flex h-full w-full items-center justify-center bg-gray-200 text-xs font-semibold text-gray-500">
+                  {author.name?.charAt(0)?.toUpperCase()}
+                </div>
               )}
             </div>
 

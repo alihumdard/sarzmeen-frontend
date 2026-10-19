@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useState, useEffect, useTransition } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { listAgents, type AgentListItem } from "@/lib/api/agents";
 import {
@@ -164,7 +164,7 @@ function AgentApiCard({ agent }: { agent: AgentListItem }) {
         <div className="flex items-start gap-4">
           <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full ring-2 ring-white shadow-sm">
             {agent.avatar ? (
-              <Image src={agent.avatar} alt={agent.name} fill sizes="56px" className="object-cover" unoptimized />
+              <SafeImage src={agent.avatar} alt={agent.name} fill sizes="56px" className="object-cover" unoptimized />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-primary-light text-[18px] font-bold text-primary">
                 {agent.name.charAt(0)}

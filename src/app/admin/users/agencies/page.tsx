@@ -9,6 +9,7 @@ export default function AgenciesPage() {
       breadcrumbLabel="Agencies"
       nameLabel="Agency"
       searchPlaceholder="Search agencies by name, owner or email..."
+      createNoun="Agency"
     />
   );
 }

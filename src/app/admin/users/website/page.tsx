@@ -9,6 +9,7 @@ export default function WebsiteUsersPage() {
       breadcrumbLabel="Website Users"
       nameLabel="User"
       searchPlaceholder="Search users by name, email or phone..."
+      createNoun="User"
     />
   );
 }

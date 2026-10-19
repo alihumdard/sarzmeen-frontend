@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import Carousel from "@/components/ui/Carousel";
 import { LocationPinIcon } from "@/components/ui/Icons";
@@ -15,7 +15,7 @@ function PartnerAgencyCard({ agency }: { agency: AgencyListItem }) {
     >
       <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md border border-border bg-surface">
         {agency.logo ? (
-          <Image src={agency.logo} alt={agency.name} fill sizes="56px" className="object-cover" unoptimized />
+          <SafeImage src={agency.logo} alt={agency.name} fill sizes="56px" className="object-cover" unoptimized />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-primary-light text-[18px] font-bold text-primary">
             {agency.name.charAt(0)}

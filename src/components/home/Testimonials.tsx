@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import {
   AgentStatIcon,
@@ -75,7 +75,7 @@ function ReviewCard({ testimonial }: { testimonial: Testimonial }) {
         <div className="flex items-center gap-2.5">
           <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full ring-2 ring-white/10">
             {testimonial.avatar ? (
-              <Image
+              <SafeImage
                 src={testimonial.avatar}
                 alt={testimonial.name}
                 fill
@@ -253,7 +253,7 @@ export default function Testimonials() {
                   className="relative h-7 w-7 overflow-hidden rounded-full ring-2 ring-[#0b1210]"
                 >
                   {testimonial.avatar ? (
-                    <Image
+                    <SafeImage
                       src={testimonial.avatar}
                       alt=""
                       fill

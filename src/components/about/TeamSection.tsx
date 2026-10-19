@@ -1,4 +1,4 @@
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { LinkedInIcon, UserPlusIcon } from "@/components/ui/Icons";
 import { team } from "@/constants/aboutContent";
@@ -44,7 +44,7 @@ export default function TeamSection() {
             >
               {/* Image */}
               <div className="relative h-[250px] overflow-hidden bg-surface sm:h-[270px]">
-                <Image
+                <SafeImage
                   src={MEMBER_PHOTO}
                   alt={member.name}
                   fill

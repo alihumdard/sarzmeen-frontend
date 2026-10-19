@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import AdminFilterBar from "@/components/admin/AdminFilterBar";
 import AdminModal from "@/components/admin/AdminModal";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import CreateAccountModal from "@/components/admin/CreateAccountModal";
 import AdminPagination from "@/components/admin/AdminPagination";
 import AdminTable, {
   type AdminTableColumn,
@@ -38,6 +39,8 @@ type AccountManagerProps = {
   /** Column header over the name — "Agency" reads better than "Name" there. */
   nameLabel: string;
   searchPlaceholder: string;
+  /** Singular noun for the create button and modal — "Agent", "Agency". */
+  createNoun: string;
 };
 
 /**
@@ -55,6 +58,7 @@ export default function AccountManager({
   breadcrumbLabel,
   nameLabel,
   searchPlaceholder,
+  createNoun,
 }: AccountManagerProps) {
   const [accounts, setAccounts] = useState<AccountUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,6 +74,7 @@ export default function AccountManager({
     next: Extract<AccountStatus, "approved" | "rejected">;
   } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
   // Initial load. `loading` already starts true, so this only sets state
   // once the request resolves rather than synchronously on mount.
@@ -295,6 +300,26 @@ export default function AccountManager({
         title={title}
         description={description}
         breadcrumbs={[{ label: "Users" }, { label: breadcrumbLabel }]}
+        action={
+          <button
+            type="button"
+            onClick={() => setCreateOpen(true)}
+            className="inline-flex h-10 items-center gap-2 rounded-md bg-primary px-4 text-[12px] font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            + Add New {createNoun}
+          </button>
+        }
+      />
+
+      <CreateAccountModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        role={role}
+        noun={createNoun}
+        onCreated={() => {
+          // Pull the list again so the new account appears immediately.
+          listAccounts(role).then(setAccounts);
+        }}
       />
 
       <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">

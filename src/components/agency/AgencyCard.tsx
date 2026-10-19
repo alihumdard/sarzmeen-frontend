@@ -1,4 +1,4 @@
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import {
   LocationPinIcon,
@@ -22,7 +22,7 @@ export default function AgencyCard({ agency }: AgencyCardProps) {
         {/* Logo + name + verified badge */}
         <div className="flex items-start gap-4">
           <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full shadow-sm ring-2 ring-white">
-            <Image
+            <SafeImage
               src={agency.logo}
               alt={agency.name}
               fill
@@ -84,7 +84,7 @@ export default function AgencyCard({ agency }: AgencyCardProps) {
         {/* Owner — the person who runs the agency. */}
         <div className="mt-3 flex items-center gap-2.5 rounded-md border border-border bg-surface px-3 py-2">
           <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full">
-            <Image
+            <SafeImage
               src={agency.owner.avatar}
               alt={agency.owner.name}
               fill

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import type { ProjectDetail } from "@/types/project";
 
 type Props = {
@@ -25,25 +25,36 @@ export default function ProjectFloorPlans({ project }: Props) {
           <h2 className="text-[16px] font-bold text-heading">Floor Plans</h2>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             {plans.map((plan) => (
-              <div key={plan.id} className="overflow-hidden rounded-lg border border-border">
+              <div
+                key={plan.id}
+                className="overflow-hidden rounded-lg border border-border"
+              >
                 {plan.image && (
-                  <Image
+                  <SafeImage
                     src={plan.image}
                     alt={plan.name}
                     width={400}
                     height={300}
                     className="h-44 w-full bg-surface object-contain"
+                    fallbackText="No floor plan"
                   />
                 )}
                 <div className="px-3 py-2.5">
-                  <p className="text-[13px] font-semibold text-heading">{plan.name}</p>
+                  <p className="text-[13px] font-semibold text-heading">
+                    {plan.name}
+                  </p>
                   <p className="mt-0.5 text-[11.5px] text-muted">
-                    {[plan.tower, plan.floorNumber && `Floor ${plan.floorNumber}`]
+                    {[
+                      plan.tower,
+                      plan.floorNumber && `Floor ${plan.floorNumber}`,
+                    ]
                       .filter(Boolean)
                       .join(" · ")}
                   </p>
                   {plan.description && (
-                    <p className="mt-1.5 text-[12px] text-text">{plan.description}</p>
+                    <p className="mt-1.5 text-[12px] text-text">
+                      {plan.description}
+                    </p>
                   )}
                   {plan.pdf && (
                     <a
@@ -67,7 +78,10 @@ export default function ProjectFloorPlans({ project }: Props) {
           <h2 className="text-[16px] font-bold text-heading">Documents</h2>
           <ul className="mt-3 divide-y divide-border overflow-hidden rounded-lg border border-border">
             {documents.map((doc) => (
-              <li key={doc.id} className="flex items-center justify-between gap-3 px-4 py-3">
+              <li
+                key={doc.id}
+                className="flex items-center justify-between gap-3 px-4 py-3"
+              >
                 <span className="text-[12.5px] text-heading">{doc.title}</span>
                 <a
                   href={doc.url}

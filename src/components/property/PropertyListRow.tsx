@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { useState } from "react";
 import {
@@ -59,15 +59,18 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
       {/* Photo */}
       <div className="relative h-[200px] shrink-0 overflow-hidden lg:h-auto lg:w-[240px]">
         {image ? (
-          <Image
+          <SafeImage
             src={image}
             alt={title}
             fill
             sizes="(min-width: 1024px) 240px, 100vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
+            fallbackText="No image"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400 text-sm">No Image</div>
+          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400 text-sm">
+            No Image
+          </div>
         )}
 
         <Link
@@ -169,15 +172,18 @@ export default function PropertyListRow({ property }: PropertyListRowProps) {
           >
             <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-primary-light">
               {agent.avatar ? (
-                <Image
+                <SafeImage
                   src={agent.avatar}
                   alt={agent.name}
                   fill
                   sizes="36px"
                   className="object-cover"
+                  fallbackText="No image"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-gray-200 text-xs font-semibold text-gray-500">{agent.name?.charAt(0)?.toUpperCase()}</div>
+                <div className="flex h-full w-full items-center justify-center bg-gray-200 text-xs font-semibold text-gray-500">
+                  {agent.name?.charAt(0)?.toUpperCase()}
+                </div>
               )}
             </div>
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageBanner from "@/components/layout/PageBanner";
@@ -117,7 +117,7 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
               <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
                 <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full ring-2 ring-primary-light">
                   {agency.logo ? (
-                    <Image src={agency.logo} alt={agency.name} fill sizes="96px" className="object-cover" unoptimized />
+                    <SafeImage src={agency.logo} alt={agency.name} fill sizes="96px" className="object-cover" unoptimized />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-primary-light text-[28px] font-bold text-primary">
                       {agency.name.charAt(0)}
@@ -178,7 +178,7 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
                   <div className="mt-4 flex items-center gap-4">
                     <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full ring-2 ring-primary-light">
                       {agency.owner.avatar ? (
-                        <Image src={agency.owner.avatar} alt={agency.owner.name} fill sizes="64px" className="object-cover" unoptimized />
+                        <SafeImage src={agency.owner.avatar} alt={agency.owner.name} fill sizes="64px" className="object-cover" unoptimized />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center bg-primary-light text-[20px] font-bold text-primary">
                           {agency.owner.name.charAt(0)}
@@ -290,7 +290,7 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
                   <Link href={`/agents/${member.slug}`} className="block">
                     <div className="relative mx-auto h-20 w-20 overflow-hidden rounded-full ring-2 ring-primary-light">
                       {member.avatar ? (
-                        <Image src={member.avatar} alt={member.name} fill sizes="80px" className="object-cover" unoptimized />
+                        <SafeImage src={member.avatar} alt={member.name} fill sizes="80px" className="object-cover" unoptimized />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center bg-primary-light text-[22px] font-bold text-primary">
                           {member.name.charAt(0)}

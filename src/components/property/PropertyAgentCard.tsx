@@ -1,4 +1,4 @@
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import {
   PhoneIcon,
@@ -23,7 +23,7 @@ export default function PropertyAgentCard({ agent }: Props) {
     <>
       <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-2 ring-primary-light">
           {agent.avatar ? (
-            <Image
+            <SafeImage
               src={agent.avatar}
               alt={agent.name}
               fill

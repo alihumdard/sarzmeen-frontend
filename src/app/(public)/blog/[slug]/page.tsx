@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  ChevronRightIcon,
-  HomeStatIcon,
-} from "@/components/ui/Icons";
+import { ChevronRightIcon, HomeStatIcon } from "@/components/ui/Icons";
 import { serverApi } from "@/lib/api/server";
 import type { BlogPost, BlogCategory, BlogTag } from "@/types/blog";
 
@@ -41,9 +38,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function BlogDetailPage({
-  params,
-}: BlogDetailPageProps) {
+export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
   const { slug } = await params;
   const post = await getBlog(slug);
 
@@ -136,12 +131,13 @@ export default async function BlogDetailPage({
 
                 <div className="flex items-center gap-2">
                   {post.author.avatar && (
-                    <Image
+                    <SafeImage
                       src={post.author.avatar}
                       alt={post.author.name}
                       width={28}
                       height={28}
                       className="h-7 w-7 rounded-full object-cover"
+                      fallbackText="No image"
                     />
                   )}
 
@@ -157,13 +153,14 @@ export default async function BlogDetailPage({
               {/* Featured Image */}
               {post.image && (
                 <div className="relative mt-8 aspect-[16/8.5] overflow-hidden rounded-2xl bg-white">
-                  <Image
+                  <SafeImage
                     src={post.image}
                     alt={post.title}
                     fill
                     priority
                     sizes="(min-width: 1024px) 70vw, 100vw"
                     className="object-cover"
+                    fallbackText="No image"
                   />
                 </div>
               )}
@@ -199,12 +196,13 @@ export default async function BlogDetailPage({
               {/* Author */}
               <div className="mt-6 flex gap-4 rounded-2xl border border-border bg-white p-5 sm:p-6">
                 {post.author.avatar && (
-                  <Image
+                  <SafeImage
                     src={post.author.avatar}
                     alt={post.author.name}
                     width={64}
                     height={64}
                     className="h-16 w-16 shrink-0 rounded-full object-cover"
+                    fallbackText="No image"
                   />
                 )}
 
@@ -304,12 +302,13 @@ export default async function BlogDetailPage({
                       >
                         {recentPost.image && (
                           <div className="relative h-[68px] w-[82px] shrink-0 overflow-hidden rounded-lg bg-surface">
-                            <Image
+                            <SafeImage
                               src={recentPost.image}
                               alt={recentPost.title}
                               fill
                               sizes="82px"
                               className="object-cover transition-transform duration-300 group-hover:scale-105"
+                              fallbackText="No image"
                             />
                           </div>
                         )}

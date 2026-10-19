@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import type { ProjectDetail } from "@/types/project";
 
 type Props = {
@@ -31,7 +31,9 @@ export default function ProjectTowers({ project }: Props) {
 
   return (
     <div className="max-w-[760px]">
-      <h2 className="text-[16px] font-bold text-heading">Towers &amp; Floors</h2>
+      <h2 className="text-[16px] font-bold text-heading">
+        Towers &amp; Floors
+      </h2>
       <p className="mt-1.5 text-[12px] text-muted">
         How the project is laid out. Select a tower to see its floors.
       </p>
@@ -59,7 +61,9 @@ export default function ProjectTowers({ project }: Props) {
       <div className="mt-4 overflow-hidden rounded-lg border border-border">
         {/* Tower summary */}
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-border bg-surface px-4 py-3">
-          <span className="text-[14px] font-bold text-heading">{tower.name}</span>
+          <span className="text-[14px] font-bold text-heading">
+            {tower.name}
+          </span>
           {tower.floorsCount != null && (
             <Stat label="Floors" value={String(tower.floorsCount)} />
           )}
@@ -70,12 +74,13 @@ export default function ProjectTowers({ project }: Props) {
 
         {tower.image && (
           <div className="relative aspect-[16/7] w-full bg-surface">
-            <Image
+            <SafeImage
               src={tower.image}
               alt={tower.name}
               fill
               sizes="(min-width: 1024px) 760px, 100vw"
               className="object-cover"
+              fallbackText="No image"
             />
           </div>
         )}

@@ -9,6 +9,7 @@ export default function AdminUsersPage() {
       breadcrumbLabel="Admin Users"
       nameLabel="Admin"
       searchPlaceholder="Search admins by name, email or phone..."
+      createNoun="Admin"
     />
   );
 }

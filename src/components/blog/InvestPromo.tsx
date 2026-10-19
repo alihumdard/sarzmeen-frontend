@@ -1,4 +1,4 @@
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { ArrowRightIcon, InvestIcon } from "@/components/ui/Icons";
 
@@ -38,7 +38,7 @@ export default function InvestPromo() {
       </div>
 
       <div className="relative h-[140px]">
-        <Image
+        <SafeImage
           src={PROMO_IMAGE}
           alt=""
           fill

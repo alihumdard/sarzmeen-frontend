@@ -1,4 +1,4 @@
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { LocationPinIcon, VerifiedTickIcon } from "@/components/ui/Icons";
 import type { Project } from "@/types/project";
@@ -9,22 +9,35 @@ type ProjectListRowProps = {
 
 /** Wide listing row used on the projects search results page. */
 export default function ProjectListRow({ project }: ProjectListRowProps) {
-  const { slug, name, city, category, image, status, developer, priceFrom, verified, featured } =
-    project;
+  const {
+    slug,
+    name,
+    city,
+    category,
+    image,
+    status,
+    developer,
+    priceFrom,
+    verified,
+    featured,
+  } = project;
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-lg border border-border bg-white transition-all hover:-translate-y-0.5 hover:shadow-lg lg:flex-row">
       <div className="relative h-[200px] shrink-0 overflow-hidden lg:h-auto lg:w-[240px]">
         {image ? (
-          <Image
+          <SafeImage
             src={image}
             alt={name}
             fill
             sizes="(min-width: 1024px) 240px, 100vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
+            fallbackText="No image"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400 text-sm">No Image</div>
+          <div className="flex h-full w-full items-center justify-center bg-gray-200 text-gray-400 text-sm">
+            No Image
+          </div>
         )}
 
         <Link
@@ -67,9 +80,7 @@ export default function ProjectListRow({ project }: ProjectListRowProps) {
             <span className="truncate">{city}</span>
           </p>
 
-          <p className="mt-3 text-[12px] font-medium text-text">
-            {category}
-          </p>
+          <p className="mt-3 text-[12px] font-medium text-text">{category}</p>
 
           <p className="mt-1 text-[11px] text-muted">By {developer}</p>
         </div>
