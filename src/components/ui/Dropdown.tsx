@@ -90,8 +90,15 @@ export default function Dropdown({
         aria-label={label}
         onClick={() => setOpen(!open)}
         className={
-          triggerClassName ??
-          "flex w-full items-center justify-between gap-2 rounded-md border border-border bg-white py-2 pl-3 pr-2.5 text-[11px] text-heading outline-none transition-colors hover:border-primary focus:border-primary"
+          /*
+           * The layout classes always apply. A caller passing
+           * triggerClassName used to replace them wholesale, losing the flex
+           * row — which left the label centred and the chevron adrift on the
+           * left instead of sitting at the right edge.
+           */
+          "flex w-full items-center justify-between gap-2 " +
+          (triggerClassName ??
+            "rounded-md border border-border bg-white py-2 pl-3 pr-2.5 text-[11px] text-heading outline-none transition-colors hover:border-primary focus:border-primary")
         }
       >
         <span className={`truncate ${selected ? "" : "text-muted"}`}>
