@@ -69,11 +69,24 @@ export default function AdminBottomNav() {
   // Fewer than two tabs is not navigation worth the screen space.
   if (visible.length < 2) return null;
 
-  function isActive(href: string): boolean {
-    return href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
-  }
+  /*
+   * Longest match wins. Several hrefs can match one URL — a nested section
+   * sits under its parent — and taking the first would light the wrong tab.
+   */
+  const strengths = visible.map((item) => {
+    const hit =
+      item.href === "/admin"
+        ? pathname === "/admin"
+        : pathname.startsWith(item.href);
 
-  const activeIndex = visible.findIndex((item) => isActive(item.href));
+    return hit ? item.href.length : -1;
+  });
+
+  const bestIndex = strengths.reduce(
+    (best, strength, index) => (strength > strengths[best] ? index : best),
+    0,
+  );
+  const activeIndex = strengths[bestIndex] > -1 ? bestIndex : -1;
 
   return (
     <BottomNavBar

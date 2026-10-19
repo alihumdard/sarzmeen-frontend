@@ -48,13 +48,28 @@ export default function MobileBottomNav() {
   // The admin panel has its own chrome and shouldn't carry the public bar.
   if (pathname.startsWith("/admin")) return null;
 
-  function isActive(item: NavItem): boolean {
+  /**
+   * Length of the longest path this item matches, or -1 for no match.
+   *
+   * Several items can match one URL — /properties/add sits under both Sell
+   * and Buy — so the specific one has to win, otherwise both light up.
+   */
+  function matchStrength(item: NavItem): number {
     const paths = item.match ?? [item.href];
 
-    return paths.some((p) =>
-      p === "/" ? pathname === "/" : pathname.startsWith(p),
-    );
+    return paths.reduce((best, p) => {
+      const hit = p === "/" ? pathname === "/" : pathname.startsWith(p);
+      return hit && p.length > best ? p.length : best;
+    }, -1);
   }
+
+  // Only the closest match is marked active.
+  const strengths = items.map(matchStrength);
+  const bestIndex = strengths.reduce(
+    (best, strength, index) => (strength > strengths[best] ? index : best),
+    0,
+  );
+  const activeIndex = strengths[bestIndex] > -1 ? bestIndex : -1;
 
   return (
     <nav
@@ -63,8 +78,8 @@ export default function MobileBottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <ul className="flex items-stretch">
-        {items.map((item) => {
-          const active = isActive(item);
+        {items.map((item, index) => {
+          const active = index === activeIndex;
 
           return (
             <li key={item.href} className="flex-1">
