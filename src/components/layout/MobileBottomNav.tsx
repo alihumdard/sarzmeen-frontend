@@ -37,6 +37,9 @@ const items: NavItem[] = [
  * The header collapses to a single hamburger on a phone, which buries the
  * main sections two taps deep. This keeps them one tap away, as a native app
  * would. Hidden from lg: up, where the full header is already visible.
+ *
+ * The open tab lifts out of the bar into a raised circle, so the current
+ * section is readable at a glance rather than only by colour.
  */
 export default function MobileBottomNav() {
   const pathname = usePathname();
@@ -53,40 +56,55 @@ export default function MobileBottomNav() {
   }
 
   return (
-    <nav
-      aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white/95 backdrop-blur-sm lg:hidden"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+    <div
+      className="fixed inset-x-0 bottom-0 z-40 px-3 pb-3 lg:hidden"
+      style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom, 0px))" }}
     >
-      <ul className="flex items-stretch">
-        {items.map((item) => {
-          const active = isActive(item);
+      <nav
+        aria-label="Primary"
+        className="rounded-2xl bg-primary shadow-[0_8px_28px_rgba(31,122,77,0.35)]"
+      >
+        <ul className="flex items-end">
+          {items.map((item) => {
+            const active = isActive(item);
 
-          return (
-            <li key={item.href} className="relative flex-1">
-              <Link
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className={[
-                  "flex flex-col items-center justify-center gap-1 px-1 pb-2 pt-2.5 text-[10px] font-medium transition-colors",
-                  active ? "text-primary" : "text-muted",
-                ].join(" ")}
-              >
-                {/* The curved highlight sits behind the icon of the open tab. */}
-                <span
-                  className={[
-                    "flex h-7 w-12 items-center justify-center rounded-full transition-colors",
-                    active ? "bg-primary-light" : "bg-transparent",
-                  ].join(" ")}
+            return (
+              <li key={item.href} className="flex-1">
+                <Link
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className="flex flex-col items-center justify-end pb-2.5 pt-2"
                 >
-                  <item.Icon className="h-[18px] w-[18px]" />
-                </span>
-                {item.label}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
+                  {/*
+                    The active tab rises above the bar in a white circle. The
+                    ring matches the bar colour so the lift reads as a notch
+                    cut out of it rather than a badge sitting on top.
+                  */}
+                  <span
+                    className={[
+                      "flex items-center justify-center rounded-full transition-all",
+                      active
+                        ? "-mt-6 h-12 w-12 bg-white text-primary shadow-md ring-[5px] ring-primary"
+                        : "h-9 w-9 text-white/90",
+                    ].join(" ")}
+                  >
+                    <item.Icon className="h-[19px] w-[19px]" />
+                  </span>
+
+                  <span
+                    className={[
+                      "mt-1 text-[10px] font-medium transition-colors",
+                      active ? "text-white" : "text-white/70",
+                    ].join(" ")}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </div>
   );
 }

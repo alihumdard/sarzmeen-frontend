@@ -104,7 +104,7 @@ export default function AdminLayout({
         <AdminFooter />
 
         {/* Clears the fixed bottom bar so the footer is never under it. */}
-        <div className="h-[62px] lg:hidden" aria-hidden="true" />
+        <div className="h-[86px] lg:hidden" aria-hidden="true" />
       </div>
 
       <AdminBottomNav />

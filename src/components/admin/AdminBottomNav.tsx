@@ -74,40 +74,55 @@ export default function AdminBottomNav() {
   }
 
   return (
-    <nav
-      aria-label="Admin sections"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur-sm lg:hidden"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+    <div
+      className="fixed inset-x-0 bottom-0 z-40 px-3 pb-3 lg:hidden"
+      style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom, 0px))" }}
     >
-      <ul className="flex items-stretch">
-        {visible.map((item) => {
-          const active = isActive(item.href);
+      <nav
+        aria-label="Admin sections"
+        className="rounded-2xl bg-primary shadow-[0_8px_28px_rgba(31,122,77,0.35)]"
+      >
+        <ul className="flex items-end">
+          {visible.map((item) => {
+            const active = isActive(item.href);
 
-          return (
-            <li key={item.href} className="flex-1">
-              <Link
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className={[
-                  "flex flex-col items-center justify-center gap-1 px-1 pb-2 pt-2.5 text-[10px] font-medium transition-colors",
-                  active ? "text-primary" : "text-gray-500",
-                ].join(" ")}
-              >
-                {/* The curved highlight marks the open section. */}
-                <span
-                  className={[
-                    "flex h-7 w-12 items-center justify-center rounded-full transition-colors",
-                    active ? "bg-primary/10" : "bg-transparent",
-                  ].join(" ")}
+            return (
+              <li key={item.href} className="flex-1">
+                <Link
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className="flex flex-col items-center justify-end pb-2.5 pt-2"
                 >
-                  <item.Icon className="h-[18px] w-[18px]" />
-                </span>
-                {item.label}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
+                  {/*
+                    The open section rises out of the bar in a white circle,
+                    ringed in the bar colour so it reads as a notch rather
+                    than a badge laid over the top.
+                  */}
+                  <span
+                    className={[
+                      "flex items-center justify-center rounded-full transition-all",
+                      active
+                        ? "-mt-6 h-12 w-12 bg-white text-primary shadow-md ring-[5px] ring-primary"
+                        : "h-9 w-9 text-white/90",
+                    ].join(" ")}
+                  >
+                    <item.Icon className="h-[18px] w-[18px]" />
+                  </span>
+
+                  <span
+                    className={[
+                      "mt-1 text-[10px] font-medium transition-colors",
+                      active ? "text-white" : "text-white/70",
+                    ].join(" ")}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </div>
   );
 }
