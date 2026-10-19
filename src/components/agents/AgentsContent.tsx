@@ -69,18 +69,23 @@ export default function AgentsContent() {
         <div className="container-page">
           <form
             onSubmit={handleSearch}
-            className="flex gap-3 rounded-xl border border-border bg-white p-4 shadow-sm"
+            className="flex flex-col gap-3 rounded-xl border border-border bg-white p-4 shadow-sm sm:flex-row"
           >
+            {/*
+              `min-w-0` lets the field shrink below its placeholder width. A
+              flex child refuses to by default, which pushed the button off
+              the right edge of a phone screen.
+            */}
             <input
               type="text"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               placeholder="Search agents by name, agency, or city..."
-              className="h-11 flex-1 rounded-md border border-border bg-white px-4 text-[13px] text-heading outline-none placeholder:text-muted focus:border-primary"
+              className="h-11 w-full min-w-0 flex-1 rounded-md border border-border bg-white px-4 text-[13px] text-heading outline-none placeholder:text-muted focus:border-primary"
             />
             <button
               type="submit"
-              className="flex h-11 items-center gap-2 rounded-md bg-primary px-6 text-[13px] font-semibold text-white hover:opacity-90"
+              className="flex h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-6 text-[13px] font-semibold text-white hover:opacity-90"
             >
               <SearchIcon className="h-4 w-4" />
               Search

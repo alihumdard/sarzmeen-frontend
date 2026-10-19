@@ -82,21 +82,32 @@ export default async function BlogPage({
       </PageBanner>
 
       <section className="bg-surface py-10">
+        {/*
+          The sidebar is written first so it sits left on a desktop, but that
+          put Categories, Tags and the newsletter above the posts on a phone —
+          a visitor had to scroll past all of it to reach a single article.
+          Order classes keep the desktop layout and put the posts first when
+          the columns stack.
+        */}
         <div className="container-page grid items-start gap-6 lg:grid-cols-[250px_1fr]">
-          <BlogSidebar activeCategory={category} activeTag={tag} />
-          <Suspense fallback={null}>
-            <BlogList
-              posts={posts}
-              total={total}
-              page={page}
-              lastPage={lastPage}
-              pageSize={PAGE_SIZE}
-              sort={sort}
-              search={search}
-              category={category}
-              tag={tag}
-            />
-          </Suspense>
+          <div className="order-2 min-w-0 lg:order-1">
+            <BlogSidebar activeCategory={category} activeTag={tag} />
+          </div>
+          <div className="order-1 min-w-0 lg:order-2">
+            <Suspense fallback={null}>
+              <BlogList
+                posts={posts}
+                total={total}
+                page={page}
+                lastPage={lastPage}
+                pageSize={PAGE_SIZE}
+                sort={sort}
+                search={search}
+                category={category}
+                tag={tag}
+              />
+            </Suspense>
+          </div>
         </div>
       </section>
     </main>

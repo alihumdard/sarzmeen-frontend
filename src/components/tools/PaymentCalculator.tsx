@@ -168,7 +168,7 @@ export default function PaymentCalculator({
   return (
     <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
       {/* Price inputs */}
-      <div className="rounded-lg border border-border bg-white p-5">
+      <div className="min-w-0 rounded-lg border border-border bg-white p-5">
         <h2 className="text-[15px] font-bold text-heading">
           {title ? `Plan for ${title}` : "Your details"}
         </h2>
@@ -269,7 +269,9 @@ export default function PaymentCalculator({
       </div>
 
       {/* Plan table */}
-      <div className="rounded-lg border border-border bg-white p-5">
+      {/* `min-w-0` lets this column shrink; without it the wide table inside
+          pushed the whole page past the right edge on a phone. */}
+      <div className="min-w-0 rounded-lg border border-border bg-white p-5">
         <h2 className="text-[15px] font-bold text-heading">Your payment plan</h2>
         <p className="mt-1 text-[11.5px] leading-5 text-muted">
           Set <strong>either</strong> a percentage <strong>or</strong> an
