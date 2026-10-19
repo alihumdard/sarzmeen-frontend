@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 // TipTap is heavy and sits in a later step, so it loads on demand.
@@ -430,7 +430,7 @@ export default function EditPropertyPage() {
             <div className="grid grid-cols-2 gap-2">
               {property.images.map((img) => (
                 <div key={img.id} className="group relative aspect-[4/3] overflow-hidden rounded-md bg-gray-100">
-                  <Image src={img.url} alt="" fill sizes="120px" className="object-cover" />
+                  <SafeImage src={img.url} alt="" fill sizes="120px" className="object-cover" />
                   {img.isCover && (
                     <span className="absolute left-1 top-1 rounded bg-primary px-1.5 py-0.5 text-[9px] font-semibold text-white">
                       Cover
@@ -461,7 +461,7 @@ export default function EditPropertyPage() {
                 <div className="mt-2 grid grid-cols-3 gap-2">
                   {newImages.map((file, i) => (
                     <div key={i} className="group relative aspect-[4/3] overflow-hidden rounded-md bg-gray-100">
-                      <Image src={URL.createObjectURL(file)} alt="" fill sizes="80px" className="object-cover" />
+                      <SafeImage src={URL.createObjectURL(file)} alt="" fill sizes="80px" className="object-cover" />
                       <button
                         type="button"
                         onClick={() => setNewImages((prev) => prev.filter((_, j) => j !== i))}

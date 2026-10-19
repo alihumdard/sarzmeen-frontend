@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { useAuth } from "@/context/AuthContext";
 import { AgentData, listAgents, inviteAgent, updateAgent, deleteAgent } from "@/lib/api/agency";
 
@@ -181,7 +181,7 @@ export default function AgencyAgentsPage() {
               <div className="flex items-start gap-4">
                 <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-gray-100">
                   {agent.avatar ? (
-                    <Image src={agent.avatar} alt={agent.name} fill className="object-cover" unoptimized />
+                    <SafeImage src={agent.avatar} alt={agent.name} fill className="object-cover" unoptimized />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-primary/10 text-lg font-bold text-primary">
                       {agent.name?.charAt(0)?.toUpperCase()}

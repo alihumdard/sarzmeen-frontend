@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminFormField, {
   adminInputClass,
@@ -127,7 +127,7 @@ function ProfileForm({
           <div className="mt-4 flex items-center gap-4">
             <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full bg-primary/10">
               {shownAvatar ? (
-                <Image src={shownAvatar} alt="" fill sizes="64px" className="object-cover" />
+                <SafeImage src={shownAvatar} alt="" fill sizes="64px" className="object-cover" />
               ) : (
                 <span className="flex h-full w-full items-center justify-center text-[17px] font-bold text-primary">
                   {initials(user.name)}

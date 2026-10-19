@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { useRef, useState } from "react";
 import AdminModal from "@/components/admin/AdminModal";
 import {
@@ -161,7 +161,7 @@ export default function TestimonialFormModal({
         {/* Avatar upload */}
         <div className="flex items-center gap-4">
           <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-gray-200">
-            <Image
+            <SafeImage
               src={avatarSrc}
               alt="Avatar preview"
               fill

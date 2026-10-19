@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import StatCard from "@/components/admin/StatCard";
@@ -231,7 +231,9 @@ function AdminDashboard() {
       />
 
       {/* Stats */}
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      {/* Two per row on a phone: one per row left the figures stranded in
+          wide, mostly-empty cards. */}
+      <section className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-5">
         <StatCard
           title="Total Properties"
           value={stats?.totalProperties.toLocaleString() ?? "—"}
@@ -420,7 +422,7 @@ function AdminDashboard() {
               <li key={blog.id} className="flex items-center gap-3 px-5 py-3">
                 <div className="relative h-11 w-14 shrink-0 overflow-hidden rounded-md bg-gray-100">
                   {blog.image && (
-                    <Image src={blog.image} alt={blog.title} fill sizes="56px" className="object-cover" />
+                    <SafeImage src={blog.image} alt={blog.title} fill sizes="56px" className="object-cover" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">

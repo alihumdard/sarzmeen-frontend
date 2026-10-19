@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { adminInputClass, adminSelectClass } from "@/components/admin/AdminFormField";
 
 type CreateRoleModalProps = {
@@ -333,7 +333,7 @@ export default function CreateRoleModal({
 
             <div className="mt-4 hidden rounded-lg bg-white p-3 text-center lg:block">
               <div className="relative mx-auto mb-2 h-12 w-20">
-                <Image
+                <SafeImage
                   src="/images/team-1.jpg"
                   alt=""
                   fill

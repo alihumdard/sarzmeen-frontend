@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
@@ -66,7 +66,7 @@ export default function BlogsPage() {
       render: (blog) => (
         <div className="flex items-center gap-3">
           <div className="relative h-10 w-14 shrink-0 overflow-hidden rounded-md bg-gray-100">
-            {blog.image && <Image src={blog.image} alt={blog.title} fill sizes="56px" className="object-cover" />}
+            {blog.image && <SafeImage src={blog.image} alt={blog.title} fill sizes="56px" className="object-cover" />}
           </div>
           <div className="min-w-0">
             <p className="truncate text-[11px] font-semibold text-gray-800">{blog.title}</p>

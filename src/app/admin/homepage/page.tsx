@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import {
@@ -375,7 +375,7 @@ export default function HomepageCmsPage() {
               <h2 className="text-[13px] font-semibold text-gray-800">Preview</h2>
             </div>
             <div className="relative h-[280px] overflow-hidden rounded-b-lg bg-[#031c20]">
-              <Image src={settings.hero.backgroundImage} alt="" fill sizes="480px" className="object-cover opacity-60" />
+              <SafeImage src={settings.hero.backgroundImage} alt="" fill sizes="480px" className="object-cover opacity-60" />
               <div className="absolute inset-0 flex flex-col justify-center gap-2 px-5">
                 <span className="w-fit rounded-full bg-white/10 px-2.5 py-0.5 text-[8px] font-semibold uppercase tracking-wider text-white">
                   {settings.hero.tagline}
@@ -475,7 +475,7 @@ export default function HomepageCmsPage() {
                 ))}
               </div>
               <div className="relative mt-4 h-[120px] overflow-hidden rounded-md">
-                <Image src={settings.whyChoose.image} alt="Preview" fill sizes="300px" className="object-cover" />
+                <SafeImage src={settings.whyChoose.image} alt="Preview" fill sizes="300px" className="object-cover" />
               </div>
             </div>
           </div>

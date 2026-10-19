@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminFilterBar from "@/components/admin/AdminFilterBar";
@@ -65,7 +65,7 @@ export default function ProjectsPage() {
       render: (project) => (
         <div className="flex items-center gap-3">
           <div className="relative h-10 w-14 shrink-0 overflow-hidden rounded-md bg-gray-100">
-            {project.image && <Image src={project.image} alt={project.name} fill sizes="56px" className="object-cover" />}
+            {project.image && <SafeImage src={project.image} alt={project.name} fill sizes="56px" className="object-cover" />}
           </div>
           <div className="min-w-0">
             <p className="truncate text-[11px] font-semibold text-gray-800">{project.name}</p>

@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { api } from "@/lib/api/client";
 import { cachedGet } from "@/lib/api/taxonomyCache";
 import {
@@ -586,7 +586,7 @@ export default function AddPropertyForm() {
                 <div className="mt-3 grid grid-cols-4 gap-2">
                   {images.map((file, i) => (
                     <div key={i} className="group relative h-20 overflow-hidden rounded-md bg-gray-100">
-                      <Image src={URL.createObjectURL(file)} alt="" fill sizes="100px" className="object-cover" />
+                      <SafeImage src={URL.createObjectURL(file)} alt="" fill sizes="100px" className="object-cover" />
                       <button
                         type="button"
                         onClick={() => setImages((cur) => cur.filter((_, j) => j !== i))}

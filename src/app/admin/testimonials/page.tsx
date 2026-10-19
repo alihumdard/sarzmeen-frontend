@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { useEffect, useMemo, useState } from "react";
 import AdminFilterBar from "@/components/admin/AdminFilterBar";
 import AdminModal from "@/components/admin/AdminModal";
@@ -149,7 +149,7 @@ export default function TestimonialsPage() {
         <div className="flex items-center gap-3">
           <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-primary/10">
             {testimonial.avatar ? (
-              <Image
+              <SafeImage
                 src={testimonial.avatar}
                 alt=""
                 fill

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
@@ -186,7 +186,7 @@ export default function PropertiesPage() {
         <div className="flex items-center gap-3">
           <div className="relative h-10 w-14 shrink-0 overflow-hidden rounded-md bg-gray-100">
             {property.image && (
-              <Image src={property.image} alt={property.title} fill sizes="56px" className="object-cover" />
+              <SafeImage src={property.image} alt={property.title} fill sizes="56px" className="object-cover" />
             )}
           </div>
           <div className="min-w-0">

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import {
   createAdminProject,
   getAdminProject,
@@ -635,7 +635,7 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                   <div className="grid grid-cols-4 gap-2">
                     {images.map((file, i) => (
                       <div key={i} className="group relative aspect-[4/3] overflow-hidden rounded-md bg-gray-100">
-                        <Image src={URL.createObjectURL(file)} alt="" fill sizes="100px" className="object-cover" unoptimized />
+                        <SafeImage src={URL.createObjectURL(file)} alt="" fill sizes="100px" className="object-cover" unoptimized />
                         <button type="button" onClick={() => setImages(images.filter((_, j) => j !== i))} className="absolute right-1 top-1 hidden rounded bg-red-600 p-1 text-white group-hover:block">
                           <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M18 6L6 18" /></svg>
                         </button>

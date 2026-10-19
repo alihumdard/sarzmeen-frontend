@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -399,7 +399,7 @@ export default function BlogFormPage() {
             {displayImage ? (
               <>
                 <div className="relative aspect-video overflow-hidden rounded-lg border border-gray-100">
-                  <Image src={displayImage} alt="Preview" fill sizes="300px" className="object-cover" />
+                  <SafeImage src={displayImage} alt="Preview" fill sizes="300px" className="object-cover" />
                   <button
                     type="button"
                     onClick={() => { setImagePreview(null); setExistingImage(null); update("imageFile", null); }}

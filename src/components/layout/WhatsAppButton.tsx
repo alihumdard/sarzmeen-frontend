@@ -13,7 +13,7 @@ export default function WhatsAppButton() {
       rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp"
       /* Sits above the bottom nav on a phone, back at the corner from lg:. */
-      className="fixed bottom-[104px] right-4 z-40 lg:bottom-6 lg:right-6 flex h-[52px] w-[52px] items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform hover:scale-105"
+      className="fixed bottom-[88px] right-4 z-40 lg:bottom-6 lg:right-6 flex h-[52px] w-[52px] items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform hover:scale-105"
     >
       <WhatsAppIcon className="h-7 w-7" />
     </a>

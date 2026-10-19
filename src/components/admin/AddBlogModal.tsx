@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import {
   adminInputClass,
   adminSelectClass,
@@ -197,7 +197,7 @@ export default function AddBlogModal({ open, onClose }: AddBlogModalProps) {
 
             <div className="mt-4 hidden rounded-lg bg-white p-3 text-center lg:block">
               <div className="relative mx-auto mb-2 h-12 w-20">
-                <Image
+                <SafeImage
                   src="/images/blog-1.jpg"
                   alt=""
                   fill

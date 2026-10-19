@@ -59,7 +59,7 @@ export default function OwnerDashboard({ name }: { name: string }) {
         }
       />
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <StatCard
           title="My Properties"
           value={stats?.totalProperties ?? 0}
@@ -85,7 +85,7 @@ export default function OwnerDashboard({ name }: { name: string }) {
         />
       </section>
 
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         <Tile label="For Sale" value={stats?.propertiesForSale ?? 0} />
         <Tile label="For Rent" value={stats?.propertiesForRent ?? 0} />
         <Tile label="Views (30 days)" value={stats?.viewsLast30Days ?? 0} />

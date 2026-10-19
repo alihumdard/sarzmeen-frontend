@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import BottomNavBar from "@/components/layout/BottomNavBar";
 import {
   BuildingIcon,
   HomeStatIcon,
@@ -55,56 +55,9 @@ export default function MobileBottomNav() {
     );
   }
 
+  const activeIndex = items.findIndex(isActive);
+
   return (
-    <div
-      className="fixed inset-x-0 bottom-0 z-40 px-3 pb-3 lg:hidden"
-      style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom, 0px))" }}
-    >
-      <nav
-        aria-label="Primary"
-        className="rounded-2xl bg-primary shadow-[0_8px_28px_rgba(31,122,77,0.35)]"
-      >
-        <ul className="flex items-end">
-          {items.map((item) => {
-            const active = isActive(item);
-
-            return (
-              <li key={item.href} className="flex-1">
-                <Link
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  className="flex flex-col items-center justify-end pb-2.5 pt-2"
-                >
-                  {/*
-                    The active tab rises above the bar in a white circle. The
-                    ring matches the bar colour so the lift reads as a notch
-                    cut out of it rather than a badge sitting on top.
-                  */}
-                  <span
-                    className={[
-                      "flex items-center justify-center rounded-full transition-all",
-                      active
-                        ? "-mt-6 h-12 w-12 bg-white text-primary shadow-md ring-[5px] ring-primary"
-                        : "h-9 w-9 text-white/90",
-                    ].join(" ")}
-                  >
-                    <item.Icon className="h-[19px] w-[19px]" />
-                  </span>
-
-                  <span
-                    className={[
-                      "mt-1 text-[10px] font-medium transition-colors",
-                      active ? "text-white" : "text-white/70",
-                    ].join(" ")}
-                  >
-                    {item.label}
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-    </div>
+    <BottomNavBar items={items} activeIndex={activeIndex} ariaLabel="Primary" />
   );
 }

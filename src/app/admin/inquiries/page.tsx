@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminFilterBar from "@/components/admin/AdminFilterBar";
 import AdminTable, {
@@ -729,7 +729,7 @@ function InquiryDetailModal({
             {inquiry.property ? (
               <div className="mt-1.5 flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-3">
                 <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-md bg-gray-200">
-                  <Image
+                  <SafeImage
                     src={inquiry.image}
                     alt={inquiry.property}
                     fill
