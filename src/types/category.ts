@@ -17,6 +17,11 @@ export type Category = {
   parent: string | null;
   /** How many listings currently sit in this category. */
   propertyCount: number;
+  /**
+   * Property types filed under this category. These are cascade-deleted with
+   * the category, so the delete dialog warns about them.
+   */
+  typeCount: number;
   status: CategoryStatus;
   /** Shown first in category pickers when true. */
   featured: boolean;

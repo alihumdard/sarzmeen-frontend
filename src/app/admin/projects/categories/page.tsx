@@ -36,6 +36,7 @@ export default function ProjectCategoriesPage() {
   const [editing, setEditing] = useState<ProjectCategory | null>(null);
   const [deleting, setDeleting] = useState<ProjectCategory | null>(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   /** Pulls the list from the API layer. Called after each write. */
   async function refresh() {
@@ -111,10 +112,17 @@ export default function ProjectCategoriesPage() {
     if (!deleting) return;
 
     setDeleteBusy(true);
+    setDeleteError(null);
     try {
       await deleteProjectCategory(deleting.id);
       await refresh();
       setDeleting(null);
+    } catch (err) {
+      /* The API refuses with 422 and an explanation when something still
+         depends on this record. Keep the dialog open and show it. */
+      setDeleteError(
+        err instanceof Error ? err.message : "Could not delete. Please try again.",
+      );
     } finally {
       setDeleteBusy(false);
     }
@@ -308,7 +316,10 @@ export default function ProjectCategoriesPage() {
 
       <AdminModal
         open={Boolean(deleting)}
-        onClose={() => setDeleting(null)}
+        onClose={() => {
+          setDeleting(null);
+          setDeleteError(null);
+        }}
         title="Delete Project Category"
         description={`"${deleting?.name}" will be removed. Projects in it keep their data but lose this category.`}
         size="sm"
@@ -316,7 +327,10 @@ export default function ProjectCategoriesPage() {
           <div className="flex items-center justify-end gap-3">
             <button
               type="button"
-              onClick={() => setDeleting(null)}
+              onClick={() => {
+                setDeleting(null);
+                setDeleteError(null);
+              }}
               className="inline-flex h-10 items-center rounded-md border border-gray-200 px-5 text-[12px] font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50"
             >
               Cancel
@@ -345,6 +359,11 @@ export default function ProjectCategoriesPage() {
             </>
           )}
         </p>
+        {deleteError && (
+          <p className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[12px] font-medium leading-relaxed text-red-700">
+            {deleteError}
+          </p>
+        )}
       </AdminModal>
     </div>
   );
