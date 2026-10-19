@@ -618,9 +618,17 @@ export default function AdminSidebar({
                   onClose={onClose}
                   implemented
                 />
+                {/* Was pointing at /admin/categories — the PROPERTY categories. */}
                 <SidebarSubLink
-                  href="/admin/categories"
-                  label="Categories"
+                  href="/admin/blogs/categories"
+                  label="Blog Categories"
+                  pathname={pathname}
+                  onClose={onClose}
+                  implemented
+                />
+                <SidebarSubLink
+                  href="/admin/blogs/tags"
+                  label="Blog Tags"
                   pathname={pathname}
                   onClose={onClose}
                   implemented
