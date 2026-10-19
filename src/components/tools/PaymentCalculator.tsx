@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import {
   computePlan,
+  FREQUENCIES,
+  formatExact,
   formatPKR,
   planDurationMonths,
   type Frequency,
@@ -415,6 +417,56 @@ export default function PaymentCalculator({
             Reset
           </button>
         </div>
+
+        {/*
+         * The table above is the working view; this is the plan as a buyer
+         * would read it — what to pay and when, without the inputs.
+         */}
+        {hasPrice && plan.valid && (
+          <div className="mt-5">
+            <h3 className="text-[13px] font-bold text-heading">
+              Your payment schedule
+            </h3>
+            <div className="mt-2 overflow-x-auto rounded-md border border-border">
+              <table className="w-full text-[12px]">
+                <thead>
+                  <tr className="bg-surface text-left text-[10px] uppercase tracking-wide text-muted">
+                    <th className="px-3 py-2 font-medium">Payment</th>
+                    <th className="px-3 py-2 text-right font-medium">Amount</th>
+                    <th className="px-3 py-2 font-medium">Schedule</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {plan.components
+                    .filter((c) => c.resolvedTotal > 0.005)
+                    .map((c) => (
+                      <tr key={c.key} className="border-t border-border text-text">
+                        <td className="px-3 py-2">{c.label}</td>
+                        <td className="whitespace-nowrap px-3 py-2 text-right font-semibold text-heading">
+                          {formatExact(c.resolvedEach)}
+                        </td>
+                        <td className="px-3 py-2 text-muted">
+                          {c.count > 1
+                            ? `× ${c.count} ${
+                                FREQUENCIES.find((x) => x.value === c.frequency)
+                                  ?.label.toLowerCase() ?? "payments"
+                              }`
+                            : "One payment"}
+                        </td>
+                      </tr>
+                    ))}
+                  <tr className="border-t border-border bg-surface font-bold text-heading">
+                    <td className="px-3 py-2">Total</td>
+                    <td className="whitespace-nowrap px-3 py-2 text-right text-primary">
+                      {formatPKR(totalPrice)}
+                    </td>
+                    <td className="px-3 py-2 text-muted">100%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         <p className="mt-3 text-[11px] leading-5 text-muted">
           An estimate only. Actual plans vary by developer and project —
