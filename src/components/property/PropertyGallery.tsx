@@ -137,9 +137,12 @@ export default function PropertyGallery({
           </>
         )}
 
-        <span className="pointer-events-none absolute bottom-4 left-4 z-20 rounded-full bg-heading/80 px-3.5 py-1.5 text-[11px] font-medium text-white">
-          {active + 1} / {photoCount}
-        </span>
+        {/* "1 / 0" is meaningless on a listing with no photos. */}
+        {usableImages.length > 0 && (
+          <span className="pointer-events-none absolute bottom-4 left-4 z-20 rounded-full bg-heading/80 px-3.5 py-1.5 text-[11px] font-medium text-white">
+            {active + 1} / {photoCount}
+          </span>
+        )}
       </div>
 
       {/* Thumbnails */}

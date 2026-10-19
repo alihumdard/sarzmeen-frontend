@@ -6,6 +6,7 @@ import PropertyDetailsTable from "@/components/property/PropertyDetailsTable";
 import PropertyLocation from "@/components/property/PropertyLocation";
 import PropertyPaymentPlan from "@/components/property/PropertyPaymentPlan";
 import PropertySpecs from "@/components/property/PropertySpecs";
+import { CheckIcon } from "@/components/ui/Icons";
 import type { PropertyDetail } from "@/types/property";
 
 type PropertyTabsProps = {
@@ -70,9 +71,36 @@ export default function PropertyTabs({ property }: PropertyTabsProps) {
 
         {active === "Features & Amenities" && (
           <div className="space-y-7">
-            <div className="rounded-lg border border-border">
-              <PropertyDetailsTable property={property} />
-            </div>
+            {/*
+             * This tab used to repeat the Overview table and never showed
+             * property.features at all, so a listing with amenities recorded
+             * looked identical to one without.
+             */}
+            {property.features && property.features.length > 0 ? (
+              <div>
+                <h3 className="mb-4 text-[15px] font-bold text-heading">
+                  Features &amp; Amenities
+                </h3>
+                <ul className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {property.features.map((feature) => (
+                    <li
+                      key={feature}
+                      className="flex items-center gap-2.5 text-[12.5px] text-text"
+                    >
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
+                        <CheckIcon className="h-3 w-3" />
+                      </span>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <p className="py-8 text-center text-[12px] text-muted">
+                No features have been listed for this property.
+              </p>
+            )}
+
             <PropertySpecs
               specs={property.specs ?? {}}
               typeSlug={property.typeSlug ?? ""}
