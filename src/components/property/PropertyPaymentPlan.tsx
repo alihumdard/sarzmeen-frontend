@@ -47,8 +47,13 @@ export default function PropertyPaymentPlan({ specs, price }: Props) {
         )}
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-border">
-        <table className="w-full text-[12.5px]">
+      {/*
+        Four columns of rupee figures need more width than a phone has.
+        `overflow-hidden` clipped the last column with no way to reach it;
+        this lets the table scroll sideways instead.
+      */}
+      <div className="overflow-x-auto rounded-lg border border-border">
+        <table className="w-full min-w-[460px] text-[12.5px]">
           <thead className="bg-surface">
             <tr className="text-left text-[11px] uppercase tracking-wide text-muted">
               <th className="px-4 py-2.5 font-medium">Payment</th>

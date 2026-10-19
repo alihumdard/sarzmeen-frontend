@@ -93,7 +93,7 @@ function PriceBasedPlan({
       </p>
 
       <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-        <table className="w-full text-[12.5px]">
+        <table className="w-full min-w-[420px] text-[12.5px]">
           <thead className="bg-surface">
             <tr className="text-left text-[11px] uppercase tracking-wide text-muted">
               <th className="px-4 py-2.5 font-medium">Payment</th>
@@ -205,8 +205,8 @@ function UnitPlan({
         </div>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-lg border border-border">
-        <table className="w-full text-[12.5px]">
+      <div className="mt-4 overflow-x-auto rounded-lg border border-border">
+        <table className="w-full min-w-[420px] text-[12.5px]">
           <thead className="bg-surface">
             <tr className="text-left text-[11px] uppercase tracking-wide text-muted">
               <th className="px-4 py-2.5 font-medium">Payment</th>
