@@ -128,17 +128,53 @@ export default function PropertiesPage() {
     }
   };
 
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+
   const resetFilters = () => {
     setSearch("");
     setStatus("");
     setPage(1);
   };
 
-  const handleExport = () => {
-    window.open(
-      `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/admin/reports/properties?status=${status}`,
-      "_blank"
-    );
+  /**
+   * The report endpoint only returns CSV when asked for it — without
+   * `format=csv` it answers with paginated JSON, which a new tab then renders
+   * as raw text. Fetching it here also sends the session cookie, which
+   * window.open does not do reliably.
+   */
+  const handleExport = async () => {
+    setExporting(true);
+    setExportError(null);
+    try {
+      const params = new URLSearchParams({ format: "csv" });
+      if (status) params.set("status", status);
+
+      const base =
+        process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+      const res = await fetch(
+        `${base}/api/admin/reports/properties?${params}`,
+        { credentials: "include", headers: { Accept: "text/csv" } },
+      );
+
+      if (!res.ok) throw new Error(`Export failed (${res.status})`);
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "properties-report.csv";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (err: unknown) {
+      setExportError(
+        err instanceof Error ? err.message : "Could not export the report.",
+      );
+    } finally {
+      setExporting(false);
+    }
   };
 
   const columns: AdminTableColumn<Property>[] = [
@@ -353,9 +389,16 @@ export default function PropertiesPage() {
         ]}
         onReset={resetFilters}
         onExport={handleExport}
+        exporting={exporting}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
       />
+
+      {exportError && (
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-[12px] font-medium text-red-700">
+          {exportError}
+        </div>
+      )}
 
       <section>
         {loading ? (

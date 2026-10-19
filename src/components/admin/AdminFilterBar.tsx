@@ -21,6 +21,8 @@ type AdminFilterBarProps = {
 
   onReset?: () => void;
   onExport?: () => void;
+  /** Disables the button and shows progress while the file is produced. */
+  exporting?: boolean;
 
   viewMode?: "list" | "grid";
   onViewModeChange?: (mode: "list" | "grid") => void;
@@ -36,6 +38,7 @@ export default function AdminFilterBar({
   filters = [],
   onReset,
   onExport,
+  exporting = false,
   viewMode,
   onViewModeChange,
   moreFilters,
@@ -103,10 +106,11 @@ export default function AdminFilterBar({
             <button
               type="button"
               onClick={onExport}
-              className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-md border border-gray-200 bg-white px-4 text-[11px] font-semibold text-gray-700 transition-colors hover:border-primary hover:text-primary"
+              disabled={exporting}
+              className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-md border border-gray-200 bg-white px-4 text-[11px] font-semibold text-gray-700 transition-colors hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60"
             >
               <DownloadIcon />
-              Export
+              {exporting ? "Exporting..." : "Export"}
             </button>
           )}
 
