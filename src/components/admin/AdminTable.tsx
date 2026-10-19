@@ -47,7 +47,67 @@ export default function AdminTable<T>({
         className,
       ].join(" ")}
     >
-      <div className="w-full overflow-x-auto">
+      {/*
+        A 760px table in a 390px window shows barely one column, so on a phone
+        every other field — status, price, the actions menu — was unreachable
+        behind a sideways scroll. Below md: each row becomes a card, with the
+        first column as its heading and the rest listed beneath.
+      */}
+      <div className="divide-y divide-gray-100 md:hidden">
+        {loading ? (
+          <div className="px-4 py-10 text-center text-[12px] text-gray-400">
+            Loading...
+          </div>
+        ) : data.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-2 px-4 py-14 text-center text-[12px] text-gray-400">
+            <EmptyIcon />
+            <span>{emptyMessage}</span>
+          </div>
+        ) : (
+          data.map((item, index) => {
+            const [first, ...rest] = columns;
+
+            return (
+              <div
+                key={rowKey ? rowKey(item, index) : index}
+                onClick={() => onRowClick?.(item)}
+                className={[
+                  "px-4 py-3.5",
+                  onRowClick ? "cursor-pointer active:bg-gray-50" : "",
+                ].join(" ")}
+              >
+                {first && (
+                  <div className="text-[12.5px] text-gray-900">
+                    {first.render
+                      ? first.render(item, index)
+                      : getNestedValue(item, first.key)}
+                  </div>
+                )}
+
+                <dl className="mt-2.5 flex flex-col gap-1.5">
+                  {rest.map((column) => (
+                    <div
+                      key={column.key}
+                      className="flex items-start justify-between gap-3"
+                    >
+                      <dt className="shrink-0 text-[10px] uppercase tracking-[0.08em] text-gray-400">
+                        {column.label}
+                      </dt>
+                      <dd className="min-w-0 text-right text-[12px] text-gray-600">
+                        {column.render
+                          ? column.render(item, index)
+                          : getNestedValue(item, column.key)}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      <div className="hidden w-full overflow-x-auto md:block">
         <table className="w-full min-w-[760px] border-collapse">
           <thead>
             <tr className="border-b border-gray-200 bg-gray-50/80">
