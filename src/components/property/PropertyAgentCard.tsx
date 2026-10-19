@@ -12,13 +12,16 @@ type Props = {
 };
 
 export default function PropertyAgentCard({ agent }: Props) {
-  return (
-    <div className="rounded-lg border border-border bg-white p-5">
-      <Link
-        href={`/agents/${agent.slug}`}
-        className="flex items-center gap-3 transition-opacity hover:opacity-80"
-      >
-        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-2 ring-primary-light">
+  /*
+   * A listing owned by a plain user has no agent profile, so the slug comes
+   * back empty and a link would point at /agents/ — a dead page. Show the
+   * same details without wrapping them in a link.
+   */
+  const profileHref = agent.slug ? `/agents/${agent.slug}` : null;
+
+  const identity = (
+    <>
+      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full ring-2 ring-primary-light">
           {agent.avatar ? (
             <Image
               src={agent.avatar}
@@ -46,7 +49,21 @@ export default function PropertyAgentCard({ agent }: Props) {
           </p>
           <p className="truncate text-[11px] text-muted">{agent.title}</p>
         </div>
-      </Link>
+    </>
+  );
+
+  return (
+    <div className="rounded-lg border border-border bg-white p-5">
+      {profileHref ? (
+        <Link
+          href={profileHref}
+          className="flex items-center gap-3 transition-opacity hover:opacity-80"
+        >
+          {identity}
+        </Link>
+      ) : (
+        <div className="flex items-center gap-3">{identity}</div>
+      )}
 
       <div className="mt-4 flex flex-col gap-3">
         <a
