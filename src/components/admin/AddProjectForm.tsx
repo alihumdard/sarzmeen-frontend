@@ -629,7 +629,7 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                   <div>
                     <UploadIcon />
                     <p className="mt-2 text-[12px] font-medium text-gray-600">Click to upload images</p>
-                    <p className="mt-1 text-[10.5px] text-gray-400">JPG, PNG, WebP up to 5MB each</p>
+                    <p className="mt-1 text-[10.5px] text-gray-400">JPG, PNG, WebP · up to 2MB each · min 400×400px</p>
                   </div>
                   <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" onChange={async (e) => {
                     const picked = Array.from(e.target.files || []);

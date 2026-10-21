@@ -569,13 +569,15 @@ export default function AddPropertyForm() {
                 <div>
                   <UploadIcon />
                   <p className="mt-2 text-[12px] font-medium text-gray-600">Click to browse images</p>
-                  <p className="mt-1 text-[10.5px] text-gray-400">PNG, JPG up to 5MB each (max 20)</p>
+                  <p className="mt-1 text-[10.5px] text-gray-400">JPG, PNG, WebP · up to 2MB each · min 400×400px · max 20</p>
                 </div>
               </div>
               <input
                 id="prop-images"
                 type="file"
-                accept="image/*"
+                /* The API allows these three only; image/* let a GIF or
+                   HEIC through the picker to fail on upload. */
+                accept="image/jpeg,image/jpg,image/png,image/webp"
                 multiple
                 className="hidden"
                 onChange={async (e) => {

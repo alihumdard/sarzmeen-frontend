@@ -423,7 +423,7 @@ export default function BlogFormPage() {
               >
                 <UploadIcon />
                 <p className="mt-2 text-[11px] font-medium text-gray-600">Click to upload</p>
-                <p className="mt-0.5 text-[10px] text-gray-400">JPG, PNG, WebP · Max 5MB</p>
+                <p className="mt-0.5 text-[10px] text-gray-400">JPG, PNG, WebP · Max 2MB · min 400×400px</p>
               </div>
             )}
             <input

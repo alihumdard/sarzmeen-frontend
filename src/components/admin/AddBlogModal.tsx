@@ -344,7 +344,7 @@ export default function AddBlogModal({ open, onClose }: AddBlogModalProps) {
                           drag and drop
                         </p>
                         <p className="mt-1 text-[10px] text-gray-400">
-                          JPG, PNG, WebP (Max 5MB)
+                          JPG, PNG, WebP (Max 2MB, min 400×400px)
                         </p>
                         <p className="text-[10px] text-gray-400">
                           Recommended size: 1200 × 630 px

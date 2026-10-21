@@ -485,7 +485,7 @@ export default function AddPropertyForm() {
             Click to upload photos
           </span>
           <span className="text-[11px] text-muted">
-            JPG, PNG or WebP — up to 20 images, 5MB each
+            JPG, PNG or WebP — up to 20 images, 2MB each, min 400×400px
           </span>
           <input
             id="photos"
