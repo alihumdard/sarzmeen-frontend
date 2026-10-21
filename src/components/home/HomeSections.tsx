@@ -3,7 +3,7 @@ import {
   defaultSections,
   type SectionVisibility,
 } from "@/lib/homepageSettings";
-import BrowsePropertiesByCategory from "@/components/home/BrowsePropertiesByCategory";
+import BrowseCategories from "@/components/home/BrowseCategories";
 import CtaStrip from "@/components/home/CtaStrip";
 import FeaturedProperties from "@/components/home/FeaturedProperties";
 import Hero from "@/components/home/Hero";
@@ -15,7 +15,7 @@ import WhyChooseAndCities from "@/components/home/WhyChooseAndCities";
 
 const sectionComponents: Record<string, React.ComponentType> = {
   hero: Hero,
-  categories: BrowsePropertiesByCategory,
+  categories: BrowseCategories,
   featured: FeaturedProperties,
   testimonials: Testimonials,
   agencies: PartnerAgencies,

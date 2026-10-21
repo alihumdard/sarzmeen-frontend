@@ -1,6 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
+import Link from "next/link";
+
+import { useRef } from "react";
 import type { SVGProps } from "react";
 
 type IconProps = SVGProps<SVGSVGElement>;
@@ -139,42 +141,55 @@ const FarmHouseIcon = (props: IconProps) => (
   </svg>
 );
 
-const categories = [
-  {
-    title: "Houses",
-    icon: HouseIcon,
-  },
-  {
-    title: "Plots",
-    icon: PlotIcon,
-  },
-  {
-    title: "Flats",
-    icon: BuildingIcon,
-  },
-  {
-    title: "Apartments",
-    icon: ApartmentIcon,
-  },
-  {
-    title: "Commercial",
-    icon: CommercialIcon,
-  },
-  {
-    title: "Shops",
-    icon: ShopIcon,
-  },
-  {
-    title: "Offices",
-    icon: OfficeIcon,
-  },
-  {
-    title: "Farm Houses",
-    icon: FarmHouseIcon,
-  },
-];
+/**
+ * Icon per type slug. A type the admin adds later falls back to the building
+ * icon rather than rendering nothing.
+ */
+const iconFor: Record<string, (props: IconProps) => React.ReactElement> = {
+  house: HouseIcon,
+  villa: HouseIcon,
+  townhouse: HouseIcon,
+  "upper-portion": HouseIcon,
+  "lower-portion": HouseIcon,
+  "farm-house": FarmHouseIcon,
+  "residential-plot": PlotIcon,
+  "commercial-plot": PlotIcon,
+  "agricultural-land": PlotIcon,
+  "industrial-land": PlotIcon,
+  "plot-file": PlotIcon,
+  "flat-apartment": BuildingIcon,
+  penthouse: BuildingIcon,
+  "studio-apartment": ApartmentIcon,
+  "two-bed-apartment": ApartmentIcon,
+  "three-bed-apartment": ApartmentIcon,
+  "3-bed-apartment": ApartmentIcon,
+  "four-bed-apartment": ApartmentIcon,
+  "luxury-apartment": ApartmentIcon,
+  shop: ShopIcon,
+  "commercial-shop": ShopIcon,
+  "high-rise-shop": ShopIcon,
+  office: OfficeIcon,
+  "corporate-office": OfficeIcon,
+  "high-rise-office": OfficeIcon,
+  showroom: CommercialIcon,
+  building: CommercialIcon,
+  "commercial-plaza": CommercialIcon,
+  factory: CommercialIcon,
+  warehouse: CommercialIcon,
+};
 
-export default function BrowsePropertiesByCategory() {
+export type BrowseCategory = {
+  /** Type slug, used for the icon and the listing filter. */
+  slug: string;
+  name: string;
+};
+
+type Props = {
+  /** Featured property types, chosen in admin. */
+  categories: BrowseCategory[];
+};
+
+export default function BrowsePropertiesByCategory({ categories }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: "left" | "right") => {
@@ -244,23 +259,27 @@ export default function BrowsePropertiesByCategory() {
         <div
           className="grid grid-cols-2 gap-2.5 sm:hidden"
         >
-          {categories.map(({ title, icon: Icon }) => (
-            <button
-              key={title}
-              type="button"
-              className="group flex w-full flex-col items-center justify-center rounded-lg border border-gray-100 bg-white px-3 py-3 shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-[#3DBB6E]/30 hover:shadow-[0_5px_18px_rgba(61,187,110,0.12)]"
-            >
-              <Icon className="h-7 w-7 text-[#3DBB6E] transition-transform duration-200 group-hover:scale-105" />
+          {categories.map((category) => {
+            const Icon = iconFor[category.slug] ?? BuildingIcon;
 
-              <span className="mt-1.5 text-[11px] font-bold text-[#17201B]">
-                {title}
-              </span>
+            return (
+              <Link
+                key={category.slug}
+                href={`/properties?type=${category.slug}`}
+                className="group flex w-full flex-col items-center justify-center rounded-lg border border-gray-100 bg-white px-3 py-3 shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-[#3DBB6E]/30 hover:shadow-[0_5px_18px_rgba(61,187,110,0.12)]"
+              >
+                <Icon className="h-7 w-7 text-[#3DBB6E] transition-transform duration-200 group-hover:scale-105" />
 
-              <span className="mt-0.5 text-[9px] text-gray-500">
-                For Sale / Rent
-              </span>
-            </button>
-          ))}
+                <span className="mt-1.5 text-center text-[11px] font-bold text-[#17201B]">
+                  {category.name}
+                </span>
+
+                <span className="mt-0.5 text-[9px] text-gray-500">
+                  For Sale / Rent
+                </span>
+              </Link>
+            );
+          })}
         </div>
 
         {/* Desktop: original flex row */}
@@ -268,23 +287,27 @@ export default function BrowsePropertiesByCategory() {
           ref={scrollRef}
           className="scrollbar-hide hidden sm:flex gap-3 overflow-x-auto pt-2 pb-3"
         >
-          {categories.map(({ title, icon: Icon }) => (
-            <button
-              key={title}
-              type="button"
-              className="group flex min-w-[118px] flex-1 flex-col items-center justify-center rounded-lg border border-gray-100 bg-white px-3 py-4 shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-[#3DBB6E]/30 hover:shadow-[0_5px_18px_rgba(61,187,110,0.12)]"
-            >
-              <Icon className="h-8 w-8 text-[#3DBB6E] transition-transform duration-200 group-hover:scale-105" />
+          {categories.map((category) => {
+            const Icon = iconFor[category.slug] ?? BuildingIcon;
 
-              <span className="mt-2 text-[11px] font-bold text-[#17201B]">
-                {title}
-              </span>
+            return (
+              <Link
+                key={category.slug}
+                href={`/properties?type=${category.slug}`}
+                className="group flex min-w-[118px] flex-1 flex-col items-center justify-center rounded-lg border border-gray-100 bg-white px-3 py-4 shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-[#3DBB6E]/30 hover:shadow-[0_5px_18px_rgba(61,187,110,0.12)]"
+              >
+                <Icon className="h-8 w-8 text-[#3DBB6E] transition-transform duration-200 group-hover:scale-105" />
 
-              <span className="mt-1 text-[9px] text-gray-500">
-                For Sale / Rent
-              </span>
-            </button>
-          ))}
+                <span className="mt-2 text-center text-[11px] font-bold text-[#17201B]">
+                  {category.name}
+                </span>
+
+                <span className="mt-1 text-[9px] text-gray-500">
+                  For Sale / Rent
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>
