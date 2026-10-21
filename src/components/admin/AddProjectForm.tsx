@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { prepareImages } from "@/lib/utils/resizeImage";
 import { useEffect, useState } from "react";
 import SafeImage from "@/components/ui/SafeImage";
 import {
@@ -143,6 +144,7 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
   const [featured, setFeatured] = useState(false);
 
   const [images, setImages] = useState<File[]>([]);
+  const [imageNotice, setImageNotice] = useState<string | null>(null);
 
   useEffect(() => {
     listProjectCategories().then(setCategories).catch(() => {});
@@ -629,7 +631,24 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                     <p className="mt-2 text-[12px] font-medium text-gray-600">Click to upload images</p>
                     <p className="mt-1 text-[10.5px] text-gray-400">JPG, PNG, WebP up to 5MB each</p>
                   </div>
-                  <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" onChange={(e) => { const f = Array.from(e.target.files || []); setImages((prev) => [...prev, ...f].slice(0, 20)); e.target.value = ""; }} />
+                  <input type="file" accept="image/jpeg,image/png,image/webp" multiple className="sr-only" onChange={async (e) => {
+                    const picked = Array.from(e.target.files || []);
+                    e.target.value = "";
+                    if (picked.length === 0) return;
+
+                    /*
+                     * Shrink before upload: a phone photo is several
+                     * megabytes and 4000px wide, which the server refuses
+                     * and the site never displays at that size anyway.
+                     */
+                    const { files: ready, rejected } = await prepareImages(picked);
+                    setImages((prev) => [...prev, ...ready].slice(0, 20));
+                    setImageNotice(
+                      rejected.length
+                        ? rejected.map((r) => `${r.file.name}: ${r.reason}`).join(" · ")
+                        : null,
+                    );
+                  }} />
                 </label>
                 {images.length > 0 && (
                   <div className="grid grid-cols-4 gap-2">
@@ -642,6 +661,12 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                       </div>
                     ))}
                   </div>
+                )}
+
+                {imageNotice && (
+                  <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] font-medium leading-relaxed text-amber-800">
+                    {imageNotice}
+                  </p>
                 )}
               </div>
             </div>

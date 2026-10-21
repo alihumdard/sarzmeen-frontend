@@ -1,5 +1,7 @@
 "use client";
 
+import { prepareImages } from "@/lib/utils/resizeImage";
+
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -92,6 +94,7 @@ export default function AddPropertyForm() {
   const [coreNumbers, setCoreNumbers] = useState<Record<string, string>>({});
   const [specs, setSpecs] = useState<Record<string, SpecValue>>({});
   const [images, setImages] = useState<File[]>([]);
+  const [imageNotice, setImageNotice] = useState<string | null>(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -490,13 +493,29 @@ export default function AddPropertyForm() {
             accept="image/jpeg,image/jpg,image/png,image/webp"
             multiple
             className="sr-only"
-            onChange={(e) => {
-              const files = Array.from(e.target.files || []);
-              setImages((prev) => [...prev, ...files].slice(0, 20));
+            onChange={async (e) => {
+              const picked = Array.from(e.target.files || []);
               e.target.value = "";
+              if (picked.length === 0) return;
+
+              // Shrink before upload: a phone photo is several megabytes and
+              // far larger than anything the site displays.
+              const { files: ready, rejected } = await prepareImages(picked);
+              setImages((prev) => [...prev, ...ready].slice(0, 20));
+              setImageNotice(
+                rejected.length
+                  ? rejected.map((r) => `${r.file.name}: ${r.reason}`).join(" · ")
+                  : null,
+              );
             }}
           />
         </label>
+
+        {imageNotice && (
+          <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] font-medium leading-relaxed text-amber-800">
+            {imageNotice}
+          </p>
+        )}
 
         {images.length > 0 && (
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
