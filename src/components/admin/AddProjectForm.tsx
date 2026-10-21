@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { prepareImages } from "@/lib/utils/resizeImage";
+import RichTextEditor from "@/components/admin/RichTextEditor";
 import { useEffect, useState } from "react";
 import SafeImage from "@/components/ui/SafeImage";
 import {
@@ -579,9 +580,16 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                     </Field>
                   </div>
                 </fieldset>
+                {/* Same editor the property form uses, so a project
+                    description can carry headings and lists rather than
+                    arriving on the public page as one unbroken block. */}
                 <Field label="Description" error={fieldError("description")}>
-                  <textarea autoComplete="off" value={description} onChange={(e) => setDescription(e.target.value.slice(0, 5000))} placeholder="Describe the project in detail..." className={adminTextareaClass} maxLength={5000} />
-                  <p className="mt-1 text-right text-[10px] text-gray-400">{description.length}/5000</p>
+                  <RichTextEditor
+                    value={description}
+                    onChange={setDescription}
+                    placeholder="Describe the project, its location and nearby facilities..."
+                    maxLength={5000}
+                  />
                 </Field>
                 <Field label="Plot Sizes">
                   {plotSizes.map((s, i) => (
