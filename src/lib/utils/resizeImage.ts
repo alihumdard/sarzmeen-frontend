@@ -7,8 +7,8 @@ const MIN_EDGE = 400;
 /** JPEG quality for the re-encoded file. */
 const QUALITY = 0.82;
 
-/** Server limit per image, mirrored here so the check happens before upload. */
-const MAX_BYTES = 5 * 1024 * 1024;
+/** Hard limit per image, mirrored from the server so the check happens here. */
+const MAX_BYTES = 2 * 1024 * 1024;
 
 export type ImageRejection = {
   file: File;
@@ -113,7 +113,7 @@ export async function prepareImages(files: File[]): Promise<PreparedImages> {
       if (out.size > MAX_BYTES) {
         rejected.push({
           file,
-          reason: `still ${(out.size / 1024 / 1024).toFixed(1)}MB after resizing — please use a smaller photo`,
+          reason: `still ${(out.size / 1024 / 1024).toFixed(1)}MB after resizing — the limit is 2MB`,
         });
         continue;
       }
