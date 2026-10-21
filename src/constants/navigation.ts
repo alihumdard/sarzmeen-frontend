@@ -46,21 +46,18 @@ export const mainNavigation: NavItem[] = [
   { name: "Projects", href: "/projects" },
   { name: "Agents", href: "/agents" },
   { name: "Blogs", href: "/blog" },
+  { name: "About", href: "/about" },
+  { name: "Contact", href: "/contact" },
   {
     /*
      * A heading for the buyer tools rather than a link to one of them, so
-     * further tools can join it without crowding the header.
+     * further tools can join it without crowding the header. Sits last,
+     * where its dropdown has room to open without covering other items.
      */
     name: "Tools",
     href: "/calculator",
-    children: [
-      { name: "Payment Plan Calculator", href: "/calculator" },
-      // The last child renders as the dropdown's footer link.
-      { name: "Browse Properties", href: "/properties" },
-    ],
+    children: [{ name: "Payment Plan Calculator", href: "/calculator" }],
   },
-  { name: "About", href: "/about" },
-  { name: "Contact", href: "/contact" },
 ];
 
 /** Sales/support number used by the floating WhatsApp button. */

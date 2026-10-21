@@ -120,8 +120,11 @@ export default function Header() {
                     {item.children.map((child, index) => {
                       // The last entry is the catch-all link to the full
                       // listing, set apart so it reads as a way out rather
-                      // than another filter.
-                      const isViewAll = index === item.children!.length - 1;
+                      // than another filter. A menu with a single entry has
+                      // no catch-all, so that one keeps the normal style.
+                      const isViewAll =
+                        item.children!.length > 1 &&
+                        index === item.children!.length - 1;
 
                       return (
                         <Link
