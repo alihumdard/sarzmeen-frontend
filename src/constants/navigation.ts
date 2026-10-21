@@ -46,7 +46,19 @@ export const mainNavigation: NavItem[] = [
   { name: "Projects", href: "/projects" },
   { name: "Agents", href: "/agents" },
   { name: "Blogs", href: "/blog" },
-  { name: "Calculator", href: "/calculator" },
+  {
+    /*
+     * A heading for the buyer tools rather than a link to one of them, so
+     * further tools can join it without crowding the header.
+     */
+    name: "Tools",
+    href: "/calculator",
+    children: [
+      { name: "Payment Plan Calculator", href: "/calculator" },
+      // The last child renders as the dropdown's footer link.
+      { name: "Browse Properties", href: "/properties" },
+    ],
+  },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
 ];
