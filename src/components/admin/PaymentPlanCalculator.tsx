@@ -153,6 +153,12 @@ export default function PaymentPlanCalculator({ specs, onChange, onApply }: Prop
       const c = plan.components[i];
       if (!c || c.resolvedTotal <= 0) return;
       patch[f.amt] = String(Math.round(c.resolvedEach * 100) / 100);
+      /*
+       * The percentage is saved as well as the amount. Without it the public
+       * page had only instalment figures and no split to render, so a plan
+       * the admin had filled in showed as nothing at all.
+       */
+      patch[f.pct] = String(Math.round(c.resolvedPercent * 10000) / 10000);
       if (f.countKey) patch[f.countKey] = String(c.count);
     });
     // Only fill the duration if the admin has not set one.

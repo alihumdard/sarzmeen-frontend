@@ -11,12 +11,52 @@ import {
 type Props = {
   specs: Record<string, unknown>;
   price: number;
+  /** Names the downloaded file so a buyer comparing plans can tell them apart. */
+  title?: string;
 };
 
 /** Buyer-facing view of the instalment plan the seller entered. */
-export default function PropertyPaymentPlan({ specs, price }: Props) {
+export default function PropertyPaymentPlan({ specs, price, title }: Props) {
   const plan = useMemo(() => buildPlan(specs, price), [specs, price]);
   const schedule = useMemo(() => yearlyBreakdown(plan), [plan]);
+
+  /**
+   * Saves the plan as a CSV the buyer can open in Excel.
+   *
+   * A plan is something people take away and compare against other projects,
+   * so it has to leave the page as a file rather than a screenshot.
+   */
+  function download() {
+    const rows: string[][] = [
+      ["Payment", "Amount (PKR)", "Instalments", "Total (PKR)"],
+      ...plan.lines.map((line) => [
+        line.label,
+        formatExact(line.each),
+        line.recurring ? String(line.count) : "1",
+        formatExact(line.total),
+      ]),
+      ["Total", "", "", formatExact(plan.scheduled)],
+    ];
+
+    // Quote every field: labels and amounts both contain commas.
+    const csv = rows
+      .map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(","))
+      .join("\r\n");
+
+    // A BOM, or Excel reads the rupee figures as ANSI.
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${(title ?? "payment-plan").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-payment-plan.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
 
   // A row of zeros reads as broken; hide it until instalments are published.
   const scheduleHasAmounts = schedule.some((row) => row.amount > 0);
@@ -31,6 +71,32 @@ export default function PropertyPaymentPlan({ specs, price }: Props) {
 
   return (
     <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 className="text-[15px] font-bold text-heading">Payment Plan</h3>
+
+        <button
+          type="button"
+          onClick={download}
+          className="inline-flex h-9 shrink-0 items-center gap-2 rounded-md border border-primary px-4 text-[12px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
+        >
+          <svg
+            className="h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Download plan
+        </button>
+      </div>
+
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Tile label="Total Price" value={formatPKR(plan.totalPrice)} highlight />
         {plan.lines[0] && (

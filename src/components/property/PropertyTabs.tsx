@@ -114,7 +114,11 @@ export default function PropertyTabs({ property }: PropertyTabsProps) {
         )}
 
         {active === "Payment Plan" && (
-          <PropertyPaymentPlan specs={property.specs ?? {}} price={property.price} />
+          <PropertyPaymentPlan
+            specs={property.specs ?? {}}
+            price={property.price}
+            title={property.title}
+          />
         )}
 
         {active === "Video Tour" && (
