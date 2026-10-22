@@ -1,5 +1,7 @@
 "use client";
 
+import PriceInWords from "@/components/ui/PriceInWords";
+
 import { prepareImages } from "@/lib/utils/resizeImage";
 
 import dynamic from "next/dynamic";
@@ -380,6 +382,7 @@ export default function AddPropertyForm() {
                       placeholder="e.g. 45000000"
                       className={adminInputClass}
                     />
+                    <PriceInWords value={basic.price} />
                   </Field>
                   <Field label="Area" required>
                     <input

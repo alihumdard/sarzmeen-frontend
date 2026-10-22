@@ -1,5 +1,7 @@
 "use client";
 
+import PriceInWords from "@/components/ui/PriceInWords";
+
 import { useMemo, useState } from "react";
 import {
   computePlan,
@@ -241,6 +243,10 @@ export default function PaymentCalculator({
             <p className="mt-0.5 text-[17px] font-bold text-primary">
               {hasPrice ? formatPKR(totalPrice) : "—"}
             </p>
+            <PriceInWords
+              value={totalPrice}
+              className="mt-0.5 text-[11px] font-medium text-primary/80"
+            />
             {mode === "area" && hasPrice && (
               <p className="mt-0.5 text-[10.5px] text-primary/70">
                 {num(area).toLocaleString()} × {num(rate).toLocaleString()}

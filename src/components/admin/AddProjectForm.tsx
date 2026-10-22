@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { prepareImages } from "@/lib/utils/resizeImage";
 import RichTextEditor from "@/components/admin/RichTextEditor";
+import PriceInWords from "@/components/ui/PriceInWords";
 import { useEffect, useState } from "react";
 import SafeImage from "@/components/ui/SafeImage";
 import {
@@ -529,6 +530,9 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field label="Price From (PKR)" error={fieldError("priceFrom")}>
                     <input autoComplete="off" value={priceFrom} onChange={(e) => setPriceFrom(e.target.value)} placeholder="e.g. Rs 25 Lac" className={adminInputClass} />
+                    {/* This field accepts prose too, so the reading only
+                        appears when a plain figure is typed. */}
+                    <PriceInWords value={priceFrom} />
                   </Field>
                   <Field label="Project Status" required error={fieldError("status")}>
                     <select autoComplete="off" value={status} onChange={(e) => setStatus(e.target.value)} className={adminSelectClass}>

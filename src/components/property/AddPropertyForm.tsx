@@ -1,5 +1,7 @@
 "use client";
 
+import PriceInWords from "@/components/ui/PriceInWords";
+
 import { prepareImages } from "@/lib/utils/resizeImage";
 
 import dynamic from "next/dynamic";
@@ -354,6 +356,7 @@ export default function AddPropertyForm() {
             placeholder="e.g. 12500000"
             className={inputClasses}
           />
+          <PriceInWords value={price} />
           {fieldError("price") && <p className="text-[11px] text-red-500">{fieldError("price")}</p>}
         </div>
       </div>

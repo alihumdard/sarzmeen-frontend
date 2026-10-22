@@ -12,6 +12,7 @@ import {
 } from "@/lib/paymentPlanBuilder";
 import type { SpecValue } from "@/components/admin/SpecFieldGroup";
 import { adminInputClass } from "@/components/admin/AdminFormField";
+import PriceInWords from "@/components/ui/PriceInWords";
 
 type Props = {
   specs: Record<string, SpecValue>;
@@ -215,7 +216,10 @@ export default function PaymentPlanCalculator({ specs, onChange, onApply }: Prop
             {hasPrice ? formatPKR(totalPrice) : "—"}
           </div>
           {hasPrice && (
-            <p className="mt-1 text-[10px] text-gray-400">{area.toLocaleString()} × {rate.toLocaleString()}</p>
+            <>
+              <PriceInWords value={totalPrice} className="mt-1 text-[10.5px] font-medium text-primary" />
+              <p className="mt-0.5 text-[10px] text-gray-400">{area.toLocaleString()} × {rate.toLocaleString()}</p>
+            </>
           )}
         </div>
       </div>
