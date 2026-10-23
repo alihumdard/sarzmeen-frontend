@@ -3,12 +3,19 @@
 import PriceInWords from "@/components/ui/PriceInWords";
 
 import { useMemo, useState } from "react";
+import PrintablePlan from "@/components/tools/PrintablePlan";
 import {
+  areaUnit,
+  AREA_UNITS,
+  buildDatedSchedule,
   computePlan,
   FREQUENCIES,
+  formatDueDate,
   formatExact,
   formatPKR,
   planDurationMonths,
+  toSqft,
+  type AreaUnit,
   type Frequency,
   type PlanComponent,
 } from "@/lib/paymentPlanBuilder";
@@ -97,16 +104,41 @@ export default function PaymentCalculator({
     initialPrice && !initialArea ? "price" : "area",
   );
   const [area, setArea] = useState(initialArea ? String(initialArea) : "");
+  const [unit, setUnit] = useState<AreaUnit>("sqft");
+  const [startDate, setStartDate] = useState("");
   const [rate, setRate] = useState(initialRate ? String(initialRate) : "");
   const [price, setPrice] = useState(initialPrice ? String(initialPrice) : "");
-  const [duration, setDuration] = useState("");
+  /*
+   * Defaulted rather than left blank: an empty duration silently leaves
+   * every instalment count at 1, and the placeholder made the field look
+   * filled when it was not.
+   */
+  const [duration, setDuration] = useState("4");
 
   const [rows, setRows] = useState<Record<string, RowState>>(() =>
     Object.fromEntries(FIELDS.map((f) => [f.key, { ...emptyRow }])),
   );
 
-  const totalPrice =
-    mode === "area" ? num(area) * num(rate) : num(price);
+  /*
+   * The rate is quoted per whichever unit is selected, so the two multiply
+   * directly — converting the area to sq ft here would double-count.
+   */
+  const totalPrice = mode === "area" ? num(area) * num(rate) : num(price);
+  const unitShort = areaUnit(unit).short;
+
+  /* Placeholders in the selected unit, so the hint is never misleading. */
+  const areaPlaceholder =
+    unit === "sqft" ? "1125" : unit === "marla" ? "5" : "1";
+  const ratePlaceholder =
+    unit === "sqft" ? "14850" : unit === "marla" ? "3300000" : "66000000";
+
+  /* Dates come off the input as yyyy-mm-dd; parse as local, not UTC. */
+  const startDateValue = useMemo(() => {
+    if (!startDate) return null;
+    const [y, m, d] = startDate.split("-").map(Number);
+    if (!y || !m || !d) return null;
+    return new Date(y, m - 1, d);
+  }, [startDate]);
   const hasPrice = totalPrice > 0;
   const durationYears = num(duration);
 
@@ -148,6 +180,11 @@ export default function PaymentCalculator({
   );
   const months = planDurationMonths(plan);
 
+  const datedRows = useMemo(
+    () => buildDatedSchedule(plan, startDateValue),
+    [plan, startDateValue],
+  );
+
   /** Clearing the other side lets one drive, so the two never fight. */
   const setPercent = (key: string, value: string) =>
     setRows((prev) => ({
@@ -168,7 +205,19 @@ export default function PaymentCalculator({
     setRows(Object.fromEntries(FIELDS.map((f) => [f.key, { ...emptyRow }])));
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
+    <div className="print-root">
+      {/* Hidden on screen; the browser prints this instead of the page. */}
+      <PrintablePlan
+        plan={plan}
+        totalPrice={totalPrice}
+        area={mode === "area" ? num(area) : null}
+        unit={unit}
+        rate={num(rate)}
+        startDate={startDateValue}
+        title={title}
+      />
+
+      <div className="grid gap-5 lg:grid-cols-[320px_1fr]">
       {/* Price inputs */}
       <div className="min-w-0 rounded-lg border border-border bg-white p-5">
         <h2 className="text-[15px] font-bold text-heading">
@@ -195,32 +244,59 @@ export default function PaymentCalculator({
 
         <div className="mt-4 flex flex-col gap-3">
           {mode === "area" ? (
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Area (sq ft)">
-                <input
-                  type="number"
-                  min={0}
-                  step="any"
-                  inputMode="decimal"
-                  value={area}
-                  onChange={(e) => setArea(e.target.value)}
-                  placeholder="329"
+            <>
+              <Field label="Unit">
+                <select
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value as AreaUnit)}
                   className={inputClass}
-                />
+                >
+                  {AREA_UNITS.map((u) => (
+                    <option key={u.value} value={u.value}>
+                      {u.label}
+                    </option>
+                  ))}
+                </select>
               </Field>
-              <Field label="Rate / sq ft">
-                <input
-                  type="number"
-                  min={0}
-                  step="any"
-                  inputMode="decimal"
-                  value={rate}
-                  onChange={(e) => setRate(e.target.value)}
-                  placeholder="14850"
-                  className={inputClass}
-                />
-              </Field>
-            </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Field label={`Area (${unitShort})`}>
+                  <input
+                    type="number"
+                    min={0}
+                    step="any"
+                    inputMode="decimal"
+                    value={area}
+                    onChange={(e) => setArea(e.target.value)}
+                    placeholder={areaPlaceholder}
+                    className={inputClass}
+                  />
+                  {/* Same size in sq ft, for comparing against a sq ft rate. */}
+                  {unit !== "sqft" && num(area) > 0 && (
+                    <p className="mt-1 text-[10.5px] text-muted">
+                      = {toSqft(num(area), unit).toLocaleString()} sq ft
+                    </p>
+                  )}
+                </Field>
+
+                <Field label={`Rate / ${unitShort}`}>
+                  <input
+                    type="number"
+                    min={0}
+                    step="any"
+                    inputMode="decimal"
+                    value={rate}
+                    onChange={(e) => setRate(e.target.value)}
+                    placeholder={ratePlaceholder}
+                    className={inputClass}
+                  />
+                  <PriceInWords
+                    value={num(rate)}
+                    className="mt-1 text-[10.5px] text-muted"
+                  />
+                </Field>
+              </div>
+            </>
           ) : (
             <Field label="Total price (PKR)">
               <input
@@ -232,6 +308,10 @@ export default function PaymentCalculator({
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="4885650"
                 className={inputClass}
+              />
+              <PriceInWords
+                value={num(price)}
+                className="mt-1 text-[10.5px] text-muted"
               />
             </Field>
           )}
@@ -253,6 +333,18 @@ export default function PaymentCalculator({
               </p>
             )}
           </div>
+
+          <Field label="Booking date">
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className={inputClass}
+            />
+            <p className="mt-1 text-[10.5px] text-muted">
+              Dates every instalment on the printout.
+            </p>
+          </Field>
 
           <Field label="Plan duration (years)">
             <input
@@ -537,37 +629,76 @@ export default function PaymentCalculator({
          */}
         {hasPrice && plan.valid && (
           <div className="mt-5">
-            <h3 className="text-[13px] font-bold text-heading">
-              Your payment schedule
-            </h3>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="text-[13px] font-bold text-heading">
+                Your payment schedule
+              </h3>
+
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[11.5px] font-semibold text-white transition-opacity hover:opacity-90"
+              >
+                <PrinterIcon />
+                Print / Save as PDF
+              </button>
+            </div>
+
+            {!startDateValue && (
+              <p className="mt-1.5 text-[11px] text-muted">
+                Set a booking date to put a due date on every instalment.
+              </p>
+            )}
             <div className="mt-2 overflow-x-auto rounded-md border border-border">
               <table className="w-full text-[12px]">
                 <thead>
                   <tr className="bg-surface text-left text-[10px] uppercase tracking-wide text-muted">
                     <th className="px-3 py-2 font-medium">Payment</th>
                     <th className="px-3 py-2 text-right font-medium">Amount</th>
-                    <th className="px-3 py-2 font-medium">Schedule</th>
+                    <th className="px-3 py-2 font-medium">
+                      {startDateValue ? "Due date" : "Schedule"}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {plan.components
-                    .filter((c) => c.resolvedTotal > 0.005)
-                    .map((c) => (
-                      <tr key={c.key} className="border-t border-border text-text">
-                        <td className="px-3 py-2">{c.label}</td>
-                        <td className="whitespace-nowrap px-3 py-2 text-right font-semibold text-heading">
-                          {formatExact(c.resolvedEach)}
-                        </td>
-                        <td className="px-3 py-2 text-muted">
-                          {c.count > 1
-                            ? `× ${c.count} ${
-                                FREQUENCIES.find((x) => x.value === c.frequency)
-                                  ?.label.toLowerCase() ?? "payments"
-                              }`
-                            : "One payment"}
-                        </td>
-                      </tr>
-                    ))}
+                  {/*
+                   * With a booking date the buyer gets one dated row per
+                   * instalment, which is what a developer's statement looks
+                   * like; without one, the components stay grouped.
+                   */}
+                  {startDateValue
+                    ? datedRows.map((row, index) => (
+                        <tr
+                          key={`${row.label}-${index}`}
+                          className="border-t border-border text-text"
+                        >
+                          <td className="px-3 py-2">{row.label}</td>
+                          <td className="whitespace-nowrap px-3 py-2 text-right font-semibold text-heading">
+                            {formatExact(row.amount)}
+                          </td>
+                          <td className="whitespace-nowrap px-3 py-2 text-muted">
+                            {formatDueDate(row.dueDate)}
+                          </td>
+                        </tr>
+                      ))
+                    : plan.components
+                        .filter((c) => c.resolvedTotal > 0.005)
+                        .map((c) => (
+                          <tr key={c.key} className="border-t border-border text-text">
+                            <td className="px-3 py-2">{c.label}</td>
+                            <td className="whitespace-nowrap px-3 py-2 text-right font-semibold text-heading">
+                              {formatExact(c.resolvedEach)}
+                            </td>
+                            <td className="px-3 py-2 text-muted">
+                              {c.count > 1
+                                ? `× ${c.count} ${
+                                    FREQUENCIES.find((x) => x.value === c.frequency)
+                                      ?.label.toLowerCase() ?? "payments"
+                                  }`
+                                : "One payment"}
+                            </td>
+                          </tr>
+                        ))}
                   <tr className="border-t border-border bg-surface font-bold text-heading">
                     <td className="px-3 py-2">Total</td>
                     <td className="whitespace-nowrap px-3 py-2 text-right text-primary">
@@ -585,8 +716,28 @@ export default function PaymentCalculator({
           An estimate only. Actual plans vary by developer and project —
           contact the agent for the published schedule.
         </p>
+        </div>
       </div>
     </div>
+  );
+}
+
+function PrinterIcon() {
+  return (
+    <svg
+      className="h-3.5 w-3.5"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M6.5 9V3.5h11V9" />
+      <path d="M6.5 18H5a2 2 0 0 1-2-2v-4.5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2V16a2 2 0 0 1-2 2h-1.5" />
+      <rect x="6.5" y="14" width="11" height="6.5" rx="1" />
+    </svg>
   );
 }
 

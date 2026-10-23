@@ -248,3 +248,135 @@ export function formatExact(amount: number): string {
     maximumFractionDigits: 2,
   })}`;
 }
+
+/* ------------------------------------------------------------------ *
+ * Area units
+ *
+ * Rates in Pakistan are quoted per sq ft in some markets and per marla
+ * or kanal in others, so the rate is entered against whichever unit the
+ * buyer picked and converted here rather than at each call site.
+ * ------------------------------------------------------------------ */
+
+export type AreaUnit = "sqft" | "marla" | "kanal";
+
+export const AREA_UNITS: {
+  value: AreaUnit;
+  label: string;
+  short: string;
+  /** How many square feet one of this unit is. */
+  sqft: number;
+}[] = [
+  { value: "sqft", label: "Square Feet", short: "sq ft", sqft: 1 },
+  { value: "marla", label: "Marla", short: "marla", sqft: 225 },
+  { value: "kanal", label: "Kanal", short: "kanal", sqft: 4500 },
+];
+
+export function areaUnit(unit: AreaUnit) {
+  return AREA_UNITS.find((u) => u.value === unit) ?? AREA_UNITS[0];
+}
+
+/** Area expressed in square feet, whatever unit it was entered in. */
+export function toSqft(area: number, unit: AreaUnit): number {
+  return area * areaUnit(unit).sqft;
+}
+
+/* ------------------------------------------------------------------ *
+ * Dated instalment schedule
+ * ------------------------------------------------------------------ */
+
+export type DatedRow = {
+  /** "Installment Monthly 3", "Booking", … */
+  label: string;
+  amount: number;
+  /** Null when no start date was given. */
+  dueDate: Date | null;
+  /** Groups rows for the subtotal line and for styling. */
+  group: string;
+  frequency: Frequency;
+};
+
+/**
+ * Expands a plan into one row per instalment, each with its own due date —
+ * the form a buyer can check against a developer's statement of account.
+ *
+ * One-off components fall due in the order they are listed; recurring ones
+ * start the month after the booking date and repeat at their own interval.
+ */
+export function buildDatedSchedule(
+  plan: ComputedPlan,
+  startDate: Date | null,
+): DatedRow[] {
+  const rows: DatedRow[] = [];
+
+  const addMonths = (base: Date, months: number): Date => {
+    const d = new Date(base.getTime());
+    const targetDay = base.getDate();
+    d.setMonth(d.getMonth() + months);
+    // Clamp 31 Jan + 1 month to 28/29 Feb rather than spilling into March.
+    if (d.getDate() !== targetDay) d.setDate(0);
+    return d;
+  };
+
+  /* One-off payments that fall at the start of the plan. */
+  const upfront = ["booking", "confirmation", "downPayment"];
+  for (const c of plan.components) {
+    if (!upfront.includes(c.key) || c.resolvedTotal <= 0.005) continue;
+    rows.push({
+      label: c.label,
+      amount: c.resolvedTotal,
+      dueDate: startDate,
+      group: c.key,
+      frequency: "once",
+    });
+  }
+
+  /* Recurring instalments, each dated from the start. */
+  let lastMonth = 0;
+  for (const c of plan.components) {
+    const freq = FREQUENCIES.find((f) => f.value === c.frequency);
+    if (!freq || freq.months === 0 || c.resolvedEach <= 0.005) continue;
+
+    for (let i = 0; i < c.count; i++) {
+      const monthOffset = (i + 1) * freq.months;
+      lastMonth = Math.max(lastMonth, monthOffset);
+      rows.push({
+        label: `${c.label} ${i + 1}`,
+        amount: c.resolvedEach,
+        dueDate: startDate ? addMonths(startDate, monthOffset) : null,
+        group: c.key,
+        frequency: c.frequency,
+      });
+    }
+  }
+
+  /* Payments that land at the end, after the instalments have run. */
+  const trailing = ["grey", "possession"];
+  for (const c of plan.components) {
+    if (!trailing.includes(c.key) || c.resolvedTotal <= 0.005) continue;
+    rows.push({
+      label: c.label,
+      amount: c.resolvedTotal,
+      dueDate: startDate ? addMonths(startDate, lastMonth + 1) : null,
+      group: c.key,
+      frequency: "once",
+    });
+  }
+
+  return rows;
+}
+
+/*
+ * Fixed list rather than toLocaleString: en-GB abbreviates September as
+ * "Sept", which breaks the three-letter column the statements use.
+ */
+const MONTHS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+/** 09-Oct-2026, matching the statements developers issue. */
+export function formatDueDate(date: Date | null): string {
+  if (!date) return "—";
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${day}-${MONTHS[date.getMonth()]}-${date.getFullYear()}`;
+}

@@ -332,3 +332,187 @@
   color: var(--color-heading);
   font-weight: 600;
 }
+
+/* ------------------------------------------------------------------ *
+ * Printable payment schedule
+ *
+ * The document is in the page all along but hidden, so printing needs no
+ * second window and no PDF library — the browser's own "Save as PDF" is
+ * the export. Everything else on the page is hidden while printing.
+ * ------------------------------------------------------------------ */
+
+.printable-plan {
+  display: none;
+}
+
+@media print {
+  /* Repeat the running head and foot, and leave room for them. */
+  @page {
+    size: A4;
+    margin: 14mm 12mm;
+  }
+
+  /*
+   * The statement sits deep in the tree, so hiding by parentage does not
+   * work. Blank the whole page with visibility, make the statement visible
+   * again, and lift it to the top-left so it prints on its own pages.
+   */
+  body * {
+    visibility: hidden;
+  }
+
+  .printable-plan,
+  .printable-plan * {
+    visibility: visible;
+  }
+
+  .printable-plan {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  .printable-plan {
+    color: #000;
+    font-size: 10pt;
+    /* Keep the ink honest on a mono printer. */
+    background: #fff;
+  }
+
+  .pp-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    border-bottom: 2px solid #1f7a4d;
+    padding-bottom: 8pt;
+  }
+
+  .pp-brand {
+    display: flex;
+    align-items: center;
+    gap: 8pt;
+  }
+
+  .pp-logo {
+    width: 28pt;
+    height: 28pt;
+    object-fit: contain;
+  }
+
+  .pp-name {
+    font-size: 14pt;
+    font-weight: 700;
+    color: #1f7a4d;
+    line-height: 1.1;
+  }
+
+  .pp-tagline {
+    font-size: 7.5pt;
+    color: #555;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .pp-meta {
+    text-align: right;
+    font-size: 8pt;
+    color: #333;
+  }
+
+  .pp-meta span {
+    color: #777;
+    margin-right: 4pt;
+  }
+
+  .pp-title {
+    margin-top: 12pt;
+    font-size: 15pt;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.02em;
+  }
+
+  .pp-subtitle {
+    margin-top: 2pt;
+    text-align: center;
+    font-size: 9pt;
+    color: #444;
+  }
+
+  .pp-summary,
+  .pp-schedule {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10pt;
+  }
+
+  .pp-summary th,
+  .pp-summary td,
+  .pp-schedule th,
+  .pp-schedule td {
+    border: 0.5pt solid #bbb;
+    padding: 4pt 6pt;
+  }
+
+  .pp-summary th,
+  .pp-schedule thead th {
+    background: #1f7a4d !important;
+    color: #fff !important;
+    font-size: 8.5pt;
+    font-weight: 700;
+    /* Chrome drops backgrounds when printing unless asked to keep them. */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* The head repeats at the top of every page of a long schedule. */
+  .pp-schedule thead {
+    display: table-header-group;
+  }
+
+  .pp-schedule tfoot {
+    display: table-footer-group;
+  }
+
+  .pp-schedule tbody tr {
+    /* Never split a payment row across two pages. */
+    break-inside: avoid;
+  }
+
+  .pp-schedule tbody tr:nth-child(even) {
+    background: #f4f7f5 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .pp-schedule tfoot td {
+    background: #e8f5ee !important;
+    font-weight: 700;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .pp-l { text-align: left; }
+  .pp-r { text-align: right; font-variant-numeric: tabular-nums; }
+  .pp-c { text-align: center; }
+  .pp-strong { font-weight: 700; }
+
+  .pp-note {
+    margin-top: 8pt;
+    font-size: 7.5pt;
+    color: #666;
+    font-style: italic;
+  }
+
+  .pp-foot {
+    display: flex;
+    justify-content: space-between;
+    border-top: 0.5pt solid #bbb;
+    margin-top: 10pt;
+    padding-top: 5pt;
+    font-size: 7.5pt;
+    color: #666;
+  }
+}
