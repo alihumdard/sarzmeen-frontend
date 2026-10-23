@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { prepareImages } from "@/lib/utils/resizeImage";
+import CustomFeatureList from "@/components/admin/CustomFeatureList";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import PriceInWords from "@/components/ui/PriceInWords";
 import { useEffect, useState } from "react";
@@ -427,6 +428,9 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
     }
   };
 
+  /* Whatever is selected but not one of the fixed options. */
+  const customAmenities = amenities.filter((a) => !COMMON_AMENITIES.includes(a));
+
   const toggleAmenity = (a: string) => {
     setAmenities((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]);
   };
@@ -697,6 +701,25 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                     </label>
                   ))}
                 </div>
+
+                <Field label="Other Amenities">
+                  {/*
+                   * The list above cannot cover every project, so anything
+                   * else is added here. Both end up in the same `amenities`
+                   * array the backend already accepts.
+                   */}
+                  <CustomFeatureList
+                    noun="amenity"
+                    values={customAmenities}
+                    onChange={(next) =>
+                      setAmenities([
+                        ...amenities.filter((a) => COMMON_AMENITIES.includes(a)),
+                        ...next,
+                      ])
+                    }
+                  />
+                </Field>
+
                 <Field label="Highlights">
                   {highlights.map((h, i) => (
                     <div key={i} className="mt-1 flex gap-2">

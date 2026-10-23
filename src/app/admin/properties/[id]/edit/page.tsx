@@ -26,6 +26,7 @@ import {
 import SpecFieldGroup from "@/components/admin/SpecFieldGroup";
 import type { SpecValue } from "@/components/admin/SpecFieldGroup";
 import PaymentPlanStep from "@/components/admin/PaymentPlanStep";
+import CustomFeatureList from "@/components/admin/CustomFeatureList";
 import PaymentPlanCalculator from "@/components/admin/PaymentPlanCalculator";
 import {
   adminInputClass,
@@ -107,6 +108,7 @@ export default function EditPropertyPage() {
   const [locationId, setLocationId] = useState("");
   const [coreNumbers, setCoreNumbers] = useState<Record<string, string>>({});
   const [specs, setSpecs] = useState<Record<string, SpecValue>>({});
+  const [features, setFeatures] = useState<string[]>([]);
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
 
@@ -133,6 +135,7 @@ export default function EditPropertyPage() {
       setAreaUnit(p.areaUnit);
       setLocationId(p.locationId || "");
       setSpecs((p.specs || {}) as Record<string, SpecValue>);
+      setFeatures(p.features ?? []);
       setMetaTitle(p.metaTitle || "");
       setMetaDescription(p.metaDescription || "");
 
@@ -177,6 +180,7 @@ export default function EditPropertyPage() {
         areaUnit,
         locationId: locationId || undefined,
         specs,
+        features,
         metaTitle: metaTitle || undefined,
         metaDescription: metaDescription || undefined,
       };
@@ -370,6 +374,17 @@ export default function EditPropertyPage() {
               {visibleGroups.map(({ name, group }) => (
                 <SpecFieldGroup key={name} group={group} values={specs} onChange={setSpec} />
               ))}
+
+              <fieldset className="rounded-lg border border-gray-200 p-4">
+                <legend className="px-1.5 text-[12px] font-semibold text-gray-700">
+                  Other Features
+                </legend>
+                <p className="mb-3 text-[11px] text-gray-500">
+                  Anything the lists above do not cover. These appear under
+                  Features &amp; Amenities on the listing.
+                </p>
+                <CustomFeatureList values={features} onChange={setFeatures} />
+              </fieldset>
             </section>
           )}
 

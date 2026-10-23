@@ -16,6 +16,7 @@ import {
   showsCore,
   type PropertySchema,
 } from "@/lib/api/propertySchema";
+import CustomFeatureList from "@/components/admin/CustomFeatureList";
 import SpecFieldGroup, { type SpecValue } from "@/components/admin/SpecFieldGroup";
 import PaymentPlanStep from "@/components/admin/PaymentPlanStep";
 import PaymentPlanCalculator from "@/components/admin/PaymentPlanCalculator";
@@ -69,6 +70,8 @@ export default function AddPropertyForm() {
   const [stepIndex, setStepIndex] = useState(0);
 
   const [schema, setSchema] = useState<PropertySchema | null>(null);
+  /* Free-text features; the schema's checkbox groups cannot cover everything. */
+  const [features, setFeatures] = useState<string[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [propertyTypes, setPropertyTypes] = useState<PropertyType[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
@@ -206,6 +209,9 @@ export default function AddPropertyForm() {
         body.append(`specs[${k}]`, typeof v === "boolean" ? (v ? "1" : "0") : String(v));
       }
     });
+
+    // Free-text features, stored as their own rows on the listing.
+    features.forEach((name) => body.append("features[]", name));
 
     images.forEach((file) => body.append("images[]", file));
 
@@ -542,6 +548,17 @@ export default function AddPropertyForm() {
                       errors={fieldErrors}
                     />
                   ))}
+
+                  <fieldset className="rounded-lg border border-gray-200 p-4">
+                    <legend className="px-1.5 text-[12px] font-semibold text-gray-700">
+                      Other Features
+                    </legend>
+                    <p className="mb-3 text-[11px] text-gray-500">
+                      Anything the lists above do not cover. These appear
+                      under Features &amp; Amenities on the listing.
+                    </p>
+                    <CustomFeatureList values={features} onChange={setFeatures} />
+                  </fieldset>
                 </div>
               )}
             </div>
