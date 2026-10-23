@@ -2,11 +2,15 @@
 
 import { useMemo } from "react";
 import {
+  areaUnit as areaUnitInfo,
+  AREA_UNITS,
   computePlan,
   FREQUENCIES,
   formatExact,
   formatPKR,
   planDurationMonths,
+  toSqft,
+  type AreaUnit,
   type Frequency,
   type PlanComponent,
 } from "@/lib/paymentPlanBuilder";
@@ -90,6 +94,13 @@ function has(v: unknown): boolean {
 export default function PaymentPlanCalculator({ specs, onChange, onApply }: Props) {
   const area = num(specs.unitArea);
   const rate = num(specs.ratePerSqft);
+
+  /*
+   * The rate is quoted per whichever unit is selected, so the two multiply
+   * directly — converting the area to sq ft here would double-count.
+   */
+  const planUnit = (specs.planAreaUnit as AreaUnit) || "sqft";
+  const unitShort = areaUnitInfo(planUnit).short;
   const totalPrice = area * rate;
   const hasPrice = totalPrice > 0;
   const durationYears = num(specs.planDurationYears);
@@ -190,9 +201,48 @@ export default function PaymentPlanCalculator({ specs, onChange, onApply }: Prop
       </p>
 
       {/* Price + duration — these drive everything below. */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Num label="Area (SQFT)" value={value("unitArea")} onChange={setKey("unitArea")} placeholder="329" />
-        <Num label="Rate / SQFT (PKR)" value={value("ratePerSqft")} onChange={setKey("ratePerSqft")} placeholder="14850" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div>
+          <label className="mb-1.5 block text-[12px] font-medium text-gray-600">
+            Unit
+          </label>
+          <select
+            value={planUnit}
+            onChange={(e) => onChange("planAreaUnit", e.target.value)}
+            className={adminInputClass}
+          >
+            {AREA_UNITS.map((u) => (
+              <option key={u.value} value={u.value}>
+                {u.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <Num
+            label={`Area (${unitShort})`}
+            value={value("unitArea")}
+            onChange={setKey("unitArea")}
+            placeholder={planUnit === "sqft" ? "1125" : planUnit === "marla" ? "5" : "1"}
+          />
+          {/* The same size in sq ft, for checking against a per-sq-ft rate. */}
+          {planUnit !== "sqft" && area > 0 && (
+            <p className="mt-1 text-[10px] text-gray-400">
+              = {toSqft(area, planUnit).toLocaleString()} sq ft
+            </p>
+          )}
+        </div>
+
+        <div>
+          <Num
+            label={`Rate / ${unitShort} (PKR)`}
+            value={value("ratePerSqft")}
+            onChange={setKey("ratePerSqft")}
+            placeholder={planUnit === "sqft" ? "14850" : planUnit === "marla" ? "3300000" : "66000000"}
+          />
+          <PriceInWords value={rate} className="mt-1 text-[10px] text-gray-500" />
+        </div>
         <div>
           <label className="mb-1.5 block text-[12px] font-medium text-gray-600">
             Plan Duration (years)
@@ -270,6 +320,13 @@ export default function PaymentPlanCalculator({ specs, onChange, onApply }: Prop
                       placeholder={hasPrice && c ? String(Math.round(c.resolvedEach)) : "—"}
                       className={`${adminInputClass} ${auto ? "placeholder:text-blue-400" : ""}`}
                     />
+                    {/* Spelled out, so a mistyped zero is obvious. */}
+                    {c && c.resolvedEach > 0 && (
+                      <PriceInWords
+                        value={c.resolvedEach}
+                        className="mt-1 text-[10px] text-gray-500"
+                      />
+                    )}
                   </td>
 
                   <td className="px-3 py-1.5">

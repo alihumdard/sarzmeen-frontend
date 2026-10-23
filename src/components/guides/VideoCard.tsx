@@ -4,6 +4,11 @@ import type { Video } from "@/types/video";
 
 /** One video in the library grid. */
 export default function VideoCard({ video }: { video: Video }) {
+  const summary = video.description
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
   return (
     <Link
       href={`/guides/${video.slug}`}
@@ -45,9 +50,11 @@ export default function VideoCard({ video }: { video: Video }) {
           {video.title}
         </h3>
 
-        {video.description && (
+        {summary && (
+          /* Plain text: the description is HTML, and a clamped preview
+             should not carry its markup. */
           <p className="mt-2 line-clamp-2 text-[12px] leading-5 text-muted">
-            {video.description}
+            {summary}
           </p>
         )}
 

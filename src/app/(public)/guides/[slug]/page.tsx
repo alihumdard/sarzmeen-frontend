@@ -8,6 +8,10 @@ import type { Video } from "@/types/video";
 
 type Params = Promise<{ slug: string }>;
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
 async function getVideo(slug: string): Promise<Video | null> {
   try {
     const res = await serverApi<{ data: Video }>(`/videos/${slug}`, 30);
@@ -42,7 +46,10 @@ export async function generateMetadata({
   return {
     title: video.metaTitle || video.title,
     description:
-      video.metaDescription || video.description.slice(0, 160) || undefined,
+      video.metaDescription ||
+      // Strip the editor's markup; a meta tag takes plain text only.
+      stripHtml(video.description).slice(0, 160) ||
+      undefined,
   };
 }
 
@@ -115,11 +122,12 @@ export default async function VideoPage({ params }: { params: Params }) {
               </div>
 
               {video.description && (
-                <div className="blog-content mt-5 border-t border-border pt-5">
-                  {video.description.split("\n").map((line, index) =>
-                    line.trim() ? <p key={index}>{line}</p> : null,
-                  )}
-                </div>
+                /* Written in the admin's rich text editor, so it arrives
+                   as HTML and is rendered the way a blog post is. */
+                <div
+                  className="blog-content mt-5 border-t border-border pt-5"
+                  dangerouslySetInnerHTML={{ __html: video.description }}
+                />
               )}
             </div>
           </div>

@@ -15,9 +15,17 @@ type Props = {
   onChange: (html: string) => void;
   placeholder?: string;
   maxLength?: number;
+  /** Tailwind min-height for the writing area; shorter inside a modal. */
+  minHeightClass?: string;
 };
 
-export default function RichTextEditor({ value, onChange, placeholder, maxLength }: Props) {
+export default function RichTextEditor({
+  value,
+  onChange,
+  placeholder,
+  maxLength,
+  minHeightClass = "min-h-[360px]",
+}: Props) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ heading: { levels: [2, 3, 4] } }),
@@ -33,7 +41,7 @@ export default function RichTextEditor({ value, onChange, placeholder, maxLength
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm max-w-none min-h-[360px] px-5 py-4 focus:outline-none text-[13.5px] leading-7 text-gray-800 " +
+          `prose prose-sm max-w-none ${minHeightClass} px-5 py-4 focus:outline-none text-[13.5px] leading-7 text-gray-800 ` +
           "prose-headings:text-gray-900 prose-headings:font-bold prose-h2:text-xl prose-h2:mt-6 prose-h2:mb-3 " +
           "prose-h3:text-[17px] prose-h3:mt-5 prose-h3:mb-2 prose-p:my-2 " +
           "prose-a:text-primary prose-a:no-underline hover:prose-a:underline " +

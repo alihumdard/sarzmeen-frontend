@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import AdminModal from "@/components/admin/AdminModal";
+import RichTextEditor from "@/components/admin/RichTextEditor";
 import SafeImage from "@/components/ui/SafeImage";
 import { slugify } from "@/lib/api/categories";
 import { createVideo, updateVideo } from "@/lib/api/videos";
@@ -190,12 +191,12 @@ export default function VideoFormModal({
         </Field>
 
         <Field label="Description">
-          <textarea
+          <RichTextEditor
             value={description}
-            onChange={(event) => setDescription(event.target.value.slice(0, 5000))}
-            rows={4}
-            placeholder="What this guide covers..."
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-[12px] outline-none focus:border-primary"
+            onChange={setDescription}
+            placeholder="What this guide covers, step by step..."
+            maxLength={5000}
+            minHeightClass="min-h-[160px]"
           />
         </Field>
 

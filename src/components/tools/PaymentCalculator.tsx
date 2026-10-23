@@ -444,6 +444,13 @@ export default function PaymentCalculator({
                       }
                       className={inputClass}
                     />
+                    {/* Spelled out, so a mistyped zero is obvious. */}
+                    {c && c.resolvedEach > 0 && (
+                      <PriceInWords
+                        value={c.resolvedEach}
+                        className="mt-1 text-[10px] text-muted"
+                      />
+                    )}
                   </label>
                 </div>
 
@@ -540,6 +547,12 @@ export default function PaymentCalculator({
                         }
                         className={inputClass}
                       />
+                      {c && c.resolvedEach > 0 && (
+                        <PriceInWords
+                          value={c.resolvedEach}
+                          className="mt-1 text-[10px] text-muted"
+                        />
+                      )}
                     </td>
 
                     <td className="px-3 py-1.5">
