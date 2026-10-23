@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { prepareImages } from "@/lib/utils/resizeImage";
 import CustomFeatureList from "@/components/admin/CustomFeatureList";
+import ImageEditButton from "@/components/admin/ImageEditButton";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import PriceInWords from "@/components/ui/PriceInWords";
 import { useEffect, useState } from "react";
@@ -674,6 +675,12 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                         <button type="button" onClick={() => setImages(images.filter((_, j) => j !== i))} className="absolute right-1 top-1 hidden rounded bg-red-600 p-1 text-white group-hover:block">
                           <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M18 6L6 18" /></svg>
                         </button>
+                        <ImageEditButton
+                          file={file}
+                          onEdited={(cropped) =>
+                            setImages(images.map((f, j) => (j === i ? cropped : f)))
+                          }
+                        />
                       </div>
                     ))}
                   </div>

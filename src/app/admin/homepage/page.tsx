@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import BannerImageField from "@/components/admin/BannerImageField";
 import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
@@ -364,8 +365,12 @@ export default function HomepageCmsPage() {
             </div>
 
             <div className="border-t border-gray-100 pt-4">
-              <Field label="Background Image Path" value={settings.hero.backgroundImage} onChange={(v) => updateHero("backgroundImage", v)} />
-              <p className="mt-1 text-[10px] text-gray-400">Path relative to /public folder, e.g. /images/hero-home.png</p>
+              <BannerImageField
+                label="Background Image"
+                value={settings.hero.backgroundImage}
+                onChange={(v) => updateHero("backgroundImage", v)}
+                hint="Upload one, or type a path from /public such as /images/hero-home.png"
+              />
             </div>
           </div>
 
@@ -403,7 +408,12 @@ export default function HomepageCmsPage() {
 
             <Field label="Section Heading" value={settings.whyChoose.heading} onChange={(v) => updateWhyChoose("heading", v)} />
             <Field label="Subtitle" value={settings.whyChoose.subtitle} onChange={(v) => updateWhyChoose("subtitle", v)} />
-            <Field label="Image Path" value={settings.whyChoose.image} onChange={(v) => updateWhyChoose("image", v)} />
+            <BannerImageField
+              label="Image"
+              value={settings.whyChoose.image}
+              onChange={(v) => updateWhyChoose("image", v)}
+              hint="Upload one, or type a path from /public."
+            />
 
             <div className="border-t border-gray-100 pt-4">
               <div className="mb-3 flex items-center justify-between">

@@ -17,6 +17,7 @@ import {
   type PropertySchema,
 } from "@/lib/api/propertySchema";
 import CustomFeatureList from "@/components/admin/CustomFeatureList";
+import ImageEditButton from "@/components/admin/ImageEditButton";
 import SpecFieldGroup, { type SpecValue } from "@/components/admin/SpecFieldGroup";
 import PaymentPlanStep from "@/components/admin/PaymentPlanStep";
 import PaymentPlanCalculator from "@/components/admin/PaymentPlanCalculator";
@@ -635,6 +636,14 @@ export default function AddPropertyForm() {
                       >
                         &times;
                       </button>
+                      <ImageEditButton
+                        file={file}
+                        onEdited={(cropped) =>
+                          setImages((cur) =>
+                            cur.map((f, j) => (j === i ? cropped : f)),
+                          )
+                        }
+                      />
                     </div>
                   ))}
                 </div>

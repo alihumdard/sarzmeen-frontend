@@ -23,6 +23,7 @@ import {
 import SpecFieldGroup from "@/components/admin/SpecFieldGroup";
 import type { SpecValue } from "@/components/admin/SpecFieldGroup";
 import PaymentPlanStep from "@/components/admin/PaymentPlanStep";
+import ImageEditButton from "@/components/admin/ImageEditButton";
 import PaymentPlanCalculator from "@/components/admin/PaymentPlanCalculator";
 // TipTap is heavy and sits in a later step, so it loads on demand.
 const RichTextEditor = dynamic(
@@ -546,6 +547,16 @@ export default function AddPropertyForm() {
                     <path d="M6 6l12 12M18 6L6 18" />
                   </svg>
                 </button>
+                {/* Sits above the filename bar, which owns the bottom edge. */}
+                <ImageEditButton
+                  file={file}
+                  onEdited={(cropped) =>
+                    setImages((prev) =>
+                      prev.map((f, j) => (j === i ? cropped : f)),
+                    )
+                  }
+                  className="absolute bottom-5 left-1 inline-flex items-center gap-1 rounded bg-gray-900/75 px-1.5 py-0.5 text-[9.5px] font-semibold text-white opacity-0 transition-opacity group-hover:opacity-100"
+                />
                 <span className="absolute bottom-0 left-0 right-0 truncate bg-black/50 px-1 py-0.5 text-[9px] text-white">
                   {file.name}
                 </span>
