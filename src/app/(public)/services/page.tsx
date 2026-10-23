@@ -76,16 +76,16 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Each service as a full-width row, numbered, alternating sides. */}
+      {/* Each service as a numbered row, read top to bottom. */}
       <section className="bg-surface py-10 sm:py-14">
         <div className="container-page">
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col">
             {services.map((service, index) => (
               <ServiceRow
                 key={service.id}
                 service={service}
                 index={index}
-                flip={index % 2 === 1}
+                isLast={index === services.length - 1}
               />
             ))}
           </div>
@@ -135,35 +135,43 @@ export default function ServicesPage() {
 }
 
 /**
- * One service. The icon panel and the text swap sides down the page so the
- * list does not read as six identical blocks.
+ * One service, as a numbered step. Every panel stays on the same side so
+ * 01 to 06 reads as a single run down the page.
  */
 function ServiceRow({
   service,
   index,
-  flip,
+  isLast,
 }: {
   service: Service;
   index: number;
-  flip: boolean;
+  isLast: boolean;
 }) {
   const Icon = icons[service.icon];
 
+  const step = String(index + 1).padStart(2, "0");
+
   return (
-    <article
-      className={[
-        "group grid overflow-hidden rounded-2xl border border-border bg-white shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_12px_30px_rgba(31,122,77,0.12)]",
-        // The narrow column has to follow the panel when the sides swap,
-        // or the text ends up squeezed into 300px.
-        flip ? "lg:grid-cols-[1fr_300px]" : "lg:grid-cols-[300px_1fr]",
-      ].join(" ")}
-    >
+    <div className="relative grid lg:grid-cols-[64px_1fr]">
+      {/* Numbered spine, so the six rows read as one sequence. */}
+      <div className="relative hidden justify-center lg:flex">
+        <span className="absolute top-7 z-10 flex h-9 w-9 items-center justify-center rounded-full border-2 border-primary bg-white font-mono text-[12px] font-bold text-primary">
+          {step}
+        </span>
+
+        {/* The line linking this step to the next one. */}
+        {!isLast && (
+          <span
+            aria-hidden="true"
+            className="absolute bottom-0 top-7 w-px bg-border"
+          />
+        )}
+      </div>
+
+      <article className="group mb-5 grid overflow-hidden rounded-2xl border border-border bg-white shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_12px_30px_rgba(31,122,77,0.12)] lg:grid-cols-[300px_1fr]">
       {/* Icon panel */}
       <div
-        className={[
-          "relative flex items-center gap-4 overflow-hidden bg-[linear-gradient(145deg,var(--color-primary)_0%,var(--color-primary-dark)_100%)] px-6 py-6 lg:flex-col lg:items-start lg:justify-center lg:gap-5 lg:px-8 lg:py-10",
-          flip ? "lg:order-2" : "",
-        ].join(" ")}
+        className="relative flex items-center gap-4 overflow-hidden bg-[linear-gradient(145deg,var(--color-primary)_0%,var(--color-primary-dark)_100%)] px-6 py-6 lg:flex-col lg:items-start lg:justify-center lg:gap-5 lg:px-8 lg:py-10"
       >
         {/* Faint circles, so the panel has some depth behind the icon. */}
         <div
@@ -180,10 +188,12 @@ function ServiceRow({
         </span>
 
         <div className="relative min-w-0">
-          <span className="block font-mono text-[11px] font-bold tracking-widest text-white/60">
-            {String(index + 1).padStart(2, "0")}
+          {/* The spine carries the number on desktop; show it here when
+              the spine is hidden at narrow widths. */}
+          <span className="block font-mono text-[11px] font-bold tracking-widest text-white/60 lg:hidden">
+            {step}
           </span>
-          <h3 className="mt-1 text-[17px] font-bold leading-snug text-white lg:text-[19px]">
+          <h3 className="mt-1 text-[17px] font-bold leading-snug text-white lg:mt-0 lg:text-[19px]">
             {service.title}
           </h3>
         </div>
@@ -209,8 +219,9 @@ function ServiceRow({
             </li>
           ))}
         </ul>
-      </div>
-    </article>
+        </div>
+      </article>
+    </div>
   );
 }
 
