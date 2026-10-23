@@ -8,6 +8,13 @@
 export type NavChild = {
   name: string;
   href: string;
+  /**
+   * Renders set apart at the foot of the dropdown — "View All Properties"
+   * reads as a way out of the menu rather than another choice within it.
+   * Marked rather than inferred from position, so an ordinary last entry
+   * keeps the normal style.
+   */
+  isFooterLink?: boolean;
 };
 
 export type NavItem = {
@@ -39,7 +46,7 @@ export const mainNavigation: NavItem[] = [
         href: "/properties?purpose=sale&type=shop,office,showroom,factory,warehouse,building,commercial-plaza",
       },
       // Sits last so the dropdown always offers a way to the full listing.
-      { name: "View All Properties", href: "/properties" },
+      { name: "View All Properties", href: "/properties", isFooterLink: true },
     ],
   },
   { name: "Rent", href: "/rent" },
@@ -50,13 +57,17 @@ export const mainNavigation: NavItem[] = [
   { name: "Contact", href: "/contact" },
   {
     /*
-     * A heading for the buyer tools rather than a link to one of them, so
-     * further tools can join it without crowding the header. Sits last,
-     * where its dropdown has room to open without covering other items.
+     * A heading rather than a link to any one page, so further pages can
+     * join it without crowding the header. Sits last, where its dropdown
+     * has room to open without covering other items.
      */
-    name: "Tools",
-    href: "/calculator",
-    children: [{ name: "Payment Plan Calculator", href: "/calculator" }],
+    name: "More",
+    href: "/services",
+    children: [
+      { name: "Payment Plan Calculator", href: "/calculator" },
+      { name: "Media", href: "/media" },
+      { name: "Services", href: "/services" },
+    ],
   },
 ];
 

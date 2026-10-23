@@ -117,14 +117,12 @@ export default function Header() {
 
                 {openDropdown === item.name && (
                   <div className="absolute left-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-lg border border-border bg-white py-1.5 shadow-lg">
-                    {item.children.map((child, index) => {
+                    {item.children.map((child) => {
                       // The last entry is the catch-all link to the full
                       // listing, set apart so it reads as a way out rather
                       // than another filter. A menu with a single entry has
                       // no catch-all, so that one keeps the normal style.
-                      const isViewAll =
-                        item.children!.length > 1 &&
-                        index === item.children!.length - 1;
+                      const isViewAll = child.isFooterLink === true;
 
                       return (
                         <Link

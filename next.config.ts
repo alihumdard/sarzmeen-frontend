@@ -16,6 +16,17 @@ const nextConfig: NextConfig = {
         hostname: "i.pravatar.cc",
         pathname: "/**",
       },
+      // YouTube thumbnails for the Media (videos) pages.
+      {
+        protocol: "https",
+        hostname: "img.youtube.com",
+        pathname: "/vi/**",
+      },
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+        pathname: "/vi/**",
+      },
       // The API port moves between environments, so allow both local ports.
       {
         protocol: "http",
