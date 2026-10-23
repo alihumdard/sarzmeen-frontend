@@ -6,7 +6,7 @@ import type { Video } from "@/types/video";
 export default function VideoCard({ video }: { video: Video }) {
   return (
     <Link
-      href={`/media/${video.slug}`}
+      href={`/guides/${video.slug}`}
       className="group flex flex-col overflow-hidden rounded-xl border border-border bg-white transition-shadow hover:shadow-[0_6px_20px_rgba(15,23,42,0.08)]"
     >
       <div className="relative aspect-video overflow-hidden bg-surface">

@@ -6,16 +6,20 @@ import {
   services,
   servicesCta,
   servicesIntro,
+  servicesStats,
   type Service,
 } from "@/constants/servicesContent";
 
 export const metadata: Metadata = {
-  title: "Services",
+  title: "Services — Property Dealing, Payment Plans, SEO & Websites",
   description:
-    "Property dealing, payment plan creation, SEO, website development, photography and investment advisory from the Sarzameen team.",
+    "Property dealing, payment plan creation, SEO, website development, photography and investment advisory from the Sarzameen team in Lahore.",
 };
 
 export default function ServicesPage() {
+  const featured = services.filter((service) => service.featured);
+  const rest = services.filter((service) => !service.featured);
+
   return (
     <main>
       <PageBanner
@@ -26,33 +30,59 @@ export default function ServicesPage() {
         image="/images/city-lahore-skyline.jpg"
       />
 
-      {/* Intro */}
-      <section className="bg-white py-10 sm:py-14">
-        <div className="container-page max-w-[760px] text-center">
-          <p className="text-[12px] font-bold uppercase tracking-wide text-primary">
-            {servicesIntro.eyebrow}
-          </p>
+      {/* Intro, then the figures, so the page opens with something concrete. */}
+      <section className="bg-white pt-10 sm:pt-14">
+        <div className="container-page">
+          <div className="mx-auto max-w-[760px] text-center">
+            <span className="inline-flex items-center gap-2 rounded-full bg-primary-light px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-primary">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              {servicesIntro.eyebrow}
+            </span>
 
-          <h2 className="mt-2 text-[24px] font-bold leading-tight text-heading sm:text-[30px]">
-            {servicesIntro.heading}
-          </h2>
+            <h2 className="mt-4 text-balance text-[26px] font-bold leading-tight text-heading sm:text-[34px]">
+              {servicesIntro.heading}
+            </h2>
 
-          {servicesIntro.paragraphs.map((paragraph) => (
-            <p
-              key={paragraph}
-              className="mt-4 text-[13.5px] leading-7 text-muted"
-            >
-              {paragraph}
-            </p>
-          ))}
+            {servicesIntro.paragraphs.map((paragraph) => (
+              <p
+                key={paragraph}
+                className="mx-auto mt-4 max-w-[680px] text-[13.5px] leading-7 text-muted"
+              >
+                {paragraph}
+              </p>
+            ))}
+          </div>
+
+          {/* Hairline grid: gap-px over a border-coloured background. */}
+          <dl className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border lg:grid-cols-4">
+            {servicesStats.map((stat) => (
+              <div
+                key={stat.label}
+                className="bg-white px-5 py-6 text-center sm:px-6"
+              >
+                <dt className="text-[20px] font-bold leading-none text-primary sm:text-[24px]">
+                  {stat.value}
+                </dt>
+                <dd className="mt-2 text-[11.5px] leading-5 text-muted">
+                  {stat.label}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
-      {/* The services themselves */}
-      <section className="bg-surface py-10 sm:py-14">
+      <section className="bg-white py-10 sm:py-14">
         <div className="container-page">
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {services.map((service) => (
+          {/* The two we lead with, given the width to breathe. */}
+          <div className="grid gap-5 lg:grid-cols-2">
+            {featured.map((service) => (
+              <FeaturedServiceCard key={service.id} service={service} />
+            ))}
+          </div>
+
+          <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {rest.map((service) => (
               <ServiceCard key={service.id} service={service} />
             ))}
           </div>
@@ -60,23 +90,40 @@ export default function ServicesPage() {
       </section>
 
       {/* Closing call to action */}
-      <section className="bg-white py-10 sm:py-14">
+      <section className="bg-white pb-12 sm:pb-16">
         <div className="container-page">
-          <div className="rounded-2xl bg-primary px-6 py-9 text-center sm:px-10">
-            <h2 className="text-[20px] font-bold text-white sm:text-[24px]">
-              {servicesCta.heading}
-            </h2>
+          <div className="relative overflow-hidden rounded-2xl bg-[linear-gradient(135deg,var(--color-primary)_0%,var(--color-primary-dark)_100%)] px-6 py-9 text-center shadow-[0_14px_40px_rgba(31,122,77,0.28)] sm:px-10 sm:py-11">
+            {/* Soft light from the top right, so the panel is not flat green. */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-white/10 blur-2xl"
+            />
 
-            <p className="mx-auto mt-2 max-w-[560px] text-[13px] leading-6 text-white/85">
-              {servicesCta.description}
-            </p>
+            <div className="relative">
+              <h2 className="text-balance text-[22px] font-bold text-white sm:text-[28px]">
+                {servicesCta.heading}
+              </h2>
 
-            <Link
-              href={servicesCta.buttonHref}
-              className="mt-6 inline-flex h-11 items-center rounded-md bg-white px-7 text-[13px] font-bold text-primary transition-opacity hover:opacity-90"
-            >
-              {servicesCta.buttonLabel}
-            </Link>
+              <p className="mx-auto mt-3 max-w-[560px] text-[13px] leading-6 text-white/85">
+                {servicesCta.description}
+              </p>
+
+              <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <Link
+                  href={servicesCta.buttonHref}
+                  className="inline-flex h-11 w-full items-center justify-center rounded-md bg-white px-7 text-[13px] font-bold text-primary transition-transform hover:scale-[1.02] sm:w-auto"
+                >
+                  {servicesCta.buttonLabel}
+                </Link>
+
+                <Link
+                  href="/properties"
+                  className="inline-flex h-11 w-full items-center justify-center rounded-md border border-white/35 px-7 text-[13px] font-bold text-white transition-colors hover:bg-white/10 sm:w-auto"
+                >
+                  Browse properties
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -84,26 +131,68 @@ export default function ServicesPage() {
   );
 }
 
-function ServiceCard({ service }: { service: Service }) {
+/** Wide card for the services we lead with. */
+function FeaturedServiceCard({ service }: { service: Service }) {
   const Icon = icons[service.icon];
 
   return (
-    <article className="flex flex-col rounded-xl border border-border bg-white p-6">
-      <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-light text-primary">
-        <Icon />
-      </span>
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-white p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_10px_28px_rgba(31,122,77,0.12)] sm:p-7">
+      {/* Green wash in the corner marks these two out from the rest. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-primary-light opacity-70 transition-opacity duration-200 group-hover:opacity-100"
+      />
 
-      <h3 className="mt-4 text-[16px] font-bold text-heading">
-        {service.title}
-      </h3>
+      <div className="relative flex items-start gap-4">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,var(--color-primary)_0%,var(--color-primary-dark)_100%)] text-white shadow-[0_6px_16px_rgba(31,122,77,0.3)]">
+          <Icon />
+        </span>
 
-      <p className="mt-2 text-[13px] leading-6 text-muted">{service.summary}</p>
+        <div className="min-w-0">
+          <h3 className="text-[18px] font-bold leading-snug text-heading sm:text-[19px]">
+            {service.title}
+          </h3>
 
-      <ul className="mt-4 flex flex-col gap-2.5 border-t border-border pt-4">
+          <p className="mt-1.5 text-[13px] leading-6 text-muted">
+            {service.summary}
+          </p>
+        </div>
+      </div>
+
+      <ul className="relative mt-5 grid flex-1 content-start gap-2.5 border-t border-border pt-5 sm:grid-cols-2">
         {service.points.map((point) => (
           <li key={point} className="flex items-start gap-2.5">
             <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
             <span className="text-[12.5px] leading-5 text-text">{point}</span>
+          </li>
+        ))}
+      </ul>
+    </article>
+  );
+}
+
+function ServiceCard({ service }: { service: Service }) {
+  const Icon = icons[service.icon];
+
+  return (
+    <article className="group flex flex-col rounded-2xl border border-border bg-white p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_10px_28px_rgba(31,122,77,0.12)]">
+      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-light text-primary transition-colors duration-200 group-hover:bg-primary group-hover:text-white">
+        <Icon />
+      </span>
+
+      <h3 className="mt-4 text-[15.5px] font-bold leading-snug text-heading">
+        {service.title}
+      </h3>
+
+      <p className="mt-2 text-[12.5px] leading-6 text-muted">
+        {service.summary}
+      </p>
+
+      <ul className="mt-4 flex flex-1 flex-col gap-2.5 border-t border-border pt-4">
+        {service.points.map((point) => (
+          <li key={point} className="flex items-start gap-2.5">
+            <CheckIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+            <span className="text-[12px] leading-5 text-text">{point}</span>
           </li>
         ))}
       </ul>

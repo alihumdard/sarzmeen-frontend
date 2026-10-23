@@ -93,7 +93,7 @@ export default function VideoFormModal({
       const messages = e.errors
         ? Array.from(new Set(Object.values(e.errors).flat()))
         : [];
-      setError(messages.join(" ") || e.message || "Could not save the video.");
+      setError(messages.join(" ") || e.message || "Could not save the guide.");
     } finally {
       setSaving(false);
     }
@@ -103,7 +103,7 @@ export default function VideoFormModal({
     <AdminModal
       open={open}
       onClose={onClose}
-      title={isEdit ? "Edit Video" : "Add New Video"}
+      title={isEdit ? "Edit Guide" : "Add New Guide"}
       description="Paste a YouTube link — the thumbnail is taken from it automatically."
       size="lg"
       footer={
@@ -121,7 +121,7 @@ export default function VideoFormModal({
             disabled={saving}
             className="inline-flex h-10 items-center rounded-md bg-primary px-5 text-[12px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            {saving ? "Saving..." : isEdit ? "Save Changes" : "Add Video"}
+            {saving ? "Saving..." : isEdit ? "Save Changes" : "Add Guide"}
           </button>
         </div>
       }
@@ -172,7 +172,7 @@ export default function VideoFormModal({
               setTitle(event.target.value);
               if (!slugTouched) setSlug(slugify(event.target.value));
             }}
-            placeholder="e.g. How to verify property documents"
+            placeholder="e.g. How to add a new property listing"
             className={inputClass}
           />
         </Field>
@@ -194,7 +194,7 @@ export default function VideoFormModal({
             value={description}
             onChange={(event) => setDescription(event.target.value.slice(0, 5000))}
             rows={4}
-            placeholder="What this video covers..."
+            placeholder="What this guide covers..."
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-[12px] outline-none focus:border-primary"
           />
         </Field>

@@ -37,7 +37,7 @@ export async function generateMetadata({
   const { slug } = await params;
   const video = await getVideo(slug);
 
-  if (!video) return { title: "Video not found" };
+  if (!video) return { title: "Guide not found" };
 
   return {
     title: video.metaTitle || video.title,
@@ -59,10 +59,10 @@ export default async function VideoPage({ params }: { params: Params }) {
   return (
     <main>
       <DetailBreadcrumb
-        backHref="/media"
+        backHref="/guides"
         crumbs={[
           { label: "Home", href: "/" },
-          { label: "Media", href: "/media" },
+          { label: "Video Guides", href: "/guides" },
           { label: video.title },
         ]}
       />
@@ -127,7 +127,7 @@ export default async function VideoPage({ params }: { params: Params }) {
           <aside className="min-w-0">
             <div className="rounded-xl border border-border bg-white p-5">
               <h2 className="text-[14px] font-bold text-heading">
-                More videos
+                More guides
               </h2>
 
               {related.length === 0 ? (
@@ -139,7 +139,7 @@ export default async function VideoPage({ params }: { params: Params }) {
                   {related.map((item) => (
                     <li key={item.id}>
                       <Link
-                        href={`/media/${item.slug}`}
+                        href={`/guides/${item.slug}`}
                         className="group flex gap-3"
                       >
                         <div className="relative h-[52px] w-[88px] shrink-0 overflow-hidden rounded-md bg-surface">
@@ -163,10 +163,10 @@ export default async function VideoPage({ params }: { params: Params }) {
               )}
 
               <Link
-                href="/media"
+                href="/guides"
                 className="mt-4 block rounded-md border border-primary py-2 text-center text-[12px] font-semibold text-primary transition-colors hover:bg-primary hover:text-white"
               >
-                View all videos
+                View all guides
               </Link>
             </div>
           </aside>

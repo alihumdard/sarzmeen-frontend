@@ -124,8 +124,8 @@ const menuGroups: MenuGroup[] = [
         implemented: true,
       },
       {
-        label: "Media",
-        href: "/admin/videos",
+        label: "Video Guides",
+        href: "/admin/guides",
         anyPermission: ["blogs.manage"],
         icon: "media",
         implemented: true,

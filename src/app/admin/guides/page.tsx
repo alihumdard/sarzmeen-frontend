@@ -28,7 +28,7 @@ export default function AdminVideosPage() {
     try {
       setVideos(await listAdminVideos({ status, search: appliedSearch }));
     } catch (err) {
-      setError((err as Error).message || "Could not load videos.");
+      setError((err as Error).message || "Could not load guides.");
     } finally {
       setLoading(false);
     }
@@ -57,7 +57,7 @@ export default function AdminVideosPage() {
         }
       } catch (err) {
         if (active) {
-          setError((err as Error).message || "Could not load videos.");
+          setError((err as Error).message || "Could not load guides.");
         }
       } finally {
         if (active) setLoading(false);
@@ -76,7 +76,7 @@ export default function AdminVideosPage() {
       setDeleting(null);
       await load();
     } catch (err) {
-      setError((err as Error).message || "Could not delete the video.");
+      setError((err as Error).message || "Could not delete the guide.");
       setDeleting(null);
     }
   }
@@ -84,8 +84,8 @@ export default function AdminVideosPage() {
   return (
     <div>
       <AdminPageHeader
-        title="Media / Videos"
-        description="YouTube videos shown on the public Media page."
+        title="Video Guides"
+        description="How-to videos shown on the public Video Guides page."
         action={
           <button
             type="button"
@@ -95,7 +95,7 @@ export default function AdminVideosPage() {
             }}
             className="inline-flex h-10 items-center rounded-md bg-primary px-5 text-[12px] font-semibold text-white transition-opacity hover:opacity-90"
           >
-            Add New Video
+            Add New Guide
           </button>
         }
       />
@@ -120,7 +120,7 @@ export default function AdminVideosPage() {
         </select>
 
         <span className="text-[12px] text-gray-500 sm:ml-auto">
-          {loading ? "Loading..." : `${videos.length} video${videos.length === 1 ? "" : "s"}`}
+          {loading ? "Loading..." : `${videos.length} guide${videos.length === 1 ? "" : "s"}`}
         </span>
       </div>
 
@@ -133,10 +133,10 @@ export default function AdminVideosPage() {
       {!loading && videos.length === 0 && !error ? (
         <div className="rounded-lg border border-gray-200 bg-white py-16 text-center">
           <p className="text-[13px] font-semibold text-gray-700">
-            No videos yet
+            No guides yet
           </p>
           <p className="mt-1 text-[12px] text-gray-500">
-            Add a YouTube link and it will appear on the Media page.
+            Add a YouTube link and it will appear on the Video Guides page.
           </p>
         </div>
       ) : (
@@ -180,7 +180,7 @@ export default function AdminVideosPage() {
                 </h2>
 
                 <p className="mt-1 truncate text-[11px] text-gray-400">
-                  /media/{video.slug}
+                  /guides/{video.slug}
                 </p>
 
                 <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-500">
@@ -193,7 +193,7 @@ export default function AdminVideosPage() {
 
                 <div className="mt-4 flex items-center gap-2 border-t border-gray-100 pt-3">
                   <a
-                    href={`/media/${video.slug}`}
+                    href={`/guides/${video.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[11.5px] font-semibold text-gray-600 hover:text-primary"
@@ -240,8 +240,8 @@ export default function AdminVideosPage() {
         open={Boolean(deleting)}
         onCancel={() => setDeleting(null)}
         onConfirm={handleDelete}
-        title="Delete this video?"
-        message={`"${deleting?.title ?? ""}" will be removed from the Media page.`}
+        title="Delete this guide?"
+        message={`"${deleting?.title ?? ""}" will be removed from the Video Guides page.`}
         confirmLabel="Delete"
         variant="danger"
       />

@@ -20,6 +20,8 @@ export type Service = {
   points: string[];
   /** Icon key, mapped to a drawing on the page. */
   icon: "handshake" | "calculator" | "search" | "globe" | "camera" | "chart";
+  /** The two we lead with; these get a wider card at the top of the grid. */
+  featured?: boolean;
 };
 
 export const services: Service[] = [
@@ -35,6 +37,7 @@ export const services: Service[] = [
       "Negotiation and transfer handled end to end",
     ],
     icon: "handshake",
+    featured: true,
   },
   {
     id: "payment-plans",
@@ -48,6 +51,7 @@ export const services: Service[] = [
       "Published straight to your project page on Sarzameen.com",
     ],
     icon: "calculator",
+    featured: true,
   },
   {
     id: "seo",
@@ -101,6 +105,17 @@ export const services: Service[] = [
     ],
     icon: "chart",
   },
+];
+
+/**
+ * Figures for the band under the intro. Deliberately plain claims we can
+ * stand behind, not invented numbers.
+ */
+export const servicesStats = [
+  { value: "6", label: "Services under one roof" },
+  { value: "Lahore", label: "Our own team, on the ground" },
+  { value: "End to end", label: "Search through to transfer" },
+  { value: "No fee", label: "Until we have something for you" },
 ];
 
 export const servicesCta = {
