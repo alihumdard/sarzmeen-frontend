@@ -5,9 +5,9 @@ import { serverApi } from "@/lib/api/server";
 import type { Video } from "@/types/video";
 
 export const metadata: Metadata = {
-  title: "Video Guides — Buying & Verifying Property in Pakistan",
+  title: "Video Guides — How to Use Sarzameen.com",
   description:
-    "Step-by-step video guides on checking ownership, reading the fard and mutation, verifying land records, and using Sarzameen.com.",
+    "Step-by-step video guides: how to list a property, manage your listings, build a payment plan and get the most out of Sarzameen.com.",
 };
 
 async function getVideos(): Promise<Video[]> {
@@ -27,7 +27,7 @@ export default async function MediaPage() {
     <main>
       <PageBanner
         title="Video Guides"
-        description="Checking ownership, reading the record, and buying with confidence — step by step."
+        description="Short videos showing you how to use Sarzameen.com, step by step."
         crumbs={[{ label: "Home", href: "/" }, { label: "Video Guides" }]}
         contentMaxWidth="720px"
         image="/images/city-lahore-skyline.jpg"
@@ -37,7 +37,8 @@ export default async function MediaPage() {
         <div className="container-page">
           {videos.length === 0 ? (
             <p className="rounded-xl border border-border bg-white py-16 text-center text-[13px] text-muted">
-              No guides have been published yet.
+              No guides have been published yet. Add one from Admin &rarr;
+              Video Guides.
             </p>
           ) : (
             <>
