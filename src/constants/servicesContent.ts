@@ -18,8 +18,16 @@ export type Service = {
   summary: string;
   /** What the client actually receives. */
   points: string[];
-  /** Icon key, mapped to a drawing on the page. */
-  icon: "handshake" | "calculator" | "search" | "globe" | "camera" | "chart";
+  /** Icon key, mapped to an icon from the shared library. */
+  icon:
+    | "handshake"
+    | "document"
+    | "search"
+    | "globe"
+    | "camera"
+    | "chart";
+  /** One-line outcome, shown under the title. */
+  outcome: string;
   /** The two we lead with; these get a wider card at the top of the grid. */
   featured?: boolean;
 };
@@ -27,6 +35,7 @@ export type Service = {
 export const services: Service[] = [
   {
     id: "property-dealing",
+    outcome: "From first viewing to transfer",
     title: "Property Dealing",
     summary:
       "Buying, selling or renting — we handle the search, the viewings and the paperwork that follows.",
@@ -41,6 +50,7 @@ export const services: Service[] = [
   },
   {
     id: "payment-plans",
+    outcome: "A schedule your buyers can read",
     title: "Payment Plan Creation",
     summary:
       "Structured instalment plans for developers, worked out to the rupee and ready to publish.",
@@ -50,11 +60,12 @@ export const services: Service[] = [
       "A schedule your buyers can read, download and compare",
       "Published straight to your project page on Sarzameen.com",
     ],
-    icon: "calculator",
+    icon: "document",
     featured: true,
   },
   {
     id: "seo",
+    outcome: "Found by people already searching",
     title: "SEO & Digital Marketing",
     summary:
       "Getting your project found by people already searching for it.",
@@ -68,6 +79,7 @@ export const services: Service[] = [
   },
   {
     id: "websites",
+    outcome: "A site your team can run",
     title: "Property Website Development",
     summary:
       "Listing websites for agencies and developers, built the way this one is.",
@@ -81,6 +93,7 @@ export const services: Service[] = [
   },
   {
     id: "photography",
+    outcome: "Listings people actually open",
     title: "Photography & Virtual Tours",
     summary:
       "Listings with good photographs get opened. The rest get scrolled past.",
@@ -94,6 +107,7 @@ export const services: Service[] = [
   },
   {
     id: "advisory",
+    outcome: "A straight answer before you commit",
     title: "Investment Advisory",
     summary:
       "An honest read on what an area is doing before you commit to it.",

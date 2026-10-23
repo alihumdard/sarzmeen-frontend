@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageBanner from "@/components/layout/PageBanner";
-import { CheckIcon } from "@/components/ui/Icons";
+import {
+  CameraIcon,
+  ChartIcon,
+  CheckIcon,
+  DocumentIcon,
+  GlobeIcon,
+  HandshakeIcon,
+  SmartSearchIcon,
+} from "@/components/ui/Icons";
 import {
   services,
   servicesCta,
@@ -17,9 +25,6 @@ export const metadata: Metadata = {
 };
 
 export default function ServicesPage() {
-  const featured = services.filter((service) => service.featured);
-  const rest = services.filter((service) => !service.featured);
-
   return (
     <main>
       <PageBanner
@@ -30,67 +35,65 @@ export default function ServicesPage() {
         image="/images/city-lahore-skyline.jpg"
       />
 
-      {/* Intro, then the figures, so the page opens with something concrete. */}
-      <section className="bg-white pt-10 sm:pt-14">
+      {/* Intro beside the figures, rather than centred above them. */}
+      <section className="bg-white py-10 sm:py-14">
         <div className="container-page">
-          <div className="mx-auto max-w-[760px] text-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-primary-light px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-primary">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-              {servicesIntro.eyebrow}
-            </span>
+          <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
+            <div className="min-w-0">
+              <span className="inline-flex items-center gap-2 rounded-full bg-primary-light px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-primary">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                {servicesIntro.eyebrow}
+              </span>
 
-            <h2 className="mt-4 text-balance text-[26px] font-bold leading-tight text-heading sm:text-[34px]">
-              {servicesIntro.heading}
-            </h2>
+              <h2 className="mt-4 text-balance text-[26px] font-bold leading-[1.2] text-heading sm:text-[34px]">
+                {servicesIntro.heading}
+              </h2>
 
-            {servicesIntro.paragraphs.map((paragraph) => (
-              <p
-                key={paragraph}
-                className="mx-auto mt-4 max-w-[680px] text-[13.5px] leading-7 text-muted"
-              >
-                {paragraph}
-              </p>
-            ))}
+              {servicesIntro.paragraphs.map((paragraph) => (
+                <p
+                  key={paragraph}
+                  className="mt-4 text-[13.5px] leading-7 text-muted"
+                >
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+
+            {/* Hairline grid: gap-px over a border-coloured background. */}
+            <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border">
+              {servicesStats.map((stat) => (
+                <div key={stat.label} className="bg-surface px-5 py-7 sm:px-6">
+                  <dt className="text-[22px] font-bold leading-none text-primary sm:text-[26px]">
+                    {stat.value}
+                  </dt>
+                  <dd className="mt-2 text-[11.5px] leading-5 text-muted">
+                    {stat.label}
+                  </dd>
+                </div>
+              ))}
+            </dl>
           </div>
-
-          {/* Hairline grid: gap-px over a border-coloured background. */}
-          <dl className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border lg:grid-cols-4">
-            {servicesStats.map((stat) => (
-              <div
-                key={stat.label}
-                className="bg-white px-5 py-6 text-center sm:px-6"
-              >
-                <dt className="text-[20px] font-bold leading-none text-primary sm:text-[24px]">
-                  {stat.value}
-                </dt>
-                <dd className="mt-2 text-[11.5px] leading-5 text-muted">
-                  {stat.label}
-                </dd>
-              </div>
-            ))}
-          </dl>
         </div>
       </section>
 
-      <section className="bg-white py-10 sm:py-14">
+      {/* Each service as a full-width row, numbered, alternating sides. */}
+      <section className="bg-surface py-10 sm:py-14">
         <div className="container-page">
-          {/* The two we lead with, given the width to breathe. */}
-          <div className="grid gap-5 lg:grid-cols-2">
-            {featured.map((service) => (
-              <FeaturedServiceCard key={service.id} service={service} />
-            ))}
-          </div>
-
-          <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {rest.map((service) => (
-              <ServiceCard key={service.id} service={service} />
+          <div className="flex flex-col gap-5">
+            {services.map((service, index) => (
+              <ServiceRow
+                key={service.id}
+                service={service}
+                index={index}
+                flip={index % 2 === 1}
+              />
             ))}
           </div>
         </div>
       </section>
 
       {/* Closing call to action */}
-      <section className="bg-white pb-12 sm:pb-16">
+      <section className="bg-surface pb-12 sm:pb-16">
         <div className="container-page">
           <div className="relative overflow-hidden rounded-2xl bg-[linear-gradient(135deg,var(--color-primary)_0%,var(--color-primary-dark)_100%)] px-6 py-9 text-center shadow-[0_14px_40px_rgba(31,122,77,0.28)] sm:px-10 sm:py-11">
             {/* Soft light from the top right, so the panel is not flat green. */}
@@ -131,119 +134,95 @@ export default function ServicesPage() {
   );
 }
 
-/** Wide card for the services we lead with. */
-function FeaturedServiceCard({ service }: { service: Service }) {
+/**
+ * One service. The icon panel and the text swap sides down the page so the
+ * list does not read as six identical blocks.
+ */
+function ServiceRow({
+  service,
+  index,
+  flip,
+}: {
+  service: Service;
+  index: number;
+  flip: boolean;
+}) {
   const Icon = icons[service.icon];
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-white p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_10px_28px_rgba(31,122,77,0.12)] sm:p-7">
-      {/* Green wash in the corner marks these two out from the rest. */}
+    <article
+      className={[
+        "group grid overflow-hidden rounded-2xl border border-border bg-white shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_12px_30px_rgba(31,122,77,0.12)]",
+        // The narrow column has to follow the panel when the sides swap,
+        // or the text ends up squeezed into 300px.
+        flip ? "lg:grid-cols-[1fr_300px]" : "lg:grid-cols-[300px_1fr]",
+      ].join(" ")}
+    >
+      {/* Icon panel */}
       <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-primary-light opacity-70 transition-opacity duration-200 group-hover:opacity-100"
-      />
+        className={[
+          "relative flex items-center gap-4 overflow-hidden bg-[linear-gradient(145deg,var(--color-primary)_0%,var(--color-primary-dark)_100%)] px-6 py-6 lg:flex-col lg:items-start lg:justify-center lg:gap-5 lg:px-8 lg:py-10",
+          flip ? "lg:order-2" : "",
+        ].join(" ")}
+      >
+        {/* Faint circles, so the panel has some depth behind the icon. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-white/10"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-16 -left-10 h-36 w-36 rounded-full bg-white/[0.07]"
+        />
 
-      <div className="relative flex items-start gap-4">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,var(--color-primary)_0%,var(--color-primary-dark)_100%)] text-white shadow-[0_6px_16px_rgba(31,122,77,0.3)]">
-          <Icon />
+        <span className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-white ring-1 ring-inset ring-white/25 backdrop-blur-sm transition-transform duration-200 group-hover:scale-105 lg:h-16 lg:w-16">
+          <Icon className="h-7 w-7 lg:h-8 lg:w-8" />
         </span>
 
-        <div className="min-w-0">
-          <h3 className="text-[18px] font-bold leading-snug text-heading sm:text-[19px]">
+        <div className="relative min-w-0">
+          <span className="block font-mono text-[11px] font-bold tracking-widest text-white/60">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <h3 className="mt-1 text-[17px] font-bold leading-snug text-white lg:text-[19px]">
             {service.title}
           </h3>
-
-          <p className="mt-1.5 text-[13px] leading-6 text-muted">
-            {service.summary}
-          </p>
         </div>
       </div>
 
-      <ul className="relative mt-5 grid flex-1 content-start gap-2.5 border-t border-border pt-5 sm:grid-cols-2">
-        {service.points.map((point) => (
-          <li key={point} className="flex items-start gap-2.5">
-            <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            <span className="text-[12.5px] leading-5 text-text">{point}</span>
-          </li>
-        ))}
-      </ul>
+      {/* Detail */}
+      <div className="min-w-0 px-6 py-6 sm:px-7 sm:py-7">
+        <p className="inline-flex items-center gap-2 rounded-full bg-primary-light px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-primary">
+          {service.outcome}
+        </p>
+
+        <p className="mt-3 text-[13.5px] leading-7 text-muted">
+          {service.summary}
+        </p>
+
+        <ul className="mt-5 grid gap-x-6 gap-y-2.5 border-t border-border pt-5 sm:grid-cols-2">
+          {service.points.map((point) => (
+            <li key={point} className="flex items-start gap-2.5">
+              <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary-light">
+                <CheckIcon className="h-3 w-3 text-primary" />
+              </span>
+              <span className="text-[12.5px] leading-5 text-text">{point}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </article>
   );
 }
 
-function ServiceCard({ service }: { service: Service }) {
-  const Icon = icons[service.icon];
-
-  return (
-    <article className="group flex flex-col rounded-2xl border border-border bg-white p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_10px_28px_rgba(31,122,77,0.12)]">
-      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary-light text-primary transition-colors duration-200 group-hover:bg-primary group-hover:text-white">
-        <Icon />
-      </span>
-
-      <h3 className="mt-4 text-[15.5px] font-bold leading-snug text-heading">
-        {service.title}
-      </h3>
-
-      <p className="mt-2 text-[12.5px] leading-6 text-muted">
-        {service.summary}
-      </p>
-
-      <ul className="mt-4 flex flex-1 flex-col gap-2.5 border-t border-border pt-4">
-        {service.points.map((point) => (
-          <li key={point} className="flex items-start gap-2.5">
-            <CheckIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-            <span className="text-[12px] leading-5 text-text">{point}</span>
-          </li>
-        ))}
-      </ul>
-    </article>
-  );
-}
-
-/* Line icons, drawn inline so the page carries no extra dependency. */
-const stroke = {
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 1.7,
-  strokeLinecap: "round" as const,
-  strokeLinejoin: "round" as const,
-};
-
-const icons: Record<Service["icon"], () => React.ReactElement> = {
-  handshake: () => (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" {...stroke} aria-hidden="true">
-      <path d="M11 17 8.5 14.5a2 2 0 0 1 0-2.8l4-4a2 2 0 0 1 2.8 0L19 11.4" />
-      <path d="m13 19 2 2 6-6-4-4" />
-      <path d="M3 10.5 7 6.5l3 3" />
-    </svg>
-  ),
-  calculator: () => (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" {...stroke} aria-hidden="true">
-      <rect x="5" y="3" width="14" height="18" rx="2" />
-      <path d="M8 7h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15v3" />
-    </svg>
-  ),
-  search: () => (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" {...stroke} aria-hidden="true">
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.2-3.2" />
-    </svg>
-  ),
-  globe: () => (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" {...stroke} aria-hidden="true">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18Z" />
-    </svg>
-  ),
-  camera: () => (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" {...stroke} aria-hidden="true">
-      <path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z" />
-      <circle cx="12" cy="13" r="3.2" />
-    </svg>
-  ),
-  chart: () => (
-    <svg className="h-5 w-5" viewBox="0 0 24 24" {...stroke} aria-hidden="true">
-      <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
-    </svg>
-  ),
+/* Drawn in the shared icon library, so they match the rest of the site. */
+const icons: Record<
+  Service["icon"],
+  React.ComponentType<{ className?: string }>
+> = {
+  handshake: HandshakeIcon,
+  document: DocumentIcon,
+  search: SmartSearchIcon,
+  globe: GlobeIcon,
+  camera: CameraIcon,
+  chart: ChartIcon,
 };

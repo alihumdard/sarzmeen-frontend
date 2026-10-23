@@ -1701,3 +1701,43 @@ export function FactoryIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+/** Services — website development. */
+export function GlobeIcon({ className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="8.6" />
+      <path d="M3.4 12h17.2" />
+      <path d="M12 3.4a13 13 0 0 1 0 17.2 13 13 0 0 1 0-17.2Z" />
+      <path d="M5.2 7.2a14 14 0 0 0 13.6 0M5.2 16.8a14 14 0 0 1 13.6 0" />
+    </svg>
+  );
+}
+
+/** Services — photography and virtual tours. */
+export function CameraIcon({ className }: IconProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.6}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 7.8h2.8L8.4 5.4h7.2l1.6 2.4H20a1.4 1.4 0 0 1 1.4 1.4v8.4a1.4 1.4 0 0 1-1.4 1.4H4a1.4 1.4 0 0 1-1.4-1.4V9.2A1.4 1.4 0 0 1 4 7.8Z" />
+      <circle cx="12" cy="13.4" r="3.4" />
+    </svg>
+  );
+}
