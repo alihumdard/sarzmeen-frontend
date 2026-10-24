@@ -94,6 +94,19 @@ export default function PropertiesPage() {
     loadProperties();
   }, [loadProperties]);
 
+  /* Featuring is what puts a listing in the homepage block. */
+  const toggleFeatured = async (id: string, featured: boolean) => {
+    try {
+      await api(`/admin/properties/${id}/featured`, {
+        method: "PATCH",
+        body: { featured },
+      });
+      loadProperties();
+    } catch {
+      // handle error
+    }
+  };
+
   const updateStatus = async (id: string, newStatus: string) => {
     try {
       await api(`/admin/properties/${id}/status`, {
@@ -305,6 +318,18 @@ export default function PropertiesPage() {
                     },
                   ]
                 : []),
+              ...(!isAdmin || property.status !== "published"
+                ? []
+                : [
+                    {
+                      label: property.featured
+                        ? "Remove from Featured"
+                        : "Add to Featured",
+                      onClick: () =>
+                        toggleFeatured(property.id, !property.featured),
+                      icon: <StarIcon />,
+                    },
+                  ]),
               ...(!isAdmin ? [] : property.status === "published"
                 ? [
                     {
@@ -462,6 +487,14 @@ function CheckIcon() {
   return (
     <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
       <path d="m5 12 4 4L19 6" />
+    </svg>
+  );
+}
+
+function StarIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m12 3.6 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8L3.6 9.7l5.8-.8Z" />
     </svg>
   );
 }
