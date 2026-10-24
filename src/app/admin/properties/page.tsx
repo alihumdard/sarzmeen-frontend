@@ -344,6 +344,20 @@ export default function PropertiesPage() {
                     },
                   ]
                 : []),
+              /*
+               * Sold and expired were one-way: the menu offered no way back,
+               * so a mis-click left the listing off the site for good.
+               */
+              ...(!isAdmin ||
+              (property.status !== "sold" && property.status !== "expired")
+                ? []
+                : [
+                    {
+                      label: "Put Back on Sale",
+                      onClick: () => updateStatus(property.id, "published"),
+                      icon: <RestoreIcon />,
+                    },
+                  ]),
               {
                 label: "Delete",
                 onClick: () => deleteProperty(property.id),
@@ -487,6 +501,15 @@ function CheckIcon() {
   return (
     <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
       <path d="m5 12 4 4L19 6" />
+    </svg>
+  );
+}
+
+function RestoreIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1" />
+      <path d="M3.5 4.5V10H9" />
     </svg>
   );
 }
