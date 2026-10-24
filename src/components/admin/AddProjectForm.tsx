@@ -835,8 +835,8 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
 
                 <details className="group rounded-lg border border-gray-200 p-3">
                   <summary className="cursor-pointer list-none text-[12px] font-semibold text-gray-700">
-                    <span className="group-open:hidden">\u25b8 Social sharing (Open Graph)</span>
-                    <span className="hidden group-open:inline">\u25be Social sharing (Open Graph)</span>
+                    <span className="group-open:hidden">▸ Social sharing (Open Graph)</span>
+                    <span className="hidden group-open:inline">▾ Social sharing (Open Graph)</span>
                   </summary>
                   <p className="mt-1.5 text-[10.5px] text-gray-400">
                     Used when the project is shared on WhatsApp, Facebook or LinkedIn. Falls back to the meta fields above.
