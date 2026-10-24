@@ -79,7 +79,19 @@ export async function api<T = unknown>(
   const json = await res.json();
 
   if (!res.ok) {
-    const error = new Error(json.message ?? "Request failed") as Error & {
+    /*
+     * A 401 here means the server session has gone while the page stayed
+     * open — the cached user keeps the admin UI looking signed in, so
+     * "Unauthenticated." reads as a bug rather than an expired login.
+     * Say what actually happened, and leave the form filled so the work
+     * survives a log-in in another tab.
+     */
+    const message =
+      res.status === 401 && !/^\/(login|register|me|logout)$/.test(path)
+        ? "Your session has expired. Open Sarzameen in another tab, log in again, then press save here — your details are still filled in."
+        : (json.message ?? "Request failed");
+
+    const error = new Error(message) as Error & {
       status: number;
       errors?: Record<string, string[]>;
     };
