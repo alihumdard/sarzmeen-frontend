@@ -11,7 +11,7 @@ export default function LatestBlogs() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
 
   useEffect(() => {
-    api<{ data: BlogPost[] }>("/blogs?per_page=8")
+    api<{ data: BlogPost[] }>("/blogs?per_page=8&featured_first=1")
       .then((res) => setPosts(res.data))
       .catch(() => {});
   }, []);
