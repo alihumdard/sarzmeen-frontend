@@ -101,6 +101,20 @@ export default function LocationPicker({
           setQuery(event.target.value);
           setOpen(true);
         }}
+        onClick={(event) => {
+          /*
+             The list keeps focus on the input, so after a choice the field
+             never blurred and a second click fires no focus event. Opening
+             on click too makes the field reopen either way.
+          */
+          if (!open) {
+            setOpen(true);
+            if (selected) {
+              setQuery(label(selected, parentName(selected)));
+              event.currentTarget.select();
+            }
+          }
+        }}
         onFocus={(event) => {
           setOpen(true);
           /*
