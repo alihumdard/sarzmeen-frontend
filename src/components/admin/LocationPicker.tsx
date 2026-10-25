@@ -5,6 +5,7 @@ import { useMemo, useRef, useState } from "react";
 type Option = {
   id: string;
   name: string;
+  slug: string;
   type: string;
   parent: string | null;
 };
@@ -40,6 +41,20 @@ export default function LocationPicker({
   const [open, setOpen] = useState(false);
   const blurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  /*
+   * The API gives `parent` as a slug, so map it back to a readable name.
+   * Without this the hint under a match reads "lahore" or
+   * "johar-town-phase-1" rather than the place it refers to.
+   */
+  const nameBySlug = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const l of locations) map.set(l.slug, l.name);
+    return map;
+  }, [locations]);
+
+  const parentName = (option: Option) =>
+    option.parent ? nameBySlug.get(option.parent) ?? option.parent : null;
+
   const selected = useMemo(
     () => locations.find((l) => l.id === value) ?? null,
     [locations, value],
@@ -74,7 +89,7 @@ export default function LocationPicker({
   return (
     <div className="relative">
       <input
-        value={open ? query : selected ? label(selected) : query}
+        value={open ? query : selected ? label(selected, parentName(selected)) : query}
         onChange={(event) => {
           setQuery(event.target.value);
           setOpen(true);
@@ -87,7 +102,7 @@ export default function LocationPicker({
           // Let a click on an option land before the list closes.
           blurTimer.current = setTimeout(() => setOpen(false), 150);
         }}
-        placeholder={selected ? label(selected) : placeholder}
+        placeholder={selected ? label(selected, parentName(selected)) : placeholder}
         className={className}
         autoComplete="off"
       />
@@ -126,9 +141,9 @@ export default function LocationPicker({
                   className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[12px] text-gray-700 hover:bg-primary-light hover:text-primary"
                 >
                   <span className="min-w-0 truncate">{option.name}</span>
-                  {option.parent && (
+                  {parentName(option) && (
                     <span className="shrink-0 text-[10.5px] text-gray-400">
-                      {option.parent}
+                      {parentName(option)}
                     </span>
                   )}
                 </button>
@@ -147,6 +162,6 @@ export default function LocationPicker({
   );
 }
 
-function label(option: Option): string {
-  return option.parent ? `${option.name} — ${option.parent}` : option.name;
+function label(option: Option, parent: string | null): string {
+  return parent ? `${option.name} — ${parent}` : option.name;
 }
