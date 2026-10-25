@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 type Option = {
   id: string;
@@ -52,8 +52,11 @@ export default function LocationPicker({
     return map;
   }, [locations]);
 
-  const parentName = (option: Option) =>
-    option.parent ? nameBySlug.get(option.parent) ?? option.parent : null;
+  const parentName = useCallback(
+    (option: Option) =>
+      option.parent ? nameBySlug.get(option.parent) ?? option.parent : null,
+    [nameBySlug],
+  );
 
   const selected = useMemo(
     () => locations.find((l) => l.id === value) ?? null,
@@ -62,7 +65,11 @@ export default function LocationPicker({
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) {
+    // The pre-filled name is the current choice, not a search for it.
+    const isPrefill =
+      selected && q === label(selected, parentName(selected)).toLowerCase();
+
+    if (!q || isPrefill) {
       // Cities first when nothing is typed, as a sensible starting point.
       return locations.filter((l) => l.type === "city").slice(0, VISIBLE);
     }
@@ -78,7 +85,7 @@ export default function LocationPicker({
     }
 
     return [...starts, ...contains].slice(0, VISIBLE);
-  }, [locations, query]);
+  }, [locations, query, selected, parentName]);
 
   function choose(option: Option) {
     onChange(option.id);
@@ -94,9 +101,20 @@ export default function LocationPicker({
           setQuery(event.target.value);
           setOpen(true);
         }}
-        onFocus={() => {
+        onFocus={(event) => {
           setOpen(true);
-          setQuery("");
+          /*
+             Keep the chosen name in the box and select it, rather than
+             blanking to a grey placeholder — that read as if the choice
+             had been lost. Typing still replaces it.
+          */
+          if (selected) {
+            const text = label(selected, parentName(selected));
+            setQuery(text);
+            requestAnimationFrame(() => event.target.select());
+          } else {
+            setQuery("");
+          }
         }}
         onBlur={() => {
           // Let a click on an option land before the list closes.
@@ -123,7 +141,9 @@ export default function LocationPicker({
 
       {open && (
         <ul
-          onMouseDown={() => {
+          onMouseDown={(event) => {
+            // Keeps focus on the input, so the click always lands.
+            event.preventDefault();
             if (blurTimer.current) clearTimeout(blurTimer.current);
           }}
           className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-md border border-gray-200 bg-white py-1 shadow-lg"
