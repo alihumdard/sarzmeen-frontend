@@ -27,6 +27,7 @@ import SpecFieldGroup from "@/components/admin/SpecFieldGroup";
 import type { SpecValue } from "@/components/admin/SpecFieldGroup";
 import PaymentPlanStep from "@/components/admin/PaymentPlanStep";
 import CustomFeatureList from "@/components/admin/CustomFeatureList";
+import LocationPicker from "@/components/admin/LocationPicker";
 import PaymentPlanCalculator from "@/components/admin/PaymentPlanCalculator";
 import {
   adminInputClass,
@@ -330,14 +331,12 @@ export default function EditPropertyPage() {
 
               <div>
                 <label className="mb-1 block text-xs font-medium text-gray-600">Location</label>
-                <select className={adminSelectClass} value={locationId} onChange={(e) => setLocationId(e.target.value)}>
-                  <option value="">Select location</option>
-                  {locations.map((loc) => (
-                    <option key={loc.id} value={loc.id}>
-                      {loc.parent ? `${loc.parent} › ` : ""}{loc.name}
-                    </option>
-                  ))}
-                </select>
+                <LocationPicker
+                  locations={locations}
+                  value={locationId}
+                  onChange={setLocationId}
+                  className={adminInputClass}
+                />
               </div>
 
               <label className="flex items-center gap-2 text-xs text-gray-600">

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { prepareImages } from "@/lib/utils/resizeImage";
 import CustomFeatureList from "@/components/admin/CustomFeatureList";
 import ImageEditButton from "@/components/admin/ImageEditButton";
+import LocationPicker from "@/components/admin/LocationPicker";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import PriceInWords from "@/components/ui/PriceInWords";
 import { useEffect, useState } from "react";
@@ -527,10 +528,12 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                   </Field>
                 </div>
                 <Field label="Location" required error={fieldError("locationId")}>
-                  <select autoComplete="off" value={locationId} onChange={(e) => setLocationId(e.target.value)} className={adminSelectClass}>
-                    <option value="">Select Location</option>
-                    {locations.map((l) => <option key={l.id} value={l.id}>{l.parent ? `${l.parent} › ` : ""}{l.name}</option>)}
-                  </select>
+                  <LocationPicker
+                    locations={locations}
+                    value={locationId}
+                    onChange={setLocationId}
+                    className={adminInputClass}
+                  />
                 </Field>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field label="Price From (PKR)" error={fieldError("priceFrom")}>

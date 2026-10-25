@@ -18,6 +18,7 @@ import {
 } from "@/lib/api/propertySchema";
 import CustomFeatureList from "@/components/admin/CustomFeatureList";
 import ImageEditButton from "@/components/admin/ImageEditButton";
+import LocationPicker from "@/components/admin/LocationPicker";
 import SpecFieldGroup, { type SpecValue } from "@/components/admin/SpecFieldGroup";
 import PaymentPlanStep from "@/components/admin/PaymentPlanStep";
 import PaymentPlanCalculator from "@/components/admin/PaymentPlanCalculator";
@@ -258,8 +259,6 @@ export default function AddPropertyForm() {
   };
 
   const firstError = Object.values(fieldErrors).flat()[0];
-  const cities = locations.filter((l) => l.type === "city");
-  const areas = locations.filter((l) => l.type !== "city");
 
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
@@ -416,29 +415,12 @@ export default function AddPropertyForm() {
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <Field label="Location" required>
-                    <select
+                    <LocationPicker
+                      locations={locations}
                       value={basic.locationId}
-                      onChange={(e) => setBasic({ ...basic, locationId: e.target.value })}
-                      className={adminSelectClass}
-                    >
-                      <option value="">Select location...</option>
-                      {cities.length > 0 && (
-                        <optgroup label="Cities">
-                          {cities.map((l) => (
-                            <option key={l.id} value={l.id}>{l.name}</option>
-                          ))}
-                        </optgroup>
-                      )}
-                      {areas.length > 0 && (
-                        <optgroup label="Areas / Societies">
-                          {areas.map((l) => (
-                            <option key={l.id} value={l.id}>
-                              {l.name}{l.parent ? ` (${l.parent})` : ""}
-                            </option>
-                          ))}
-                        </optgroup>
-                      )}
-                    </select>
+                      onChange={(id) => setBasic({ ...basic, locationId: id })}
+                      className={adminInputClass}
+                    />
                   </Field>
                   <Field label="Full Address">
                     <input

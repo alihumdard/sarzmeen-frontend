@@ -24,6 +24,7 @@ import SpecFieldGroup from "@/components/admin/SpecFieldGroup";
 import type { SpecValue } from "@/components/admin/SpecFieldGroup";
 import PaymentPlanStep from "@/components/admin/PaymentPlanStep";
 import ImageEditButton from "@/components/admin/ImageEditButton";
+import LocationPicker from "@/components/admin/LocationPicker";
 import PaymentPlanCalculator from "@/components/admin/PaymentPlanCalculator";
 // TipTap is heavy and sits in a later step, so it loads on demand.
 const RichTextEditor = dynamic(
@@ -399,20 +400,12 @@ export default function AddPropertyForm() {
       {/* Location */}
       <div className="space-y-1.5">
         <FieldLabel htmlFor="locationId" required>Location</FieldLabel>
-        <select
-          id="locationId"
+        <LocationPicker
+          locations={locations}
           value={locationId}
-          onChange={(e) => setLocationId(e.target.value)}
-          required
-          className={selectClasses}
-        >
-          <option value="">Select location</option>
-          {locations.map((loc) => (
-            <option key={loc.id} value={loc.id}>
-              {loc.parent ? `${loc.parent} › ` : ""}{loc.name}
-            </option>
-          ))}
-        </select>
+          onChange={setLocationId}
+          className={inputClasses}
+        />
         {fieldError("locationId") && <p className="text-[11px] text-red-500">{fieldError("locationId")}</p>}
       </div>
 
