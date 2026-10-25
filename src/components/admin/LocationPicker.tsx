@@ -128,7 +128,13 @@ export default function LocationPicker({
           }}
           className="absolute z-30 mt-1 max-h-64 w-full overflow-y-auto rounded-md border border-gray-200 bg-white py-1 shadow-lg"
         >
-          {matches.length === 0 ? (
+          {locations.length === 0 ? (
+            /* The list is fetched after the form paints, so an early click
+               would otherwise be told nothing matches. */
+            <li className="px-3 py-2 text-[12px] text-gray-400">
+              Loading locations&hellip;
+            </li>
+          ) : matches.length === 0 ? (
             <li className="px-3 py-2 text-[12px] text-gray-400">
               Nothing matches &ldquo;{query}&rdquo;
             </li>
