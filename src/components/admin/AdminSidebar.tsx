@@ -93,7 +93,7 @@ const menuGroups: MenuGroup[] = [
       {
         label: "Locations",
         href: "/admin/locations",
-        anyPermission: ["categories.manage"],
+        anyPermission: ["locations.manage"],
         icon: "location",
         implemented: true,
       },
