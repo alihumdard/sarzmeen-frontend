@@ -35,7 +35,7 @@ export default function LocationPicker({
   value,
   onChange,
   className = "",
-  placeholder = "Search a city, area or society...",
+  placeholder,
 }: Props) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -63,7 +63,18 @@ export default function LocationPicker({
     [locations, value],
   );
 
-  const matches = useMemo(() => {
+  /*
+   * Says the action out loud. "Search a city..." read as a label, so the
+   * field looked like it should already be showing everything; "Type to
+   * search" makes it clear the list comes from typing.
+   */
+  const hint =
+    placeholder ??
+    (locations.length
+      ? "Search a city, area or society..."
+      : "Loading locations...");
+
+  const { matches, showingCities } = useMemo(() => {
     const q = query.trim().toLowerCase();
     // The pre-filled name is the current choice, not a search for it.
     const isPrefill =
@@ -71,20 +82,41 @@ export default function LocationPicker({
 
     if (!q || isPrefill) {
       // Cities first when nothing is typed, as a sensible starting point.
-      return locations.filter((l) => l.type === "city").slice(0, VISIBLE);
+      return {
+        matches: locations.filter((l) => l.type === "city").slice(0, VISIBLE),
+        showingCities: true,
+      };
     }
+
+    /*
+     * Every word typed has to appear somewhere in the name or its parent,
+     * so "johar town lahore" finds Johar Town in Lahore rather than
+     * nothing — the same name sits in several cities, and the city is how
+     * a lister tells them apart.
+     */
+    const words = q.split(/\s+/).filter(Boolean);
 
     const starts: Option[] = [];
     const contains: Option[] = [];
 
     for (const l of locations) {
       const name = l.name.toLowerCase();
-      if (name.startsWith(q)) starts.push(l);
-      else if (name.includes(q)) contains.push(l);
+      const parent = (parentName(l) ?? "").toLowerCase();
+      const haystack = parent ? `${name} ${parent}` : name;
+
+      if (!words.every((w) => haystack.includes(w))) continue;
+
+      // Name-first matches are the ones people mean, so show them first.
+      if (name.startsWith(words[0])) starts.push(l);
+      else contains.push(l);
+
       if (starts.length >= VISIBLE) break;
     }
 
-    return [...starts, ...contains].slice(0, VISIBLE);
+    return {
+      matches: [...starts, ...contains].slice(0, VISIBLE),
+      showingCities: false,
+    };
   }, [locations, query, selected, parentName]);
 
   function choose(option: Option) {
@@ -134,7 +166,7 @@ export default function LocationPicker({
           // Let a click on an option land before the list closes.
           blurTimer.current = setTimeout(() => setOpen(false), 150);
         }}
-        placeholder={selected ? label(selected, parentName(selected)) : placeholder}
+        placeholder={selected ? label(selected, parentName(selected)) : hint}
         className={className}
         autoComplete="off"
       />
@@ -189,6 +221,14 @@ export default function LocationPicker({
                 </button>
               </li>
             ))
+          )}
+
+          {/* Without this the city list reads as the whole catalogue. */}
+          {showingCities && locations.length > matches.length && (
+            <li className="border-t border-gray-100 px-3 py-1.5 text-[10.5px] text-gray-400">
+              Type to search {locations.length.toLocaleString()} areas and
+              societies
+            </li>
           )}
 
           {matches.length >= VISIBLE && (
