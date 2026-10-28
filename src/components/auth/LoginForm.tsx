@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import AuthField from "@/components/auth/AuthField";
 import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
@@ -11,6 +11,8 @@ import { useAuth } from "@/context/AuthContext";
 export default function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
+  /* Where the link in the verification mail lands. */
+  const verified = useSearchParams().get("verified");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -38,6 +40,19 @@ export default function LoginForm() {
   return (
     <div className="flex flex-col">
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        {verified === "1" && (
+          <div className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-[13px] text-green-700">
+            Your email is verified. Log in to continue.
+          </div>
+        )}
+
+        {verified === "invalid" && (
+          <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] text-amber-800">
+            That verification link has expired. Log in and we will send a fresh
+            one.
+          </div>
+        )}
+
         {error && (
           <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-700">
             {error}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import LoginForm from "@/components/auth/LoginForm";
 import RedirectIfAuthenticated from "@/components/auth/RedirectIfAuthenticated";
 
@@ -32,7 +33,10 @@ export default function LoginPage() {
             </div>
 
             <div className="mt-8 rounded-xl border border-border bg-white p-6 shadow-[0_4px_24px_rgba(15,35,28,0.06)] sm:p-9">
-              <LoginForm />
+              {/* The form reads ?verified= from the verification mail. */}
+              <Suspense fallback={null}>
+                <LoginForm />
+              </Suspense>
             </div>
           </div>
         </div>
