@@ -9,6 +9,7 @@ import {
 } from "@/lib/paymentPlan";
 import type { SpecValue } from "@/components/admin/SpecFieldGroup";
 import { adminInputClass } from "@/components/admin/AdminFormField";
+import PriceInWords from "@/components/ui/PriceInWords";
 
 type Props = {
   specs: Record<string, SpecValue>;
@@ -238,7 +239,9 @@ function Money({
         placeholder="0"
         className={adminInputClass}
       />
-      {pct && <p className="mt-1 text-[10px] text-gray-400">{pct}% of price</p>}
+      {/* Spelled out, so a mistyped zero is caught before saving. */}
+      <PriceInWords value={value} className="mt-1 text-[10px] text-primary" />
+      {pct && <p className="mt-0.5 text-[10px] text-gray-400">{pct}% of price</p>}
     </div>
   );
 }
@@ -270,6 +273,7 @@ function Installment({
           placeholder="Amount each"
           className={adminInputClass}
         />
+        <PriceInWords value={amount} className="text-[10px] text-primary" />
         <input
           type="number"
           min={0}
