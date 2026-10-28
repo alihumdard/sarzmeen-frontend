@@ -65,6 +65,7 @@ export default function PropertyTabs({ property }: PropertyTabsProps) {
               specs={property.specs ?? {}}
               typeSlug={property.typeSlug ?? ""}
               purpose={property.purpose}
+              customFields={property.customFields}
             />
           </div>
         )}

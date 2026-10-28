@@ -40,6 +40,8 @@ export type Agent = {
 export type Property = {
   id: string;
   slug: string;
+  /** Serial the admin and the lister quote to each other, e.g. "SZ-2V3GRC". */
+  reference?: string;
   title: string;
   /** Display location, e.g. "DHA Phase 6, Lahore". */
   location: string;
@@ -69,6 +71,12 @@ export type Property = {
   typeSlug?: string;
   /** Type-specific fields defined by config/property_schema.php. */
   specs?: Record<string, unknown>;
+  /** Rows the lister defined themselves, beyond the schema groups. */
+  customFields?: {
+    label: string;
+    kind: "text" | "number" | "checkbox";
+    value: string | boolean;
+  }[];
 };
 
 /** A landmark near the property, shown under the location map. */

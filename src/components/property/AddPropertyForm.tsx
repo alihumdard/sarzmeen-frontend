@@ -458,7 +458,13 @@ export default function AddPropertyForm() {
         <div>
           <h3 className="mb-3 text-[14px] font-semibold text-heading">Payment Plan</h3>
           <div className="space-y-4 rounded-lg border border-border p-4">
-            <PaymentPlanCalculator specs={specs} onChange={setSpec} onApply={applySpecs} />
+            <PaymentPlanCalculator
+              specs={specs}
+              onChange={setSpec}
+              onApply={applySpecs}
+              listingPrice={Number(price) || 0}
+              onUseAsPrice={(total) => setPrice(String(Math.round(total)))}
+            />
             <PaymentPlanStep specs={specs} onChange={setSpec} totalPrice={Number(price) || 0} />
           </div>
         </div>

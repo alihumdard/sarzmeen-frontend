@@ -17,6 +17,7 @@ import {
   type PropertySchema,
 } from "@/lib/api/propertySchema";
 import CustomFeatureList from "@/components/admin/CustomFeatureList";
+import CustomFieldsEditor, { type CustomField } from "@/components/admin/CustomFieldsEditor";
 import ImageEditButton from "@/components/admin/ImageEditButton";
 import LocationPicker from "@/components/admin/LocationPicker";
 import SpecFieldGroup, { type SpecValue } from "@/components/admin/SpecFieldGroup";
@@ -74,6 +75,8 @@ export default function AddPropertyForm() {
   const [schema, setSchema] = useState<PropertySchema | null>(null);
   /* Free-text features; the schema's checkbox groups cannot cover everything. */
   const [features, setFeatures] = useState<string[]>([]);
+  /* Label + value details the schema groups do not cover. */
+  const [customFields, setCustomFields] = useState<CustomField[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [propertyTypes, setPropertyTypes] = useState<PropertyType[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
@@ -215,6 +218,15 @@ export default function AddPropertyForm() {
     // Free-text features, stored as their own rows on the listing.
     features.forEach((name) => body.append("features[]", name));
 
+    // Named rows the lister added; blank labels are dropped server-side.
+    customFields
+      .filter((f) => f.label.trim() !== "")
+      .forEach((f, i) => {
+        body.append(`customFields[${i}][label]`, f.label.trim());
+        body.append(`customFields[${i}][kind]`, f.kind);
+        body.append(`customFields[${i}][value]`, f.value);
+      });
+
     images.forEach((file) => body.append("images[]", file));
 
     try {
@@ -232,7 +244,7 @@ export default function AddPropertyForm() {
     } finally {
       setSubmitting(false);
     }
-  }, [basic, core, specs, images, typeId, purpose, router]);
+  }, [basic, core, specs, images, features, customFields, typeId, purpose, router]);
 
   const isLastStep = stepIndex >= steps.length - 1;
   const canLeaveStepOne = Boolean(typeId && basic.title && basic.locationId);
@@ -532,6 +544,11 @@ export default function AddPropertyForm() {
                     />
                   ))}
 
+                  <CustomFieldsEditor
+                    fields={customFields}
+                    onChange={setCustomFields}
+                  />
+
                   <fieldset className="rounded-lg border border-gray-200 p-4">
                     <legend className="px-1.5 text-[12px] font-semibold text-gray-700">
                       Other Features
@@ -554,7 +571,15 @@ export default function AddPropertyForm() {
                 Break the price into booking, instalments and possession. Totals update as you type.
               </p>
               <div className="mt-5 space-y-4">
-                <PaymentPlanCalculator specs={specs} onChange={setSpec} onApply={applySpecs} />
+                <PaymentPlanCalculator
+                  specs={specs}
+                  onChange={setSpec}
+                  onApply={applySpecs}
+                  listingPrice={totalPrice}
+                  onUseAsPrice={(total) =>
+                    setBasic({ ...basic, price: String(Math.round(total)) })
+                  }
+                />
                 <PaymentPlanStep specs={specs} onChange={setSpec} totalPrice={totalPrice} />
               </div>
             </div>
