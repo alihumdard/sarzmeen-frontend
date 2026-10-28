@@ -20,6 +20,13 @@ import type { Category, CategoryInput } from "@/types/category";
 
 const PER_PAGE = 8;
 
+/**
+ * Fixed categories: config/property_schema.php keys its field sets off
+ * these slugs, so removing one would leave its types with no fields.
+ * Adding categories alongside them, and managing property types, is fine.
+ */
+const CORE_CATEGORIES = ["homes", "plots", "commercial", "high-rise"];
+
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -223,14 +230,17 @@ export default function CategoriesPage() {
             <EditIcon />
           </button>
 
-          <button
-            type="button"
-            aria-label={`Delete ${category.name}`}
-            onClick={() => setDeleting(category)}
-            className="flex h-8 w-8 items-center justify-center rounded-md border border-red-100 bg-red-50 text-red-500 transition-colors hover:bg-red-100"
-          >
-            <TrashIcon />
-          </button>
+          {/* The four the field schema is written around stay put. */}
+          {!CORE_CATEGORIES.includes(category.slug) && (
+            <button
+              type="button"
+              aria-label={`Delete ${category.name}`}
+              onClick={() => setDeleting(category)}
+              className="flex h-8 w-8 items-center justify-center rounded-md border border-red-100 bg-red-50 text-red-500 transition-colors hover:bg-red-100"
+            >
+              <TrashIcon />
+            </button>
+          )}
         </div>
       ),
     },
