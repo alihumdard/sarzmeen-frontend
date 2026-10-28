@@ -21,6 +21,15 @@ import PriceInWords from "@/components/ui/PriceInWords";
 type Props = {
   specs: Record<string, SpecValue>;
   onChange: (key: string, value: SpecValue) => void;
+  /**
+   * The price entered on step one. The calculator works out its own total
+   * from area x rate, and the plan below is checked against the listing
+   * price — so when the two disagree, every amount here is built on a
+   * figure the listing does not use.
+   */
+  listingPrice?: number;
+  /** Adopts the calculator's total as the listing price. */
+  onUseAsPrice?: (total: number) => void;
   /** Applies many keys at once, so filling the builder below is a single update. */
   onApply: (patch: Record<string, string>) => void;
 };
@@ -91,7 +100,13 @@ function has(v: unknown): boolean {
   return v !== undefined && v !== null && String(v).trim() !== "";
 }
 
-export default function PaymentPlanCalculator({ specs, onChange, onApply }: Props) {
+export default function PaymentPlanCalculator({
+  specs,
+  onChange,
+  onApply,
+  listingPrice = 0,
+  onUseAsPrice,
+}: Props) {
   const area = num(specs.unitArea);
   const rate = num(specs.ratePerSqft);
 
@@ -103,6 +118,9 @@ export default function PaymentPlanCalculator({ specs, onChange, onApply }: Prop
   const unitShort = areaUnitInfo(planUnit).short;
   const totalPrice = area * rate;
   const hasPrice = totalPrice > 0;
+  /* Tolerate rounding; anything above a rupee is a real disagreement. */
+  const priceMismatch =
+    totalPrice > 0 && listingPrice > 0 && Math.abs(totalPrice - listingPrice) > 1;
   const durationYears = num(specs.planDurationYears);
 
 
@@ -273,6 +291,29 @@ export default function PaymentPlanCalculator({ specs, onChange, onApply }: Prop
           )}
         </div>
       </div>
+
+      {priceMismatch && (
+        <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2">
+          <p className="text-[11.5px] font-semibold leading-relaxed text-amber-800">
+            This calculator says {formatPKR(totalPrice)}, but the listing
+            price on step one is {formatPKR(listingPrice)}.
+          </p>
+          <p className="mt-0.5 text-[10.5px] leading-relaxed text-amber-700">
+            The plan below is checked against the listing price, so filling
+            it from here will look like it overshoots. Make the two agree
+            first.
+          </p>
+          {onUseAsPrice && (
+            <button
+              type="button"
+              onClick={() => onUseAsPrice(totalPrice)}
+              className="mt-2 inline-flex h-7 items-center rounded border border-amber-300 bg-white px-2.5 text-[11px] font-semibold text-amber-900 transition-colors hover:bg-amber-100"
+            >
+              Use {formatPKR(totalPrice)} as the listing price
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Components */}
       <div className="mt-4 overflow-x-auto rounded-md border border-gray-200 bg-white">
