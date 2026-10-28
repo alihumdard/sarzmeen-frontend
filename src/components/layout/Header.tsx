@@ -178,7 +178,7 @@ export default function Header() {
                       <p className="truncate text-[11px] text-muted">{user.email}</p>
                     </div>
                     <Link
-                      href="/admin"
+                      href={user.role === "user" ? "/my-properties" : "/admin"}
                       onClick={() => setUserMenuOpen(false)}
                       className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-text transition-colors hover:bg-primary-light hover:text-primary"
                     >
@@ -309,7 +309,7 @@ export default function Header() {
               {user ? (
                 <>
                   <Link
-                    href="/admin"
+                    href={user.role === "user" ? "/my-properties" : "/admin"}
                     onClick={closeMobileMenu}
                     className="flex items-center justify-center gap-2 rounded-full border-[1.5px] border-primary px-4 py-2.5 text-center text-sm font-semibold text-primary"
                   >
