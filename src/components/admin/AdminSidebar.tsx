@@ -105,6 +105,13 @@ const menuGroups: MenuGroup[] = [
         implemented: true,
       },
       {
+        label: "Approvals",
+        href: "/admin/approvals",
+        anyPermission: ["properties.publish", "users.approve"],
+        icon: "activity",
+        implemented: true,
+      },
+      {
         label: "Inquiries",
         href: "/admin/inquiries",
         anyPermission: ["inquiries.view.any"],
