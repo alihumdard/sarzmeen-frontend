@@ -93,10 +93,16 @@ type Props = {
   terms: Record<string, string>;
   onTermChange: (key: string, value: string) => void;
   error?: string;
+  /**
+   * Hidden for a full-payment project: there are no instalments to split,
+   * but the unit types below are still how each unit is priced.
+   */
+  showStructure?: boolean;
 };
 
 const COUNT_FIELDS = [
   { key: "monthlyCount", label: "Monthly Count", placeholder: "40" },
+  { key: "biAnnualCount", label: "Bi-Annual Count", placeholder: "8" },
   { key: "balloonCount", label: "Balloon Count", placeholder: "8" },
   { key: "balloonFrequency", label: "Balloon Every (months)", placeholder: "6" },
   { key: "planDurationYears", label: "Plan Duration (years)", placeholder: "4" },
@@ -115,6 +121,7 @@ export default function ProjectUnitsStep({
   terms,
   onTermChange,
   error,
+  showStructure = true,
 }: Props) {
   /*
    * Components the admin left blank share whatever percentage is unallocated,
@@ -146,6 +153,15 @@ export default function ProjectUnitsStep({
     [terms],
   );
 
+  /* The project's worth, summed from each unit type's area x rate. */
+  const unitTotals = useMemo(() => {
+    const total = units.reduce(
+      (sum, u) => sum + (Number(u.area) || 0) * (Number(u.ratePerSqft) || 0),
+      0,
+    );
+    return { total, count: units.length };
+  }, [units]);
+
   const anyBlank = shared.components.some((c) => c.derived);
   // Blank components absorb the rest, so the structure still resolves to 100%.
   const valid = anyBlank ? !shared.overAllocated : Math.abs(percentTotal - 100) < 0.01;
@@ -165,6 +181,7 @@ export default function ProjectUnitsStep({
         </div>
       )}
 
+      {showStructure && (
       <fieldset className="rounded-lg border border-gray-200 p-4">
         <legend className="px-1.5 text-[12px] font-semibold text-gray-700">
           Payment Structure
@@ -222,7 +239,25 @@ export default function ProjectUnitsStep({
                     : `Over by ${(percentTotal - 100).toFixed(2)}%.`
                 }`}
         </div>
+
+        {/* What the split actually comes to, per unit and across the project. */}
+        {unitTotals.total > 0 && (
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-md border border-gray-200 bg-gray-50/60 px-3 py-2">
+            <span className="text-[10.5px] font-semibold uppercase tracking-wide text-gray-500">
+              Total Amount
+            </span>
+            <span className="text-[13px] font-bold text-primary">
+              {formatPKR(unitTotals.total)}
+            </span>
+            {unitTotals.count > 1 && (
+              <span className="text-[10.5px] text-gray-400">
+                across {unitTotals.count} unit types
+              </span>
+            )}
+          </div>
+        )}
       </fieldset>
+      )}
 
       <fieldset className="rounded-lg border border-gray-200 p-4">
         <legend className="px-1.5 text-[12px] font-semibold text-gray-700">Unit Types</legend>

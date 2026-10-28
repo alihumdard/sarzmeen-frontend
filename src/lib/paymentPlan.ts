@@ -3,6 +3,8 @@
  * so the schedule a seller enters is the schedule a buyer sees.
  */
 
+import { computePlan, type PlanComponent } from "@/lib/paymentPlanBuilder";
+
 export type PlanInput = Record<string, unknown>;
 
 export type PlanLine = {
@@ -48,6 +50,7 @@ export const PERCENT_COMPONENTS = [
   { key: "pctBooking", label: "Booking", amountKey: "bookingAmount" },
   { key: "pctConfirmation", label: "Confirmation", amountKey: "confirmationAmount" },
   { key: "pctMonthly", label: "Monthly", amountKey: "monthlyInstallment", countKey: "monthlyCount" },
+  { key: "pctBiAnnual", label: "Bi-Annual", amountKey: "biAnnualInstallment", countKey: "biAnnualCount" },
   { key: "pctBalloon", label: "Balloon", amountKey: "balloonPayment", countKey: "balloonCount" },
   { key: "pctGrey", label: "Grey Structure", amountKey: "greyStructureAmount" },
   { key: "pctPossession", label: "Possession", amountKey: "possessionPayment" },
@@ -234,4 +237,46 @@ export function yearlyBreakdown(plan: PlanSummary): Array<{ year: number; amount
   }
 
   return perYear.map((amount, i) => ({ year: i + 1, amount }));
+}
+
+
+/**
+ * Fills in the percentages the admin left blank.
+ *
+ * Blank components are shown with their derived share as a placeholder,
+ * which looks settled on screen but is not in `terms` — so saving used to
+ * count them as zero and refuse the plan for not reaching 100%. This
+ * resolves them with the same engine the form displays, so what was shown
+ * is what is saved.
+ */
+export function resolveTerms(
+  terms: Record<string, string>,
+): Record<string, string> {
+  const components: PlanComponent[] = PERCENT_COMPONENTS.map((c) => {
+    const raw = terms[c.key];
+    const typed = raw !== undefined && String(raw).trim() !== "";
+    const countKey = "countKey" in c ? (c.countKey as string) : null;
+
+    return {
+      key: c.key as PlanComponent["key"],
+      label: c.label,
+      percent: typed ? Number(raw) : undefined,
+      count: countKey ? Math.max(1, Number(terms[countKey]) || 1) : 1,
+      frequency: "once" as const,
+      pinned: typed ? ("percent" as const) : ("none" as const),
+    };
+  });
+
+  // 100 as the base makes resolvedPercent read directly as a percentage.
+  const plan = computePlan(components, 100);
+  const filled: Record<string, string> = { ...terms };
+
+  PERCENT_COMPONENTS.forEach((component, i) => {
+    if (String(terms[component.key] ?? "").trim() !== "") return;
+
+    const share = plan.components[i]?.resolvedPercent ?? 0;
+    if (share > 0) filled[component.key] = String(Math.round(share * 100) / 100);
+  });
+
+  return filled;
 }

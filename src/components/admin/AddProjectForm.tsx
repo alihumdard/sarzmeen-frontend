@@ -30,7 +30,7 @@ import ProjectUnitsStep, {
   unitsPayload,
   type UnitDraft,
 } from "@/components/admin/ProjectUnitsStep";
-import { PERCENT_COMPONENTS } from "@/lib/paymentPlan";
+import { PERCENT_COMPONENTS, resolveTerms } from "@/lib/paymentPlan";
 import { listDevelopers } from "@/lib/api/developers";
 import type { DeveloperProfile } from "@/types/project";
 
@@ -291,9 +291,17 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
       return;
     }
 
-    const payload = termsPayload(terms);
+    /*
+     * Blank components show their derived share as a placeholder, which is
+     * not in `terms` — counting only typed values made a plan the form
+     * called "good to go" fail validation at 40%.
+     */
+    const fullPayment = paymentType === "full_payment";
+    const settled = fullPayment ? {} : resolveTerms(terms);
+
+    const payload = fullPayment ? null : termsPayload(settled);
     if (payload) {
-      const pct = PERCENT_COMPONENTS.reduce((s, c) => s + (Number(terms[c.key]) || 0), 0);
+      const pct = PERCENT_COMPONENTS.reduce((s, c) => s + (Number(settled[c.key]) || 0), 0);
       if (Math.abs(pct - 100) > 0.01) {
         setFieldErrors({
           paymentTerms: [`Payment percentages must equal 100%. They currently total ${pct.toFixed(2)}%.`],
@@ -347,7 +355,7 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
         ogDescription: ogDescription || undefined,
         ogImage: ogImage || undefined,
         units: unitsPayload(units),
-        paymentTerms: termsPayload(terms),
+        paymentTerms: paymentType === "full_payment" ? undefined : termsPayload(resolveTerms(terms)),
         projectType,
         projectFormat,
         paymentType,
@@ -620,9 +628,13 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
 
           {step === 3 && (
             <div>
-              <h3 className="text-[15px] font-bold text-gray-900">Payment Plan</h3>
+              <h3 className="text-[15px] font-bold text-gray-900">
+                {paymentType === "full_payment" ? "Unit Types" : "Payment Plan"}
+              </h3>
               <p className="mt-1 text-[12px] text-gray-500">
-                Set the percentage split once, then add each unit type with just its area and rate.
+                {paymentType === "full_payment"
+                  ? "Paid in full, so there is no instalment split — just add each unit type with its area and rate."
+                  : "Set the percentage split once, then add each unit type with just its area and rate."}
               </p>
               <div className="mt-5">
                 <ProjectUnitsStep
@@ -631,6 +643,7 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                   terms={terms}
                   onTermChange={(k, v) => setTerms((cur) => ({ ...cur, [k]: v }))}
                   error={fieldError("paymentTerms")}
+                  showStructure={paymentType !== "full_payment"}
                 />
               </div>
             </div>
