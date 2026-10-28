@@ -7,6 +7,7 @@ import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminTopbar from "@/components/admin/AdminTopbar";
 import AdminBottomNav from "@/components/admin/AdminBottomNav";
 import AdminHelpFloating from "@/components/admin/AdminHelpFloating";
+import VerifyEmailBanner from "@/components/admin/VerifyEmailBanner";
 import { useAuth } from "@/context/AuthContext";
 
 /**
@@ -55,24 +56,31 @@ export default function AdminLayout({
     );
   }
 
-  if (user.status !== "approved" && user.role !== "admin") {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f7f8fa] px-4">
-        <div className="max-w-md rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber-50 text-amber-500">
-            <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
-          </div>
-          <h2 className="text-lg font-semibold text-gray-800">Account Pending</h2>
-          <p className="mt-2 text-sm text-gray-500">
-            Your account is currently <span className="font-medium text-amber-600">{user.status}</span>. An admin will review and approve your account shortly.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  /*
+   * A pending account sees the panel rather than a dead end, so it can
+   * look around while it waits. Nothing it tries to change will be
+   * accepted: the API refuses writes until the account is approved.
+   */
+  const awaitingApproval = user.status !== "approved" && user.role !== "admin";
 
   return (
     <div className="min-h-screen bg-[#f7f8fa]">
+      {!user.emailVerified && <VerifyEmailBanner />}
+
+      {awaitingApproval && (
+        <div className="flex items-start gap-3 bg-amber-50 px-4 py-3 text-amber-900 sm:px-6">
+          <svg className="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 8v4M12 16h.01" />
+          </svg>
+          <p className="text-[12px] leading-relaxed">
+            <span className="font-semibold">Your account is awaiting approval.</span>{" "}
+            You can look around, but nothing can be added or changed until an
+            admin approves it.
+          </p>
+        </div>
+      )}
+
       <AdminSidebar
         mobileOpen={sidebarOpen}
         collapsed={sidebarCollapsed}
