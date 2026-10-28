@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
@@ -8,6 +8,7 @@ import ImageExt from "@tiptap/extension-image";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
+import { api } from "@/lib/api/client";
 import Highlight from "@tiptap/extension-highlight";
 
 type Props = {
@@ -92,14 +93,53 @@ function Toolbar({ editor }: { editor: Editor }) {
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   }, [editor]);
 
-  const addImage = useCallback(() => {
-    const url = window.prompt("Enter image URL");
-    if (!url) return;
-    editor.chain().focus().setImage({ src: url }).run();
-  }, [editor]);
+  /*
+   * Uploads the picked file and inserts what comes back. This used to ask
+   * for a URL, which meant the writer had to host the picture somewhere
+   * else first — so the button looked broken to anyone expecting to pick
+   * a file off their computer.
+   */
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const uploadImage = useCallback(
+    async (file: File) => {
+      setUploading(true);
+      try {
+        const body = new FormData();
+        body.append("image", file);
+
+        const res = await api<{ data: { url: string } }>("/admin/banners", {
+          method: "POST",
+          body,
+        });
+
+        editor.chain().focus().setImage({ src: res.data.url }).run();
+      } catch (err: unknown) {
+        const e = err as Error & { errors?: Record<string, string[]> };
+        const first = e.errors ? Object.values(e.errors).flat()[0] : null;
+        setUploadError(first || e.message || "Could not upload the image.");
+      } finally {
+        setUploading(false);
+      }
+    },
+    [editor],
+  );
 
   return (
     <div className="flex flex-wrap items-center gap-0.5 border-b border-gray-200 bg-gray-50/80 px-2 py-1.5">
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = "";
+          if (file) void uploadImage(file);
+        }}
+      />
       {/* Block type */}
       <select
         value={
@@ -171,7 +211,19 @@ function Toolbar({ editor }: { editor: Editor }) {
       <Btn onClick={setLink} active={editor.isActive("link")} title="Insert Link">
         <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
       </Btn>
-      <Btn onClick={addImage} title="Insert Image URL">
+      {uploadError && (
+        <span
+          role="alert"
+          onClick={() => setUploadError(null)}
+          className="cursor-pointer rounded bg-red-50 px-2 py-0.5 text-[10.5px] font-medium text-red-700"
+        >
+          {uploadError}
+        </span>
+      )}
+      <Btn
+        onClick={() => fileRef.current?.click()}
+        title={uploading ? "Uploading..." : "Insert an image"}
+      >
         <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
       </Btn>
       <Btn onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontal Rule">
