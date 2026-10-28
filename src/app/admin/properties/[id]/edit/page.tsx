@@ -27,6 +27,9 @@ import SpecFieldGroup from "@/components/admin/SpecFieldGroup";
 import type { SpecValue } from "@/components/admin/SpecFieldGroup";
 import PaymentPlanStep from "@/components/admin/PaymentPlanStep";
 import CustomFeatureList from "@/components/admin/CustomFeatureList";
+import PriceInWords from "@/components/ui/PriceInWords";
+import StoredImageEditButton from "@/components/admin/StoredImageEditButton";
+import CustomFieldsEditor, { type CustomField } from "@/components/admin/CustomFieldsEditor";
 import LocationPicker from "@/components/admin/LocationPicker";
 import PaymentPlanCalculator from "@/components/admin/PaymentPlanCalculator";
 import {
@@ -63,6 +66,7 @@ type PropertyData = {
   fullLocation: string | null;
   specs: Record<string, unknown>;
   features: string[];
+  customFields: { label: string; kind: CustomField["kind"]; value: string | boolean }[];
   images: Array<{ id: number; url: string; isCover: boolean }>;
   metaTitle: string | null;
   metaDescription: string | null;
@@ -110,6 +114,7 @@ export default function EditPropertyPage() {
   const [coreNumbers, setCoreNumbers] = useState<Record<string, string>>({});
   const [specs, setSpecs] = useState<Record<string, SpecValue>>({});
   const [features, setFeatures] = useState<string[]>([]);
+  const [customFields, setCustomFields] = useState<CustomField[]>([]);
   const [metaTitle, setMetaTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
 
@@ -137,6 +142,14 @@ export default function EditPropertyPage() {
       setLocationId(p.locationId || "");
       setSpecs((p.specs || {}) as Record<string, SpecValue>);
       setFeatures(p.features ?? []);
+      /* Stored values come back typed; the editor keeps them as text. */
+      setCustomFields(
+        (p.customFields ?? []).map((f) => ({
+          label: f.label,
+          kind: f.kind,
+          value: typeof f.value === "boolean" ? String(f.value) : String(f.value ?? ""),
+        })),
+      );
       setMetaTitle(p.metaTitle || "");
       setMetaDescription(p.metaDescription || "");
 
@@ -182,6 +195,9 @@ export default function EditPropertyPage() {
         locationId: locationId || undefined,
         specs,
         features,
+        customFields: customFields
+          .filter((f) => f.label.trim() !== "")
+          .map((f) => ({ label: f.label.trim(), kind: f.kind, value: f.value })),
         metaTitle: metaTitle || undefined,
         metaDescription: metaDescription || undefined,
       };
@@ -217,6 +233,31 @@ export default function EditPropertyPage() {
       setError(msg);
     } finally {
       setSaving(false);
+    }
+  };
+
+  /*
+   * Replaces a stored image with a cropped version: the new file goes up
+   * first, so a failure leaves the original in place rather than losing
+   * the photo altogether.
+   */
+  const replaceImage = async (imageId: number, cropped: File) => {
+    try {
+      const formData = new FormData();
+      formData.append("images[]", cropped);
+
+      await api(`/my/properties/${propertyId}/images`, {
+        method: "POST",
+        body: formData,
+      });
+
+      await api(`/my/properties/${propertyId}/images/${imageId}`, {
+        method: "DELETE",
+      });
+
+      loadProperty();
+    } catch {
+      setError("Could not save the cropped image.");
     }
   };
 
@@ -309,6 +350,7 @@ export default function EditPropertyPage() {
                 <div>
                   <label className="mb-1 block text-xs font-medium text-gray-600">Price (PKR)</label>
                   <input type="number" className={adminInputClass} value={price} onChange={(e) => setPrice(e.target.value)} />
+                  <PriceInWords value={price} />
                 </div>
               </div>
 
@@ -374,6 +416,11 @@ export default function EditPropertyPage() {
                 <SpecFieldGroup key={name} group={group} values={specs} onChange={setSpec} />
               ))}
 
+              <CustomFieldsEditor
+                fields={customFields}
+                onChange={setCustomFields}
+              />
+
               <fieldset className="rounded-lg border border-gray-200 p-4">
                 <legend className="px-1.5 text-[12px] font-semibold text-gray-700">
                   Other Features
@@ -390,7 +437,13 @@ export default function EditPropertyPage() {
           {/* Payment plan for installment */}
           {purpose === "installment" && (
             <section className="space-y-4 rounded-lg border border-gray-200 bg-white p-5">
-              <PaymentPlanCalculator specs={specs} onChange={setSpec} onApply={applySpecs} />
+              <PaymentPlanCalculator
+                specs={specs}
+                onChange={setSpec}
+                onApply={applySpecs}
+                listingPrice={Number(price) || 0}
+                onUseAsPrice={(total) => setPrice(String(Math.round(total)))}
+              />
               <PaymentPlanStep specs={specs} onChange={setSpec} totalPrice={Number(price) || 0} />
             </section>
           )}
@@ -458,6 +511,10 @@ export default function EditPropertyPage() {
                       <path d="M6 6l12 12M18 6L6 18" />
                     </svg>
                   </button>
+                  <StoredImageEditButton
+                    url={img.url}
+                    onCropped={(file) => replaceImage(img.id, file)}
+                  />
                 </div>
               ))}
             </div>
