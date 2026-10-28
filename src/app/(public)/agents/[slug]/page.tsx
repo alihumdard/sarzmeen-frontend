@@ -147,7 +147,8 @@ export default async function AgentPage({ params }: AgentPageProps) {
             <div className="rounded-lg border border-border bg-white p-6">
               <h2 className="text-[15px] font-bold text-heading">Contact Information</h2>
 
-              {agent.agency && (
+              {/* A nameless agency is no agency worth linking to. */}
+              {agent.agency?.name && agent.agency.slug && (
                 <Link
                   href={`/agencies/${agent.agency.slug}`}
                   className="mt-4 flex items-center gap-3 rounded-md bg-surface p-3 transition-colors hover:bg-surface/80"
