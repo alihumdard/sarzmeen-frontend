@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 
 /** Presets offered above the crop box; null is free-form. */
@@ -37,6 +37,7 @@ export default function ImageCropModal({ file, onCancel, onCropped }: Props) {
   const [rotation, setRotation] = useState(0);
   const [ratio, setRatio] = useState<number | null>(null);
   const [area, setArea] = useState<Area | null>(null);
+  const [media, setMedia] = useState<{ w: number; h: number } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,6 +54,26 @@ export default function ImageCropModal({ file, onCancel, onCropped }: Props) {
     return () => URL.revokeObjectURL(url);
   }, [file]);
 
+  /*
+   * MIN_EDGE is a quality floor, but only where the picture can reach it.
+   * The largest 16:9 crop of a small photo is well under 400px tall, so the
+   * old check refused it and told the lister to zoom out — which does
+   * nothing at 1x. Ask for no more than the source can actually give.
+   */
+  const edgeFloor = useMemo(() => {
+    if (!media) return MIN_EDGE;
+
+    const { w, h } = media;
+    const fit =
+      ratio === null
+        ? { w, h }
+        : w / h > ratio
+          ? { w: h * ratio, h }
+          : { w, h: w / ratio };
+
+    return Math.min(MIN_EDGE, Math.floor(Math.min(fit.w, fit.h)));
+  }, [media, ratio]);
+
   const onCropComplete = useCallback((_: Area, pixels: Area) => {
     setArea(pixels);
   }, []);
@@ -66,9 +87,9 @@ export default function ImageCropModal({ file, onCancel, onCropped }: Props) {
     try {
       const output = await renderCrop(src, area, rotation, file.name);
 
-      if (output.width < MIN_EDGE || output.height < MIN_EDGE) {
+      if (output.width < edgeFloor || output.height < edgeFloor) {
         setError(
-          `That crop is ${output.width}×${output.height}px. Each side needs at least ${MIN_EDGE}px — zoom out or select a larger area.`,
+          `That crop is ${output.width}×${output.height}px. Each side needs at least ${edgeFloor}px — zoom out or select a larger area.`,
         );
         return;
       }
@@ -111,6 +132,9 @@ export default function ImageCropModal({ file, onCancel, onCropped }: Props) {
               onZoomChange={setZoom}
               onRotationChange={setRotation}
               onCropComplete={onCropComplete}
+              onMediaLoaded={({ naturalWidth, naturalHeight }) =>
+                setMedia({ w: naturalWidth, h: naturalHeight })
+              }
               restrictPosition={false}
             />
           )}
