@@ -101,11 +101,11 @@ type Props = {
 };
 
 const COUNT_FIELDS = [
-  { key: "monthlyCount", label: "Monthly Count", placeholder: "40" },
-  { key: "biAnnualCount", label: "Bi-Annual Count", placeholder: "8" },
-  { key: "balloonCount", label: "Balloon Count", placeholder: "8" },
-  { key: "balloonFrequency", label: "Balloon Every (months)", placeholder: "6" },
-  { key: "planDurationYears", label: "Plan Duration (years)", placeholder: "4" },
+  { key: "monthlyCount", label: "Monthly Count", placeholder: "e.g. 40" },
+  { key: "biAnnualCount", label: "Bi-Annual Count", placeholder: "e.g. 8" },
+  { key: "balloonCount", label: "Balloon Count", placeholder: "e.g. 8" },
+  { key: "balloonFrequency", label: "Balloon Every (months)", placeholder: "e.g. 6" },
+  { key: "planDurationYears", label: "Plan Duration (years)", placeholder: "e.g. 4" },
 ];
 
 /**
@@ -306,13 +306,13 @@ export default function ProjectUnitsStep({
                     label="Area (SQFT)"
                     value={unit.area}
                     onChange={(v) => updateUnit(i, { area: v })}
-                    placeholder="329"
+                    placeholder="e.g. 329"
                   />
                   <Num
                     label="Rate / SQFT"
                     value={unit.ratePerSqft}
                     onChange={(v) => updateUnit(i, { ratePerSqft: v })}
-                    placeholder="14850"
+                    placeholder="e.g. 14850"
                   />
                   <div>
                     <label className="mb-1.5 block text-[12px] font-medium text-gray-600">
@@ -344,13 +344,13 @@ export default function ProjectUnitsStep({
                     label="Min Area"
                     value={unit.minArea}
                     onChange={(v) => updateUnit(i, { minArea: v })}
-                    placeholder="1050"
+                    placeholder="e.g. 1050"
                   />
                   <Num
                     label="Max Area"
                     value={unit.maxArea}
                     onChange={(v) => updateUnit(i, { maxArea: v })}
-                    placeholder="1200"
+                    placeholder="e.g. 1200"
                   />
                   <div>
                     <label className="mb-1.5 block text-[12px] font-medium text-gray-600">Area Unit</label>

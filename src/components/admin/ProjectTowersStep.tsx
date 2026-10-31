@@ -114,7 +114,7 @@ export default function ProjectTowersStep({ towers, onChange }: Props) {
                   type="number" min={0} max={300}
                   value={tower.floorsCount}
                   onChange={(e) => update(i, { floorsCount: e.target.value })}
-                  placeholder="12"
+                  placeholder="e.g. 12"
                   className={adminInputClass}
                 />
               </div>
@@ -126,7 +126,7 @@ export default function ProjectTowersStep({ towers, onChange }: Props) {
                   type="number" min={0} max={10000}
                   value={tower.unitsCount}
                   onChange={(e) => update(i, { unitsCount: e.target.value })}
-                  placeholder="48"
+                  placeholder="e.g. 48"
                   className={adminInputClass}
                 />
               </div>

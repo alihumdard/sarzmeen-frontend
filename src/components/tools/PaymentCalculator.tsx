@@ -306,7 +306,7 @@ export default function PaymentCalculator({
                 inputMode="decimal"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                placeholder="4885650"
+                placeholder="e.g. 4885650"
                 className={inputClass}
               />
               <PriceInWords
@@ -354,7 +354,7 @@ export default function PaymentCalculator({
               inputMode="decimal"
               value={duration}
               onChange={(e) => setDuration(e.target.value)}
-              placeholder="4"
+              placeholder="e.g. 4"
               className={inputClass}
             />
             <p className="mt-1 text-[10px] text-muted">

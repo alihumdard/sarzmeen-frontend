@@ -242,7 +242,7 @@ export default function PaymentPlanCalculator({
             label={`Area (${unitShort})`}
             value={value("unitArea")}
             onChange={setKey("unitArea")}
-            placeholder={planUnit === "sqft" ? "1125" : planUnit === "marla" ? "5" : "1"}
+            placeholder={planUnit === "sqft" ? "e.g. 1125" : planUnit === "marla" ? "e.g. 5" : "e.g. 1"}
           />
           {/* The same size in sq ft, for checking against a per-sq-ft rate. */}
           {planUnit !== "sqft" && area > 0 && (
@@ -257,7 +257,7 @@ export default function PaymentPlanCalculator({
             label={`Rate / ${unitShort} (PKR)`}
             value={value("ratePerSqft")}
             onChange={setKey("ratePerSqft")}
-            placeholder={planUnit === "sqft" ? "14850" : planUnit === "marla" ? "3300000" : "66000000"}
+            placeholder={planUnit === "sqft" ? "e.g. 14850" : planUnit === "marla" ? "e.g. 3300000" : "e.g. 66000000"}
           />
           <PriceInWords value={rate} className="mt-1 text-[10px] text-gray-500" />
         </div>
@@ -269,7 +269,7 @@ export default function PaymentPlanCalculator({
             type="number" min={0} step="any" autoComplete="off"
             value={value("planDurationYears")}
             onChange={setKey("planDurationYears")}
-            placeholder="4"
+            placeholder="e.g. 4"
             className={adminInputClass}
           />
           <p className="mt-1 text-[10px] text-gray-400">
