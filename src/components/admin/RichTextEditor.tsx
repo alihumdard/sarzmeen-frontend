@@ -109,6 +109,8 @@ function Toolbar({ editor }: { editor: Editor }) {
       try {
         const body = new FormData();
         body.append("image", file);
+        /* Not a banner: an illustration inside the text, so no size floor. */
+        body.append("context", "inline");
 
         const res = await api<{ data: { url: string } }>("/admin/banners", {
           method: "POST",

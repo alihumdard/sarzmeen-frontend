@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import SafeImage from "@/components/ui/SafeImage";
+import ImageCropModal from "@/components/admin/ImageCropModal";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -55,6 +56,8 @@ export default function BlogFormPage() {
 
   const [form, setForm] = useState<BlogInput>(emptyForm);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  /* Held while the cropper is open, before it becomes the chosen file. */
+  const [pendingImage, setPendingImage] = useState<File | null>(null);
   const [existingImage, setExistingImage] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
@@ -112,7 +115,15 @@ export default function BlogFormPage() {
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
+    // Reset, so picking the same file twice still fires a change.
+    e.target.value = "";
     if (!file) return;
+    setPendingImage(file);
+  }
+
+  /* Both the first crop and any later re-crop end up here. */
+  function commitImage(file: File) {
+    setPendingImage(null);
     update("imageFile", file);
     setImagePreview(URL.createObjectURL(file));
   }
@@ -408,13 +419,29 @@ export default function BlogFormPage() {
                     ✕
                   </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => fileRef.current?.click()}
-                  className="mt-2 w-full rounded-lg border border-gray-200 py-2 text-[11px] font-medium text-gray-600 hover:bg-gray-50"
-                >
-                  Replace Image
-                </button>
+                <div className="mt-2 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    className="flex-1 rounded-lg border border-gray-200 py-2 text-[11px] font-medium text-gray-600 hover:bg-gray-50"
+                  >
+                    Replace Image
+                  </button>
+                  {/*
+                   * Re-cropping needs the file itself, which only exists for an
+                   * image chosen in this session; a stored one is replaced.
+                   */}
+                  {form.imageFile && (
+                    <button
+                      type="button"
+                      onClick={() => setPendingImage(form.imageFile as File)}
+                      title="Crop or straighten"
+                      className="flex-1 rounded-lg border border-gray-200 py-2 text-[11px] font-medium text-gray-600 hover:bg-gray-50"
+                    >
+                      Crop Image
+                    </button>
+                  )}
+                </div>
               </>
             ) : (
               <div
@@ -433,6 +460,14 @@ export default function BlogFormPage() {
               onChange={handleFileChange}
               className="hidden"
             />
+
+            {pendingImage && (
+              <ImageCropModal
+                file={pendingImage}
+                onCancel={() => setPendingImage(null)}
+                onCropped={commitImage}
+              />
+            )}
           </Panel>
 
           {/* Category */}
