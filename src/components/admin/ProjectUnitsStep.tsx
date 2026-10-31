@@ -240,23 +240,27 @@ export default function ProjectUnitsStep({
                 }`}
         </div>
 
-        {/* What the split actually comes to, per unit and across the project. */}
-        {unitTotals.total > 0 && (
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-md border border-gray-200 bg-gray-50/60 px-3 py-2">
-            <span className="text-[10.5px] font-semibold uppercase tracking-wide text-gray-500">
-              Total Amount
-            </span>
-            <span className="text-[13px] font-bold text-primary">
-              {formatPKR(unitTotals.total)}
-            </span>
-            {unitTotals.count > 1 && (
-              <span className="text-[10.5px] text-gray-400">
-                across {unitTotals.count} unit types
-              </span>
-            )}
-          </div>
-        )}
       </fieldset>
+      )}
+
+      {/*
+       * What the units come to, split or not — a full-payment project still
+       * has a price, so this sits outside the instalment section.
+       */}
+      {unitTotals.total > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-gray-200 bg-gray-50/60 px-3 py-2">
+          <span className="text-[10.5px] font-semibold uppercase tracking-wide text-gray-500">
+            Total Amount
+          </span>
+          <span className="text-[13px] font-bold text-primary">
+            {formatPKR(unitTotals.total)}
+          </span>
+          {unitTotals.count > 1 && (
+            <span className="text-[10.5px] text-gray-400">
+              across {unitTotals.count} unit types
+            </span>
+          )}
+        </div>
       )}
 
       <fieldset className="rounded-lg border border-gray-200 p-4">
@@ -409,9 +413,16 @@ export default function ProjectUnitsStep({
         </button>
       </fieldset>
 
-      {valid && units.some((u) => Number(u.area) > 0 && Number(u.ratePerSqft) > 0) && (
-        <UnitPreview units={units} terms={terms} />
-      )}
+      {/*
+       * The preview is the instalment schedule a buyer would be shown, so it
+       * has no place on a project paid in full — it was still being drawn
+       * there, contradicting the heading right above it.
+       */}
+      {showStructure &&
+        valid &&
+        units.some((u) => Number(u.area) > 0 && Number(u.ratePerSqft) > 0) && (
+          <UnitPreview units={units} terms={terms} />
+        )}
     </div>
   );
 }
