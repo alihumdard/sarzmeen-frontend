@@ -65,22 +65,6 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-[#f7f8fa]">
-      {!user.emailVerified && <VerifyEmailBanner />}
-
-      {awaitingApproval && (
-        <div className="flex items-start gap-3 bg-amber-50 px-4 py-3 text-amber-900 sm:px-6">
-          <svg className="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 8v4M12 16h.01" />
-          </svg>
-          <p className="text-[12px] leading-relaxed">
-            <span className="font-semibold">Your account is awaiting approval.</span>{" "}
-            You can look around, but nothing can be added or changed until an
-            admin approves it.
-          </p>
-        </div>
-      )}
-
       <AdminSidebar
         mobileOpen={sidebarOpen}
         collapsed={sidebarCollapsed}
@@ -104,6 +88,27 @@ export default function AdminLayout({
             }
           }}
         />
+
+        {/*
+         * Inside the content column, not above it: the sidebar is fixed, so a
+         * full-width banner here is drawn underneath it and loses its opening
+         * words behind the nav.
+         */}
+        {!user.emailVerified && <VerifyEmailBanner />}
+
+        {awaitingApproval && (
+          <div className="flex items-start gap-3 bg-amber-50 px-4 py-3 text-amber-900 sm:px-6">
+            <svg className="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 8v4M12 16h.01" />
+            </svg>
+            <p className="text-[12px] leading-relaxed">
+              <span className="font-semibold">Your account is awaiting approval.</span>{" "}
+              You can look around, but nothing can be added or changed until an
+              admin approves it.
+            </p>
+          </div>
+        )}
 
         <main className="flex-1 p-4 sm:p-6 lg:p-7">
           {children}
