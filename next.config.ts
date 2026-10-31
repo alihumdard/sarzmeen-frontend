@@ -2,6 +2,31 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV === "development";
 
+/*
+ * Uploads are served by the API, whose hostname differs per environment and
+ * has changed more than once. Listing each one by hand meant every rename
+ * silently broke the thumbnails, so derive it from the URL the app already
+ * uses; the explicit entries below stay as a fallback.
+ */
+const apiImageHost = (() => {
+  const raw = process.env.NEXT_PUBLIC_API_URL;
+  if (!raw) return [];
+
+  try {
+    const url = new URL(raw);
+    return [
+      {
+        protocol: url.protocol.replace(":", "") as "http" | "https",
+        hostname: url.hostname,
+        ...(url.port ? { port: url.port } : {}),
+        pathname: "/storage/**",
+      },
+    ];
+  } catch {
+    return [];
+  }
+})();
+
 const nextConfig: NextConfig = {
   images: {
     minimumCacheTTL: isDev ? 0 : 14400,
@@ -11,6 +36,7 @@ const nextConfig: NextConfig = {
      * (src/data/agents.ts). Remove once real agency logos come from the API.
      */
     remotePatterns: [
+      ...apiImageHost,
       {
         protocol: "https",
         hostname: "i.pravatar.cc",
