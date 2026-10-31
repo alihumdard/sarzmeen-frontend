@@ -82,7 +82,14 @@ export default async function PropertyDetailPage({
                 title={property.title}
                 photoCount={property.photoCount}
                 featured={property.featured}
-                statusLabel="For Sale"
+                /* A rental reached through this route is still a rental. */
+                statusLabel={
+                  property.purpose === "rent"
+                    ? "For Rent"
+                    : property.purpose === "installment"
+                      ? "On Installments"
+                      : "For Sale"
+                }
               />
 
               <PropertyQuickFacts property={property} />
