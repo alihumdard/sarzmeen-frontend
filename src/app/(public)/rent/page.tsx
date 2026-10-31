@@ -21,6 +21,8 @@ type RentPageProps = {
     type?: string;
     search?: string;
     price?: string;
+    beds?: string;
+    baths?: string;
   }>;
 };
 
@@ -43,6 +45,9 @@ export default async function RentPage({ searchParams }: RentPageProps) {
   if (params.city) qs.set("city", params.city);
   if (params.search) qs.set("search", params.search);
   if (params.type) qs.set("type", params.type);
+  /* The sidebar offers these on this page too, so they have to be passed on. */
+  if (params.beds) qs.set("beds", params.beds);
+  if (params.baths) qs.set("baths", params.baths);
   if (params.price) {
     const [min, max] = params.price.split("-");
     if (min) qs.set("price_min", min);
