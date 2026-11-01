@@ -39,13 +39,26 @@ const emptyForm: BlogInput = {
   imageFile: null,
 };
 
+/*
+ * The API accepts /^[a-z0-9]+(?:-[a-z0-9]+)*$/, so an underscore is out too
+ * — \w used to let it through and the save was then refused.
+ */
 function slugify(text: string): string {
+  return typeableSlug(text).replace(/^-|-$/g, "");
+}
+
+/*
+ * The same cleaning, minus the trailing-hyphen trim, so someone typing
+ * "my-post" is not fighting the field after the hyphen. slugify() finishes
+ * the job when they leave it.
+ */
+function typeableSlug(text: string): string {
   return text
     .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replace(/^-/, "");
 }
 
 export default function BlogFormPage() {
@@ -274,7 +287,8 @@ export default function BlogFormPage() {
             <span className="text-gray-400">/blog/</span>
             <input
               value={form.slug}
-              onChange={(e) => { update("slug", e.target.value); setSlugManual(true); }}
+              onChange={(e) => { update("slug", typeableSlug(e.target.value)); setSlugManual(true); }}
+              onBlur={() => update("slug", slugify(form.slug))}
               className="min-w-0 flex-1 rounded border border-transparent bg-transparent px-1 py-0.5 text-primary transition-colors focus:border-gray-200 focus:bg-white focus:outline-none"
             />
             {slugManual && (
