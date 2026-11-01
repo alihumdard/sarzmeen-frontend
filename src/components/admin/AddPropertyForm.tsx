@@ -247,11 +247,37 @@ export default function AddPropertyForm() {
   }, [basic, core, specs, images, features, customFields, typeId, purpose, router]);
 
   const isLastStep = stepIndex >= steps.length - 1;
-  const canLeaveStepOne = Boolean(typeId && basic.title && basic.locationId);
+
+  /*
+   * Everything step one marks with an asterisk. The area and the price used
+   * to be left out, so the form let the lister through all four steps and
+   * only refused at save, with the API's wording rather than a pointer back
+   * to the field that was empty.
+   */
+  const missingOnStepOne = (): string[] => {
+    const missing: string[] = [];
+
+    if (!typeId) missing.push("category and type");
+    if (!basic.title.trim()) missing.push("title");
+    if ((Number(basic.price.replace(/,/g, "")) || 0) <= 0) missing.push("price");
+    // The API's own floor: anything smaller is not an area.
+    if ((Number(basic.areaValue) || 0) < 0.01) missing.push("area");
+    if (!basic.locationId) missing.push("location");
+
+    return missing;
+  };
+
+  const canLeaveStepOne = missingOnStepOne().length === 0;
 
   const goNext = () => {
     if (current.key === "basic" && !canLeaveStepOne) {
-      setError("Choose a category, type, title and location first.");
+      const missing = missingOnStepOne();
+      const list =
+        missing.length === 1
+          ? missing[0]
+          : `${missing.slice(0, -1).join(", ")} and ${missing[missing.length - 1]}`;
+
+      setError(`Still needed on this step: ${list}.`);
       return;
     }
     setError("");
