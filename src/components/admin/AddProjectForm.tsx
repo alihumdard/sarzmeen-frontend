@@ -11,10 +11,13 @@ import { useEffect, useState } from "react";
 import SafeImage from "@/components/ui/SafeImage";
 import {
   createAdminProject,
+  deleteProjectDocument,
   deleteProjectImage,
+  DOCUMENT_TYPES,
   getAdminProject,
   setProjectImageCover,
   updateAdminProject,
+  uploadProjectDocument,
 } from "@/lib/api/adminProjects";
 import { listProjectCategories } from "@/lib/api/projectCategories";
 import { listLocations, type Location } from "@/lib/api/locations";
@@ -34,9 +37,21 @@ import ProjectUnitsStep, {
 } from "@/components/admin/ProjectUnitsStep";
 import { PERCENT_COMPONENTS, resolveTerms } from "@/lib/paymentPlan";
 import { listDevelopers } from "@/lib/api/developers";
-import type { DeveloperProfile, ProjectImage } from "@/types/project";
+import type {
+  DeveloperProfile,
+  ProjectDocument,
+  ProjectImage,
+} from "@/types/project";
 
 type ProjectCategory = { id: string; name: string; slug: string };
+
+/** A document chosen in the form but not yet sent to the API. */
+type PendingDocument = {
+  title: string;
+  type: string;
+  isPublic: boolean;
+  file: File;
+};
 
 const steps = [
   { id: 1, title: "Basic Information", description: "Name, type, location" },
@@ -161,6 +176,24 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
   const [storedImages, setStoredImages] = useState<ProjectImage[]>([]);
   const [imageBusy, setImageBusy] = useState<string | null>(null);
 
+  /*
+   * Documents upload one at a time rather than with the project, because
+   * each carries a title and a kind that the project body cannot hold.
+   */
+  const [documents, setDocuments] = useState<ProjectDocument[]>([]);
+  /*
+   * Queued rather than uploaded on the spot, so adding a document works the
+   * same way on a new project -- which has no id yet -- as on an existing
+   * one. Save sends them once the project is known.
+   */
+  const [pendingDocs, setPendingDocs] = useState<PendingDocument[]>([]);
+  const [docTitle, setDocTitle] = useState("");
+  const [docType, setDocType] = useState<string>("brochure");
+  const [docPublic, setDocPublic] = useState(true);
+  const [docFile, setDocFile] = useState<File | null>(null);
+  const [docBusy, setDocBusy] = useState<string | null>(null);
+  const [docNotice, setDocNotice] = useState<string | null>(null);
+
   useEffect(() => {
     listProjectCategories().then(setCategories).catch(() => {});
     listLocations().then(setLocations).catch(() => {});
@@ -173,6 +206,7 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
     getAdminProject(projectId)
       .then(({ data }) => {
         setStoredImages(data.images ?? []);
+        setDocuments(data.documents ?? []);
         setName(data.name);
         setSlug(data.slug);
         setCategoryId(String(data.categoryId ?? ""));
@@ -413,6 +447,14 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
         imgData.append("paymentType", paymentType);
         images.forEach((f) => imgData.append("images[]", f));
         await api(`/admin/projects/${id}`, { method: "POST", body: imgData });
+      }
+
+      /*
+       * Documents go up one request each, after the project exists -- a new
+       * project has no id until the call above returns.
+       */
+      for (const doc of pendingDocs) {
+        await uploadProjectDocument(id, doc);
       }
 
       router.push("/admin/projects");
@@ -815,6 +857,203 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                 {imageNotice && (
                   <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] font-medium leading-relaxed text-amber-800">
                     {imageNotice}
+                  </p>
+                )}
+              </div>
+              {/* Documents: brochures, NOCs, payment schedules. */}
+              <div className="mt-8 border-t border-gray-100 pt-6">
+                <h4 className="text-[13px] font-bold text-gray-900">Documents</h4>
+                <p className="mt-1 text-[12px] text-gray-500">
+                  Brochures, NOCs, payment schedules. Public ones appear on the
+                  project page for buyers to download.
+                </p>
+
+                {documents.length > 0 && (
+                  <ul className="mt-4 divide-y divide-gray-100 overflow-hidden rounded-md border border-gray-200">
+                    {documents.map((doc) => (
+                      <li
+                        key={doc.id}
+                        className="flex items-center justify-between gap-3 px-3 py-2.5"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-[12.5px] font-medium text-gray-900">
+                            {doc.title}
+                          </p>
+                          <p className="mt-0.5 text-[10.5px] text-gray-500">
+                            {DOCUMENT_TYPES.find((t) => t.value === doc.type)?.label ??
+                              doc.type}
+                            {" · "}
+                            {doc.isPublic ? "Public" : "Internal only"}
+                          </p>
+                        </div>
+
+                        <div className="flex shrink-0 items-center gap-3">
+                          <a
+                            href={doc.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[11.5px] font-semibold text-primary hover:underline"
+                          >
+                            Download
+                          </a>
+                          <button
+                            type="button"
+                            disabled={docBusy === doc.id}
+                            onClick={async () => {
+                              if (!confirm(`Delete "${doc.title}"?`)) return;
+                              setDocBusy(doc.id);
+                              try {
+                                await deleteProjectDocument(projectId!, doc.id);
+                                setDocuments((cur) =>
+                                  cur.filter((d) => d.id !== doc.id),
+                                );
+                              } catch {
+                                setDocNotice("Could not delete that document.");
+                              } finally {
+                                setDocBusy(null);
+                              }
+                            }}
+                            className="text-[11.5px] font-semibold text-red-600 hover:underline disabled:opacity-50"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {/* Queued, not yet sent: a new project has no id to attach to. */}
+                {pendingDocs.length > 0 && (
+                  <ul className="mt-3 divide-y divide-amber-100 overflow-hidden rounded-md border border-amber-200 bg-amber-50/60">
+                    {pendingDocs.map((doc, i) => (
+                      <li
+                        key={i}
+                        className="flex items-center justify-between gap-3 px-3 py-2.5"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-[12.5px] font-medium text-gray-900">
+                            {doc.title}
+                          </p>
+                          <p className="mt-0.5 truncate text-[10.5px] text-amber-800">
+                            {doc.file.name} · uploads when you save
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setPendingDocs((cur) => cur.filter((_, j) => j !== i))
+                          }
+                          className="shrink-0 text-[11.5px] font-semibold text-red-600 hover:underline"
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {documents.length === 0 && pendingDocs.length === 0 && (
+                  <p className="mt-4 rounded-md border border-dashed border-gray-200 px-3 py-4 text-center text-[11.5px] text-gray-400">
+                    No documents on this project yet.
+                  </p>
+                )}
+
+                <div className="mt-4 rounded-md border border-gray-200 p-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <Field label="Document title">
+                      <input
+                        value={docTitle}
+                        onChange={(e) => setDocTitle(e.target.value)}
+                        placeholder="e.g. Project Brochure"
+                        className={adminInputClass}
+                      />
+                    </Field>
+
+                    <Field label="Kind">
+                      <select
+                        value={docType}
+                        onChange={(e) => setDocType(e.target.value)}
+                        className={adminInputClass}
+                      >
+                        {DOCUMENT_TYPES.map((t) => (
+                          <option key={t.value} value={t.value}>
+                            {t.label}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                  </div>
+
+                  <div className="mt-3">
+                    <label className="mb-1 block text-[11px] font-medium text-gray-600">
+                      File
+                    </label>
+                    <input
+                      id="project-doc-file"
+                      type="file"
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,image/jpeg,image/png,image/webp"
+                      onChange={(e) => {
+                        const picked = e.target.files?.[0] ?? null;
+                        setDocFile(picked);
+                        // A sensible title beats making them type one twice.
+                        if (picked && !docTitle.trim()) {
+                          setDocTitle(picked.name.replace(/\.[^.]+$/, ""));
+                        }
+                      }}
+                      className="w-full text-xs text-gray-500 file:mr-2 file:rounded file:border-0 file:bg-primary/10 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-primary"
+                    />
+                    <p className="mt-1 text-[10.5px] text-gray-400">
+                      PDF, Word, Excel or an image · up to 10MB
+                    </p>
+                  </div>
+
+                  <label className="mt-3 flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={docPublic}
+                      onChange={(e) => setDocPublic(e.target.checked)}
+                      className="h-3.5 w-3.5 rounded border-gray-300"
+                    />
+                    <span className="text-[11.5px] text-gray-700">
+                      Show on the project page for buyers to download
+                    </span>
+                  </label>
+
+                  <button
+                    type="button"
+                    disabled={!docFile || !docTitle.trim()}
+                    onClick={() => {
+                      if (!docFile || !docTitle.trim()) return;
+                      setPendingDocs((cur) => [
+                        ...cur,
+                        {
+                          title: docTitle.trim(),
+                          type: docType,
+                          isPublic: docPublic,
+                          file: docFile,
+                        },
+                      ]);
+                      setDocTitle("");
+                      setDocFile(null);
+                      setDocType("brochure");
+                      setDocPublic(true);
+                      setDocNotice(null);
+                      // Clear the picker so the same file can be chosen again.
+                      const input = document.getElementById(
+                        "project-doc-file",
+                      ) as HTMLInputElement | null;
+                      if (input) input.value = "";
+                    }}
+                    className="mt-3 rounded-md bg-primary px-3.5 py-2 text-[12px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+                  >
+                    Add document
+                  </button>
+                </div>
+
+                {docNotice && (
+                  <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] font-medium text-amber-800">
+                    {docNotice}
                   </p>
                 )}
               </div>
