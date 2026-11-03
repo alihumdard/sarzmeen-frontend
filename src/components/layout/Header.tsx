@@ -194,6 +194,14 @@ export default function Header() {
                       <SavedPlanIcon className="h-4 w-4" />
                       My Payment Plans
                     </Link>
+                    <Link
+                      href="/messages"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-text transition-colors hover:bg-primary-light hover:text-primary"
+                    >
+                      <MessageIcon className="h-4 w-4" />
+                      Messages
+                    </Link>
                     <button
                       type="button"
                       onClick={() => { setUserMenuOpen(false); logout(); }}
@@ -335,6 +343,15 @@ export default function Header() {
                     My Payment Plans
                   </Link>
 
+                  <Link
+                    href="/messages"
+                    onClick={closeMobileMenu}
+                    className="flex items-center justify-center gap-2 rounded-full border-[1.5px] border-border px-4 py-2.5 text-center text-sm font-semibold text-heading"
+                  >
+                    <MessageIcon className="h-4 w-4" />
+                    Messages
+                  </Link>
+
                   <button
                     type="button"
                     onClick={() => { closeMobileMenu(); logout(); }}
@@ -387,6 +404,24 @@ function SavedPlanIcon({ className }: { className?: string }) {
       <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
       <path d="M14 3v5h5" />
       <path d="M9 15l2 2 4-4" />
+    </svg>
+  );
+}
+
+/** A speech bubble: a conversation rather than a notice. */
+function MessageIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z" />
     </svg>
   );
 }

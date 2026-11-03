@@ -29,6 +29,8 @@ type IconName =
   | "roles"
   | "users"
   | "activity"
+  | "message"
+  | "report"
   | "seo"
   | "appearance"
   | "settings";
@@ -117,6 +119,32 @@ const menuGroups: MenuGroup[] = [
         anyPermission: ["inquiries.view.any"],
         icon: "inquiry",
         implemented: true,
+      },
+      {
+        label: "Messages",
+        href: "/admin/messages",
+        icon: "message",
+        implemented: true,
+        roles: ["admin", "agency", "agent"],
+      },
+      {
+        /*
+         * Two sides of the same feature: the admin reads what came in,
+         * while an agent or agency sends one. Only one entry shows per
+         * role, so they can share this spot in the menu.
+         */
+        label: "Reports & Suggestions",
+        href: "/admin/reports",
+        anyPermission: ["inquiries.view.any"],
+        icon: "report",
+        implemented: true,
+      },
+      {
+        label: "Report to Admin",
+        href: "/admin/my-reports",
+        icon: "report",
+        implemented: true,
+        roles: ["agency", "agent"],
       },
     ],
   },
@@ -267,6 +295,23 @@ function AdminIcon({
         <svg {...commonProps}>
           <rect x="3.5" y="5" width="17" height="14" rx="2" />
           <path d="m4.5 7 7.5 6 7.5-6" />
+        </svg>
+      );
+
+    case "message":
+      return (
+        <svg {...commonProps}>
+          <path d="M20.5 12c0 4-3.8 7-8.5 7a9.8 9.8 0 0 1-2.6-.35L4.5 20.5l1.2-3.4A6.9 6.9 0 0 1 3.5 12c0-4 3.8-7 8.5-7s8.5 3 8.5 7Z" />
+          <path d="M8.5 11h7M8.5 14h4.5" />
+        </svg>
+      );
+
+    case "report":
+      return (
+        <svg {...commonProps}>
+          <path d="M14 3.5H7a1.8 1.8 0 0 0-1.8 1.8v13.4A1.8 1.8 0 0 0 7 20.5h10a1.8 1.8 0 0 0 1.8-1.8V8.3z" />
+          <path d="M14 3.5V8.3h4.8" />
+          <path d="M12 11v3.4M12 16.6v.1" />
         </svg>
       );
 
