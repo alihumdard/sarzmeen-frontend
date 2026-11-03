@@ -46,7 +46,8 @@ export type ProjectDetail = Project & {
   /** Full location line, e.g. "Raiwind Road, Lahore, Punjab, Pakistan". */
   fullLocation: string;
   /** Gallery photos. The first is the opening slide. */
-  images: string[];
+  /** Each stored image, with the id the admin form needs to act on it. */
+  images: ProjectImage[];
   /** Short marketing summary shown near the top of Overview. */
   description: string;
   /** Full description, one entry per paragraph. */
@@ -210,4 +211,10 @@ export type City = {
   /** Listing count as displayed, e.g. "12,500+ Properties". */
   propertyCount: string;
   image: string;
+};
+
+export type ProjectImage = {
+  id: string;
+  url: string;
+  isCover: boolean;
 };

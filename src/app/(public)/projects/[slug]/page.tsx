@@ -36,7 +36,7 @@ export async function generateMetadata({
   const seo = project.seo ?? {};
   const title = seo.metaTitle || project.name;
   const description = seo.metaDescription || project.description;
-  const image = seo.ogImage || project.images?.[0];
+  const image = seo.ogImage || project.images?.[0]?.url;
 
   return {
     title,
@@ -92,7 +92,7 @@ export default async function ProjectDetailPage({
 
           <div className="mt-6 grid items-start gap-6 lg:grid-cols-[1fr_320px]">
             <PropertyGallery
-              images={project.images}
+              images={project.images.map((i) => i.url)}
               title={project.name}
               photoCount={project.images.length}
               featured={project.featured ?? false}

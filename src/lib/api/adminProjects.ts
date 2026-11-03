@@ -56,3 +56,22 @@ export async function uploadProjectImages(id: string, files: File[]): Promise<vo
 export async function deleteAdminProject(id: string): Promise<void> {
   await api(`/admin/projects/${id}`, { method: "DELETE" });
 }
+
+/** Removes one stored image. The project keeps a cover: the API picks the next. */
+export async function deleteProjectImage(
+  projectId: string,
+  imageId: string,
+): Promise<void> {
+  await api(`/admin/projects/${projectId}/images/${imageId}`, {
+    method: "DELETE",
+  });
+}
+
+export async function setProjectImageCover(
+  projectId: string,
+  imageId: string,
+): Promise<void> {
+  await api(`/admin/projects/${projectId}/images/${imageId}/cover`, {
+    method: "PATCH",
+  });
+}

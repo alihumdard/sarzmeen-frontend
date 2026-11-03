@@ -11,7 +11,9 @@ import { useEffect, useState } from "react";
 import SafeImage from "@/components/ui/SafeImage";
 import {
   createAdminProject,
+  deleteProjectImage,
   getAdminProject,
+  setProjectImageCover,
   updateAdminProject,
 } from "@/lib/api/adminProjects";
 import { listProjectCategories } from "@/lib/api/projectCategories";
@@ -32,7 +34,7 @@ import ProjectUnitsStep, {
 } from "@/components/admin/ProjectUnitsStep";
 import { PERCENT_COMPONENTS, resolveTerms } from "@/lib/paymentPlan";
 import { listDevelopers } from "@/lib/api/developers";
-import type { DeveloperProfile } from "@/types/project";
+import type { DeveloperProfile, ProjectImage } from "@/types/project";
 
 type ProjectCategory = { id: string; name: string; slug: string };
 
@@ -151,6 +153,14 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
   const [images, setImages] = useState<File[]>([]);
   const [imageNotice, setImageNotice] = useState<string | null>(null);
 
+  /*
+   * Images already on the project. Without these the Media step looked
+   * empty on every edit, so there was no way to tell what had been
+   * uploaded, let alone remove it.
+   */
+  const [storedImages, setStoredImages] = useState<ProjectImage[]>([]);
+  const [imageBusy, setImageBusy] = useState<string | null>(null);
+
   useEffect(() => {
     listProjectCategories().then(setCategories).catch(() => {});
     listLocations().then(setLocations).catch(() => {});
@@ -162,6 +172,7 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
 
     getAdminProject(projectId)
       .then(({ data }) => {
+        setStoredImages(data.images ?? []);
         setName(data.name);
         setSlug(data.slug);
         setCategoryId(String(data.categoryId ?? ""));
@@ -657,6 +668,105 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
             <div>
               <h3 className="text-[15px] font-bold text-gray-900">Media & Gallery</h3>
               <p className="mt-1 text-[12px] text-gray-500">Upload images for the project.</p>
+
+              {isEdit && (
+                <div className="mt-5">
+                  <h4 className="text-[12px] font-semibold text-gray-700">
+                    Already uploaded ({storedImages.length})
+                  </h4>
+
+                  {storedImages.length === 0 ? (
+                    <p className="mt-2 rounded-md border border-dashed border-gray-200 px-3 py-4 text-center text-[11.5px] text-gray-400">
+                      No images on this project yet.
+                    </p>
+                  ) : (
+                    <div className="mt-2 grid grid-cols-4 gap-2">
+                      {storedImages.map((img) => (
+                        <div
+                          key={img.id}
+                          className="group relative aspect-[4/3] overflow-hidden rounded-md bg-gray-100"
+                        >
+                          <SafeImage
+                            src={img.url}
+                            alt=""
+                            fill
+                            sizes="100px"
+                            className="object-cover"
+                          />
+
+                          {img.isCover && (
+                            <span className="absolute left-1 top-1 rounded bg-primary px-1.5 py-0.5 text-[9px] font-semibold text-white">
+                              Cover
+                            </span>
+                          )}
+
+                          {/* Making one the cover is the only way to choose
+                              which photo represents the project in a list. */}
+                          {!img.isCover && (
+                            <button
+                              type="button"
+                              disabled={imageBusy === img.id}
+                              onClick={async () => {
+                                setImageBusy(img.id);
+                                try {
+                                  await setProjectImageCover(projectId!, img.id);
+                                  setStoredImages((cur) =>
+                                    cur.map((i) => ({
+                                      ...i,
+                                      isCover: i.id === img.id,
+                                    })),
+                                  );
+                                } catch {
+                                  setError("Could not set the cover image.");
+                                } finally {
+                                  setImageBusy(null);
+                                }
+                              }}
+                              className="absolute bottom-1 left-1 hidden rounded bg-black/60 px-1.5 py-0.5 text-[9px] font-medium text-white group-hover:block"
+                            >
+                              Make cover
+                            </button>
+                          )}
+
+                          <button
+                            type="button"
+                            disabled={imageBusy === img.id}
+                            onClick={async () => {
+                              if (!confirm("Delete this image?")) return;
+                              setImageBusy(img.id);
+                              try {
+                                await deleteProjectImage(projectId!, img.id);
+                                setStoredImages((cur) => {
+                                  const left = cur.filter((i) => i.id !== img.id);
+                                  /* The API promotes the next image, so
+                                     reflect that rather than showing a
+                                     project with no cover at all. */
+                                  if (img.isCover && left.length > 0) {
+                                    left[0] = { ...left[0], isCover: true };
+                                  }
+                                  return left;
+                                });
+                              } catch {
+                                setError("Could not delete that image.");
+                              } finally {
+                                setImageBusy(null);
+                              }
+                            }}
+                            className="absolute right-1 top-1 hidden rounded bg-red-600 p-1 text-white group-hover:block"
+                          >
+                            <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <p className="mt-2 text-[11px] text-gray-500">
+                    Anything you add below is uploaded on top of these.
+                  </p>
+                </div>
+              )}
+
               <div className="mt-5 space-y-4">
                 <label className="flex h-40 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-gray-200 text-center hover:border-primary">
                   <div>
