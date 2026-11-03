@@ -380,3 +380,126 @@ export function formatDueDate(date: Date | null): string {
   const day = String(date.getDate()).padStart(2, "0");
   return `${day}-${MONTHS[date.getMonth()]}-${date.getFullYear()}`;
 }
+
+/* ------------------------------------------------------------------ *
+ * Discounts
+ *
+ * A discount is money off, applied after the split rather than inside
+ * it: the percentages still describe how the list price is divided, and
+ * the discount then reduces either one component or every component in
+ * proportion. Folding it into computePlan instead would push the plan
+ * off 100% and make the split itself look wrong.
+ * ------------------------------------------------------------------ */
+
+/** Where a discount lands: one component, or spread across the whole plan. */
+export type DiscountTarget = ComponentKey | "total";
+
+export type DiscountedComponent = ComputedComponent & {
+  /** Money taken off this component. */
+  discount: number;
+  netTotal: number;
+  netEach: number;
+};
+
+export type DiscountedPlan = {
+  components: DiscountedComponent[];
+  /** What was typed. */
+  requested: number;
+  /** What the target could actually absorb, so nothing goes negative. */
+  applied: number;
+  /** Plan total before the discount. */
+  grossTotal: number;
+  /** What the buyer ends up paying. */
+  netTotal: number;
+  target: DiscountTarget;
+  /** The requested discount was larger than the target, so it was capped. */
+  capped: boolean;
+};
+
+export function applyDiscount(
+  plan: ComputedPlan,
+  discount: number,
+  target: DiscountTarget,
+): DiscountedPlan {
+  const grossTotal = plan.components.reduce((sum, c) => sum + c.resolvedTotal, 0);
+  const requested = Number.isFinite(discount) && discount > 0 ? discount : 0;
+
+  /*
+   * A component can only give up what it holds, and the plan as a whole only
+   * what it totals, so the discount is capped at the target's own amount.
+   * Without this a large discount turns an instalment negative, which reads
+   * as the developer paying the buyer.
+   */
+  const capacity =
+    target === "total"
+      ? grossTotal
+      : (plan.components.find((c) => c.key === target)?.resolvedTotal ?? 0);
+
+  const applied = Math.min(requested, capacity);
+
+  // Proportional share for "total", all of it for a single component.
+  const factor = target === "total" && grossTotal > 0 ? applied / grossTotal : 0;
+
+  const components: DiscountedComponent[] = plan.components.map((c) => {
+    const taken =
+      target === "total"
+        ? c.resolvedTotal * factor
+        : c.key === target
+          ? applied
+          : 0;
+
+    const netTotal = Math.max(0, c.resolvedTotal - taken);
+
+    return {
+      ...c,
+      discount: taken,
+      netTotal,
+      netEach: c.count > 0 ? netTotal / c.count : netTotal,
+    };
+  });
+
+  return {
+    components,
+    requested,
+    applied,
+    grossTotal,
+    netTotal: Math.max(0, grossTotal - applied),
+    target,
+    capped: requested - applied > 0.005,
+  };
+}
+
+/**
+ * The plan restated at its discounted figures.
+ *
+ * The schedule builders and the printout read `resolvedTotal` / `resolvedEach`,
+ * so handing them a plan whose resolved figures are already net means every
+ * table downstream shows the discounted amounts without knowing about
+ * discounts at all.
+ */
+export function netPlan(
+  plan: ComputedPlan,
+  discounted: DiscountedPlan,
+): ComputedPlan {
+  return {
+    ...plan,
+    components: discounted.components.map((c) => ({
+      ...c,
+      resolvedTotal: c.netTotal,
+      resolvedEach: c.netEach,
+    })),
+  };
+}
+
+/** The discount targets offered on screen, in the order payments fall due. */
+export const DISCOUNT_TARGETS: { value: DiscountTarget; label: string }[] = [
+  { value: "total", label: "Total Amount (spread proportionally)" },
+  { value: "booking", label: "Booking" },
+  { value: "confirmation", label: "Confirmation" },
+  { value: "monthly", label: "Monthly Installments" },
+  { value: "quarterly", label: "Quarterly" },
+  { value: "biannual", label: "Bi-Annual" },
+  { value: "balloon", label: "Balloon" },
+  { value: "grey", label: "Grey Structure" },
+  { value: "possession", label: "Possession" },
+];

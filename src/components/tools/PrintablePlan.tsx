@@ -20,6 +20,12 @@ type Props = {
   startDate: Date | null;
   /** Shown in the header when the plan came from a listing. */
   title?: string;
+  /** Money off the list price. 0 when no discount was entered. */
+  discount?: number;
+  /** Which part of the plan the discount came off, spelled out. */
+  discountLabel?: string;
+  /** What is actually payable. Equals `totalPrice` without a discount. */
+  netTotal?: number;
 };
 
 /**
@@ -37,10 +43,19 @@ export default function PrintablePlan({
   rate,
   startDate,
   title,
+  discount = 0,
+  discountLabel,
+  netTotal,
 }: Props) {
+  /*
+   * `plan` already carries the discounted figures, so every row below is
+   * what is payable; the list price is shown separately for the record.
+   */
   const rows = buildDatedSchedule(plan, startDate);
   const unitInfo = areaUnit(unit);
   const printedOn = formatDueDate(new Date());
+  const hasDiscount = discount > 0.005;
+  const payable = netTotal ?? totalPrice;
 
   return (
     <div className="printable-plan" aria-hidden="true">
@@ -100,6 +115,23 @@ export default function PrintablePlan({
         </tbody>
       </table>
 
+      {hasDiscount && (
+        <table className="pp-summary">
+          <tbody>
+            <tr>
+              <th>Discount</th>
+              <th>Applied To</th>
+              <th>Net Payable (PKR)</th>
+            </tr>
+            <tr>
+              <td>− {formatExact(discount)}</td>
+              <td>{discountLabel ?? "Total Amount"}</td>
+              <td className="pp-strong">{formatExact(payable)}</td>
+            </tr>
+          </tbody>
+        </table>
+      )}
+
       <table className="pp-schedule">
         <thead>
           <tr>
@@ -125,8 +157,10 @@ export default function PrintablePlan({
 
         <tfoot>
           <tr>
-            <td className="pp-l pp-strong">Total</td>
-            <td className="pp-r pp-strong">{formatExact(totalPrice)}</td>
+            <td className="pp-l pp-strong">
+              {hasDiscount ? "Net Payable" : "Total"}
+            </td>
+            <td className="pp-r pp-strong">{formatExact(payable)}</td>
             <td className="pp-c" colSpan={2}>
               {rows.length} payment{rows.length === 1 ? "" : "s"}
             </td>

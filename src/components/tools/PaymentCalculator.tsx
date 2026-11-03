@@ -5,17 +5,21 @@ import PriceInWords from "@/components/ui/PriceInWords";
 import { useMemo, useState } from "react";
 import PrintablePlan from "@/components/tools/PrintablePlan";
 import {
+  applyDiscount,
   areaUnit,
   AREA_UNITS,
   buildDatedSchedule,
   computePlan,
+  DISCOUNT_TARGETS,
   FREQUENCIES,
   formatDueDate,
   formatExact,
   formatPKR,
+  netPlan,
   planDurationMonths,
   toSqft,
   type AreaUnit,
+  type DiscountTarget,
   type Frequency,
   type PlanComponent,
 } from "@/lib/paymentPlanBuilder";
@@ -115,6 +119,10 @@ export default function PaymentCalculator({
    */
   const [duration, setDuration] = useState("4");
 
+  /* Money off, and which part of the plan it comes off. */
+  const [discount, setDiscount] = useState("");
+  const [discountTarget, setDiscountTarget] = useState<DiscountTarget>("total");
+
   const [rows, setRows] = useState<Record<string, RowState>>(() =>
     Object.fromEntries(FIELDS.map((f) => [f.key, { ...emptyRow }])),
   );
@@ -180,10 +188,26 @@ export default function PaymentCalculator({
   );
   const months = planDurationMonths(plan);
 
-  const datedRows = useMemo(
-    () => buildDatedSchedule(plan, startDateValue),
-    [plan, startDateValue],
+  /*
+   * The discount is applied after the split, so the percentages still
+   * describe the list price while every amount shown is what is payable.
+   */
+  const discounted = useMemo(
+    () => applyDiscount(plan, num(discount), discountTarget),
+    [plan, discount, discountTarget],
   );
+  const hasDiscount = discounted.applied > 0.005;
+
+  /* Net figures in, so the schedule and the printout need no discount logic. */
+  const netted = useMemo(() => netPlan(plan, discounted), [plan, discounted]);
+
+  const datedRows = useMemo(
+    () => buildDatedSchedule(netted, startDateValue),
+    [netted, startDateValue],
+  );
+
+  const targetLabel =
+    DISCOUNT_TARGETS.find((t) => t.value === discountTarget)?.label ?? "";
 
   /** Clearing the other side lets one drive, so the two never fight. */
   const setPercent = (key: string, value: string) =>
@@ -201,15 +225,21 @@ export default function PaymentCalculator({
   const setCount = (key: string, value: string) =>
     setRows((prev) => ({ ...prev, [key]: { ...prev[key], count: value } }));
 
-  const resetAll = () =>
+  const resetAll = () => {
     setRows(Object.fromEntries(FIELDS.map((f) => [f.key, { ...emptyRow }])));
+    setDiscount("");
+    setDiscountTarget("total");
+  };
 
   return (
     <div className="print-root">
       {/* Hidden on screen; the browser prints this instead of the page. */}
       <PrintablePlan
-        plan={plan}
+        plan={netted}
         totalPrice={totalPrice}
+        discount={hasDiscount ? discounted.applied : 0}
+        discountLabel={targetLabel}
+        netTotal={discounted.netTotal}
         area={mode === "area" ? num(area) : null}
         unit={unit}
         rate={num(rate)}
@@ -332,6 +362,25 @@ export default function PaymentCalculator({
                 {num(area).toLocaleString()} × {num(rate).toLocaleString()}
               </p>
             )}
+
+            {hasDiscount && (
+              <div className="mt-2.5 border-t border-primary/20 pt-2">
+                <p className="flex items-center justify-between text-[11.5px] font-semibold text-red-600">
+                  <span>Less discount</span>
+                  <span>− {formatPKR(discounted.applied)}</span>
+                </p>
+                <p className="mt-1.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                  Net payable
+                </p>
+                <p className="mt-0.5 text-[17px] font-bold text-primary">
+                  {formatPKR(discounted.netTotal)}
+                </p>
+                <PriceInWords
+                  value={discounted.netTotal}
+                  className="mt-0.5 text-[11px] font-medium text-primary/80"
+                />
+              </div>
+            )}
           </div>
 
           <Field label="Booking date">
@@ -363,6 +412,74 @@ export default function PaymentCalculator({
                 : "Fills the counts automatically"}
             </p>
           </Field>
+
+          {/*
+           * Discount.
+           *
+           * Taken off after the split, so the percentages above keep
+           * describing the list price while the amounts below are what is
+           * actually payable.
+           */}
+          <div className="rounded-md border border-border bg-surface p-3">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-heading">
+              Discount
+            </p>
+
+            <div className="mt-2.5 flex flex-col gap-2.5">
+              <Field label="Discount amount (PKR)">
+                <input
+                  type="number"
+                  min={0}
+                  step="any"
+                  inputMode="decimal"
+                  value={discount}
+                  onChange={(e) => setDiscount(e.target.value)}
+                  placeholder="e.g. 250000"
+                  className={inputClass}
+                />
+                <PriceInWords
+                  value={num(discount)}
+                  className="mt-1 text-[10.5px] text-muted"
+                />
+              </Field>
+
+              <Field label="Apply discount to">
+                <select
+                  value={discountTarget}
+                  onChange={(e) =>
+                    setDiscountTarget(e.target.value as DiscountTarget)
+                  }
+                  className={inputClass}
+                >
+                  {DISCOUNT_TARGETS.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+
+            {/*
+             * A discount larger than the part it comes off would turn an
+             * instalment negative, so it is capped and the buyer is told.
+             */}
+            {discounted.capped && (
+              <p className="mt-2 rounded bg-amber-50 px-2 py-1.5 text-[10.5px] leading-4 text-amber-700">
+                {discountTarget === "total"
+                  ? `The discount is more than the plan total, so only ${formatPKR(discounted.applied)} could be applied.`
+                  : `${targetLabel} is only ${formatPKR(discounted.applied)}, so the rest of the discount could not be applied there. Pick another section or Total Amount.`}
+              </p>
+            )}
+
+            {hasDiscount && !discounted.capped && (
+              <p className="mt-2 text-[10.5px] leading-4 text-muted">
+                {discountTarget === "total"
+                  ? "Spread across every section in proportion to its share."
+                  : `Taken off ${targetLabel} only.`}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -377,6 +494,15 @@ export default function PaymentCalculator({
           remainder automatically so the plan totals 100%.
         </p>
 
+        {hasDiscount && (
+          <p className="mt-2 rounded-md bg-primary-light px-3 py-2 text-[11px] leading-5 text-primary">
+            The percentage and amount columns still describe the{" "}
+            <strong>list price</strong>. The Discount and Payable columns show
+            what you pay after {formatPKR(discounted.applied)} off
+            {discountTarget === "total" ? " the total" : ` ${targetLabel}`}.
+          </p>
+        )}
+
         {/*
           Five columns cannot be read on a phone — scrolling sideways to reach
           Count and Total makes the plan hard to follow. Below md: each
@@ -385,6 +511,7 @@ export default function PaymentCalculator({
         <div className="mt-4 flex flex-col gap-3 md:hidden">
           {FIELDS.map((f, i) => {
             const c = plan.components[i];
+            const d = discounted.components[i];
             const row = rows[f.key] ?? emptyRow;
             const auto = c?.derived ?? false;
 
@@ -402,10 +529,14 @@ export default function PaymentCalculator({
                       </span>
                     )}
                   </span>
-                  <span className="text-[13px] font-bold text-primary">
-                    {hasPrice && c && c.resolvedTotal > 0
-                      ? formatPKR(c.resolvedTotal)
-                      : "—"}
+                  <span className="text-right text-[13px] font-bold text-primary">
+                    {hasPrice && d && d.netTotal > 0 ? formatPKR(d.netTotal) : "—"}
+                    {/* The list figure stays visible, so the saving is clear. */}
+                    {d && d.discount > 0.005 && (
+                      <span className="mt-0.5 block text-[10px] font-medium text-muted line-through">
+                        {formatPKR(c.resolvedTotal)}
+                      </span>
+                    )}
                   </span>
                 </div>
 
@@ -480,11 +611,7 @@ export default function PaymentCalculator({
               Total · {plan.percentTotal.toFixed(2)}%
             </span>
             <span className="text-[13px] font-bold text-primary">
-              {hasPrice
-                ? formatPKR(
-                    plan.components.reduce((s, c) => s + c.resolvedTotal, 0),
-                  )
-                : "—"}
+              {hasPrice ? formatPKR(discounted.netTotal) : "—"}
             </span>
           </div>
         </div>
@@ -497,12 +624,18 @@ export default function PaymentCalculator({
                 <th className="px-3 py-2 font-medium">Percentage</th>
                 <th className="px-3 py-2 font-medium">Amount each</th>
                 <th className="px-3 py-2 font-medium">Count</th>
-                <th className="px-3 py-2 text-right font-medium">Total</th>
+                {hasDiscount && (
+                  <th className="px-3 py-2 text-right font-medium">Discount</th>
+                )}
+                <th className="px-3 py-2 text-right font-medium">
+                  {hasDiscount ? "Payable" : "Total"}
+                </th>
               </tr>
             </thead>
             <tbody>
               {FIELDS.map((f, i) => {
                 const c = plan.components[i];
+                const d = discounted.components[i];
                 const row = rows[f.key] ?? emptyRow;
                 const auto = c?.derived ?? false;
 
@@ -574,9 +707,17 @@ export default function PaymentCalculator({
                       )}
                     </td>
 
+                    {hasDiscount && (
+                      <td className="whitespace-nowrap px-3 py-2 text-right font-medium text-red-600">
+                        {d && d.discount > 0.005
+                          ? `− ${formatPKR(d.discount)}`
+                          : "—"}
+                      </td>
+                    )}
+
                     <td className="whitespace-nowrap px-3 py-2 text-right font-semibold text-heading">
-                      {hasPrice && c && c.resolvedTotal > 0
-                        ? formatPKR(c.resolvedTotal)
+                      {hasPrice && d && d.netTotal > 0
+                        ? formatPKR(d.netTotal)
                         : "—"}
                     </td>
                   </tr>
@@ -588,12 +729,13 @@ export default function PaymentCalculator({
                 <td className="px-3 py-2">{plan.percentTotal.toFixed(2)}%</td>
                 <td className="px-3 py-2" />
                 <td className="px-3 py-2" />
+                {hasDiscount && (
+                  <td className="whitespace-nowrap px-3 py-2 text-right text-red-600">
+                    − {formatPKR(discounted.applied)}
+                  </td>
+                )}
                 <td className="whitespace-nowrap px-3 py-2 text-right text-primary">
-                  {hasPrice
-                    ? formatPKR(
-                        plan.components.reduce((s, c) => s + c.resolvedTotal, 0),
-                      )
-                    : "—"}
+                  {hasPrice ? formatPKR(discounted.netTotal) : "—"}
                 </td>
               </tr>
             </tbody>
@@ -694,7 +836,7 @@ export default function PaymentCalculator({
                           </td>
                         </tr>
                       ))
-                    : plan.components
+                    : netted.components
                         .filter((c) => c.resolvedTotal > 0.005)
                         .map((c) => (
                           <tr key={c.key} className="border-t border-border text-text">
@@ -712,12 +854,40 @@ export default function PaymentCalculator({
                             </td>
                           </tr>
                         ))}
+                  {hasDiscount && (
+                    <>
+                      <tr className="border-t border-border text-muted">
+                        <td className="px-3 py-2">List price</td>
+                        <td className="whitespace-nowrap px-3 py-2 text-right">
+                          {formatPKR(totalPrice)}
+                        </td>
+                        <td className="px-3 py-2">Before discount</td>
+                      </tr>
+                      <tr className="border-t border-border text-red-600">
+                        <td className="px-3 py-2">Discount</td>
+                        <td className="whitespace-nowrap px-3 py-2 text-right font-semibold">
+                          − {formatPKR(discounted.applied)}
+                        </td>
+                        <td className="px-3 py-2">
+                          {discountTarget === "total"
+                            ? "Spread across all sections"
+                            : `On ${targetLabel}`}
+                        </td>
+                      </tr>
+                    </>
+                  )}
                   <tr className="border-t border-border bg-surface font-bold text-heading">
-                    <td className="px-3 py-2">Total</td>
-                    <td className="whitespace-nowrap px-3 py-2 text-right text-primary">
-                      {formatPKR(totalPrice)}
+                    <td className="px-3 py-2">
+                      {hasDiscount ? "Net payable" : "Total"}
                     </td>
-                    <td className="px-3 py-2 text-muted">100%</td>
+                    <td className="whitespace-nowrap px-3 py-2 text-right text-primary">
+                      {formatPKR(discounted.netTotal)}
+                    </td>
+                    <td className="px-3 py-2 text-muted">
+                      {hasDiscount
+                        ? `${((discounted.netTotal / totalPrice) * 100).toFixed(2)}% of list`
+                        : "100%"}
+                    </td>
                   </tr>
                 </tbody>
               </table>
