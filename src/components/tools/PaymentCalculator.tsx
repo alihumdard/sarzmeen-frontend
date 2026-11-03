@@ -2,7 +2,7 @@
 
 import PriceInWords from "@/components/ui/PriceInWords";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import PrintablePlan from "@/components/tools/PrintablePlan";
 import {
   applyDiscount,
@@ -209,6 +209,103 @@ export default function PaymentCalculator({
   const targetLabel =
     DISCOUNT_TARGETS.find((t) => t.value === discountTarget)?.label ?? "";
 
+  /*
+   * Which document the printer gets. Setting it and calling window.print()
+   * in the same handler would print the previous one, because React has not
+   * re-rendered yet — so the dialog is opened from an effect, after the
+   * chosen document is on the page.
+   */
+  const [printMode, setPrintMode] = useState<"summary" | "full">("full");
+  const [printQueued, setPrintQueued] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!printQueued) return;
+    setPrintQueued(false);
+    window.print();
+  }, [printQueued]);
+
+  const printAs = (mode: "summary" | "full") => {
+    setPrintMode(mode);
+    setPrintQueued(true);
+  };
+
+  /** The plan as pasteable text, for WhatsApp and email. */
+  const planAsText = () => {
+    const lines: string[] = ["Payment Plan — Sarzameen.com"];
+    if (title) lines.push(title);
+    lines.push("");
+
+    if (mode === "area" && num(area) > 0) {
+      lines.push(`Property Size: ${num(area).toLocaleString()} ${unitShort}`);
+      lines.push(`Rate: ${formatPKR(num(rate))} / ${unitShort}`);
+    }
+    lines.push(`Total Price: ${formatPKR(totalPrice)}`);
+
+    if (hasDiscount) {
+      lines.push(
+        `Discount: ${formatPKR(discounted.applied)} off ${
+          discountTarget === "total" ? "the total" : targetLabel
+        }`,
+      );
+      lines.push(`Net Payable: ${formatPKR(discounted.netTotal)}`);
+    }
+
+    if (startDateValue) {
+      lines.push(`Booking Date: ${formatDueDate(startDateValue)}`);
+    }
+    if (months > 0) {
+      lines.push(`Duration: about ${Math.ceil(months / 12)} years`);
+    }
+
+    lines.push("", "PAYMENT PLAN");
+    for (const c of netted.components) {
+      if (c.resolvedTotal <= 0.005) continue;
+      lines.push(
+        c.count > 1
+          ? `- ${c.label}: ${formatExact(c.resolvedEach)} × ${c.count} = ${formatPKR(c.resolvedTotal)}`
+          : `- ${c.label}: ${formatPKR(c.resolvedTotal)} (one payment)`,
+      );
+    }
+
+    lines.push("", `Total: ${formatPKR(discounted.netTotal)}`, "");
+    lines.push(
+      "An estimate only. Actual plans vary by developer and project.",
+    );
+
+    return lines.join("\n");
+  };
+
+  const copyPlan = async () => {
+    const text = planAsText();
+
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      /*
+       * Clipboard access is refused in some in-app browsers, so fall back to
+       * the old selection trick rather than leaving the button dead.
+       */
+      const box = document.createElement("textarea");
+      box.value = text;
+      box.style.position = "fixed";
+      box.style.opacity = "0";
+      document.body.appendChild(box);
+      box.select();
+      try {
+        document.execCommand("copy");
+      } catch {
+        /* Nothing more to try; the button simply does not confirm. */
+        document.body.removeChild(box);
+        return;
+      }
+      document.body.removeChild(box);
+    }
+
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
+  };
+
   /** Clearing the other side lets one drive, so the two never fight. */
   const setPercent = (key: string, value: string) =>
     setRows((prev) => ({
@@ -240,6 +337,7 @@ export default function PaymentCalculator({
         discount={hasDiscount ? discounted.applied : 0}
         discountLabel={targetLabel}
         netTotal={discounted.netTotal}
+        mode={printMode}
         area={mode === "area" ? num(area) : null}
         unit={unit}
         rate={num(rate)}
@@ -789,14 +887,34 @@ export default function PaymentCalculator({
                 Your payment schedule
               </h3>
 
-              <button
-                type="button"
-                onClick={() => window.print()}
-                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[11.5px] font-semibold text-white transition-opacity hover:opacity-90"
-              >
-                <PrinterIcon />
-                Print / Save as PDF
-              </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={copyPlan}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-white px-3 py-1.5 text-[11.5px] font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
+                >
+                  <CopyIcon />
+                  {copied ? "Copied" : "Copy plan"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => printAs("summary")}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-white px-3 py-1.5 text-[11.5px] font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
+                >
+                  <PrinterIcon />
+                  Print summary
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => printAs("full")}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[11.5px] font-semibold text-white transition-opacity hover:opacity-90"
+                >
+                  <PrinterIcon />
+                  Print full plan
+                </button>
+              </div>
             </div>
 
             {!startDateValue && (
@@ -902,6 +1020,24 @@ export default function PaymentCalculator({
         </div>
       </div>
     </div>
+  );
+}
+
+function CopyIcon() {
+  return (
+    <svg
+      className="h-3.5 w-3.5"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="9" y="9" width="11" height="11" rx="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
   );
 }
 
