@@ -185,6 +185,15 @@ export default function Header() {
                       <GridViewIcon className="h-4 w-4" />
                       {user.role === "user" ? "My Properties" : "Dashboard"}
                     </Link>
+                    {/* Any signed-in role can keep a plan: the calculator is public. */}
+                    <Link
+                      href="/my-plans"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-2.5 text-[13px] text-text transition-colors hover:bg-primary-light hover:text-primary"
+                    >
+                      <SavedPlanIcon className="h-4 w-4" />
+                      My Payment Plans
+                    </Link>
                     <button
                       type="button"
                       onClick={() => { setUserMenuOpen(false); logout(); }}
@@ -317,6 +326,15 @@ export default function Header() {
                     {user.role === "user" ? "My Properties" : "Dashboard"}
                   </Link>
 
+                  <Link
+                    href="/my-plans"
+                    onClick={closeMobileMenu}
+                    className="flex items-center justify-center gap-2 rounded-full border-[1.5px] border-border px-4 py-2.5 text-center text-sm font-semibold text-heading"
+                  >
+                    <SavedPlanIcon className="h-4 w-4" />
+                    My Payment Plans
+                  </Link>
+
                   <button
                     type="button"
                     onClick={() => { closeMobileMenu(); logout(); }}
@@ -350,5 +368,25 @@ export default function Header() {
         </div>
       )}
     </header>
+  );
+}
+
+/** A document with a tick: a plan put away rather than one being worked on. */
+function SavedPlanIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+      <path d="M14 3v5h5" />
+      <path d="M9 15l2 2 4-4" />
+    </svg>
   );
 }

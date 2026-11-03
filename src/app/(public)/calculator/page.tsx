@@ -16,6 +16,12 @@ function num(value: string | string[] | undefined): number | undefined {
   return Number.isFinite(n) && n > 0 ? n : undefined;
 }
 
+/** `?plan=12` reopens a saved plan; anything else is ignored. */
+function id(value: string | string[] | undefined): string | undefined {
+  const raw = Array.isArray(value) ? value[0] : value;
+  return raw && /^\d+$/.test(raw) ? raw : undefined;
+}
+
 export default async function CalculatorPage({
   searchParams,
 }: {
@@ -39,6 +45,7 @@ export default async function CalculatorPage({
             initialArea={num(sp.area)}
             initialRate={num(sp.rate)}
             initialPrice={num(sp.price)}
+            savedPlanId={id(sp.plan)}
           />
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">

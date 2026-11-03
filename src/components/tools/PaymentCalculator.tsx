@@ -4,6 +4,12 @@ import PriceInWords from "@/components/ui/PriceInWords";
 
 import { useEffect, useMemo, useState } from "react";
 import PrintablePlan from "@/components/tools/PrintablePlan";
+import { useAuth } from "@/context/AuthContext";
+import {
+  createSavedPlan,
+  getSavedPlan,
+  type SavedPlanInputs,
+} from "@/lib/api/savedPlans";
 import {
   applyDiscount,
   areaUnit,
@@ -30,6 +36,8 @@ type Props = {
   initialRate?: number;
   initialPrice?: number;
   title?: string;
+  /** Reopens a plan the buyer saved, by its id. */
+  savedPlanId?: string;
 };
 
 /**
@@ -83,18 +91,48 @@ function deriveCount(componentKey: string, years: number): number | null {
   return Math.max(1, Math.round((years * 12) / months));
 }
 
-function num(value: string): number {
-  if (value.trim() === "") return 0;
+function num(value: string | null | undefined): number {
+  if (!value || value.trim() === "") return 0;
   const n = Number(value.replace(/,/g, ""));
   return Number.isFinite(n) ? n : 0;
 }
 
-function has(value: string): boolean {
-  return value.trim() !== "";
+/*
+ * Null-tolerant on purpose: a blank field is an empty string here but comes
+ * back as null through JSON, so a plan reopened from the API would crash
+ * this on `.trim()` if it insisted on a string.
+ */
+function has(value: string | null | undefined): boolean {
+  return !!value && value.trim() !== "";
 }
 
 /** One row's two inputs plus its count, all held as typed text. */
 type RowState = { percent: string; amount: string; count: string };
+
+/**
+ * Restores a saved plan's rows to the typed-text shape the inputs need.
+ *
+ * Every blank field goes out as "" and comes back as null, and a missing
+ * component -- one added to FIELDS after the plan was saved -- is absent
+ * altogether, so both are filled in here rather than at each use.
+ */
+function normaliseRows(
+  saved: Record<string, Partial<Record<keyof RowState, string | null>>>,
+): Record<string, RowState> {
+  return Object.fromEntries(
+    FIELDS.map((f) => {
+      const row = saved[f.key] ?? {};
+      return [
+        f.key,
+        {
+          percent: row.percent ?? "",
+          amount: row.amount ?? "",
+          count: row.count ?? "",
+        },
+      ];
+    }),
+  );
+}
 
 const emptyRow: RowState = { percent: "", amount: "", count: "" };
 
@@ -103,6 +141,7 @@ export default function PaymentCalculator({
   initialRate,
   initialPrice,
   title,
+  savedPlanId,
 }: Props) {
   const [mode, setMode] = useState<"area" | "price">(
     initialPrice && !initialArea ? "price" : "area",
@@ -229,6 +268,94 @@ export default function PaymentCalculator({
     setPrintMode(mode);
     setPrintQueued(true);
   };
+
+  /*
+   * Saving needs an account, because a plan has to come back on another
+   * device and after the browser is cleared -- which is the whole point of
+   * keeping one.
+   */
+  const { user } = useAuth();
+  const [saveTitle, setSaveTitle] = useState("");
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveNotice, setSaveNotice] = useState<string | null>(null);
+  const [savedId, setSavedId] = useState<string | null>(null);
+
+  /** Everything needed to rebuild this plan exactly as it stands. */
+  const planInputs = (): SavedPlanInputs => ({
+    mode,
+    area,
+    unit,
+    rate,
+    price,
+    startDate,
+    duration,
+    discount,
+    discountTarget,
+    rows,
+  });
+
+  const savePlan = async () => {
+    const name = saveTitle.trim();
+    if (!name) return;
+
+    setSaving(true);
+    setSaveNotice(null);
+    try {
+      const { data } = await createSavedPlan({
+        title: name,
+        inputs: planInputs(),
+        totalPrice,
+        netTotal: discounted.netTotal,
+      });
+      setSavedId(data.id);
+      setSaveOpen(false);
+      setSaveTitle("");
+      setSaveNotice(`Saved as "${data.title}".`);
+    } catch (err) {
+      const e = err as Error;
+      setSaveNotice(e.message || "Could not save this plan.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /* Reopening a saved plan restores every field it was built from. */
+  const [loadingSaved, setLoadingSaved] = useState(Boolean(savedPlanId));
+
+  useEffect(() => {
+    if (!savedPlanId) return;
+    let cancelled = false;
+
+    getSavedPlan(savedPlanId)
+      .then(({ data }) => {
+        if (cancelled || !data.inputs) return;
+        const i = data.inputs;
+        setMode(i.mode === "price" ? "price" : "area");
+        setArea(i.area ?? "");
+        setUnit((i.unit as AreaUnit) ?? "sqft");
+        setRate(i.rate ?? "");
+        setPrice(i.price ?? "");
+        setStartDate(i.startDate ?? "");
+        setDuration(i.duration ?? "4");
+        setDiscount(i.discount ?? "");
+        setDiscountTarget((i.discountTarget as DiscountTarget) ?? "total");
+        // JSON turns every blank field into null; the inputs are typed text.
+        if (i.rows) setRows(normaliseRows(i.rows));
+        setSavedId(data.id);
+        setSaveNotice(`Opened "${data.title}".`);
+      })
+      .catch(() => {
+        if (!cancelled) setSaveNotice("Could not open that saved plan.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingSaved(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [savedPlanId]);
 
   /** The plan as pasteable text, for WhatsApp and email. */
   const planAsText = () => {
@@ -914,8 +1041,85 @@ export default function PaymentCalculator({
                   <PrinterIcon />
                   Print full plan
                 </button>
+
+                {/*
+                  Saving needs an account: a plan kept only in this browser
+                  is gone on the next device, which defeats keeping it.
+                */}
+                {user ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSaveOpen((o) => !o);
+                      setSaveNotice(null);
+                      if (!saveTitle.trim()) {
+                        setSaveTitle(title ?? "My payment plan");
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-white px-3 py-1.5 text-[11.5px] font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
+                  >
+                    <SaveIcon />
+                    Save plan
+                  </button>
+                ) : (
+                  <a
+                    href="/login"
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-white px-3 py-1.5 text-[11.5px] font-semibold text-muted transition-colors hover:border-primary hover:text-primary"
+                  >
+                    <SaveIcon />
+                    Log in to save
+                  </a>
+                )}
               </div>
             </div>
+
+            {saveOpen && user && (
+              <div className="mt-3 flex flex-wrap items-end gap-2 rounded-md border border-border bg-surface p-3">
+                <label className="min-w-0 flex-1">
+                  <span className="mb-1 block text-[10px] uppercase tracking-wide text-muted">
+                    Name this plan
+                  </span>
+                  <input
+                    value={saveTitle}
+                    onChange={(e) => setSaveTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") savePlan();
+                    }}
+                    maxLength={120}
+                    placeholder="e.g. DHA Phase 6 — 10 Marla"
+                    className={inputClass}
+                  />
+                </label>
+
+                <button
+                  type="button"
+                  onClick={savePlan}
+                  disabled={saving || !saveTitle.trim()}
+                  className="rounded-md bg-primary px-3.5 py-2 text-[11.5px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+                >
+                  {saving ? "Saving…" : "Save"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSaveOpen(false)}
+                  className="rounded-md border border-border bg-white px-3 py-2 text-[11.5px] font-semibold text-muted transition-colors hover:text-heading"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+
+            {saveNotice && (
+              <p className="mt-2 flex flex-wrap items-center gap-2 rounded-md bg-primary-light px-3 py-2 text-[11.5px] font-medium text-primary">
+                <span>{saveNotice}</span>
+                {savedId && (
+                  <a href="/my-plans" className="font-semibold underline">
+                    See your saved plans
+                  </a>
+                )}
+              </p>
+            )}
 
             {!startDateValue && (
               <p className="mt-1.5 text-[11px] text-muted">
@@ -1020,6 +1224,24 @@ export default function PaymentCalculator({
         </div>
       </div>
     </div>
+  );
+}
+
+function SaveIcon() {
+  return (
+    <svg
+      className="h-3.5 w-3.5"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+      <path d="M17 21v-8H7v8M7 3v5h8" />
+    </svg>
   );
 }
 
