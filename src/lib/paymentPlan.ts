@@ -288,22 +288,30 @@ export function resolveTerms(
     return String(raw ?? "").trim() === "" ? sum : sum + (Number(raw) || 0);
   }, 0);
 
-  const round2 = (n: number) => Math.round(n * 100) / 100;
-  let assigned = 0;
+  /*
+   * Counted in hundredths of a percent, as whole numbers. Adding the
+   * rounded shares as decimals left the total a hair under 100
+   * (99.99999999999999), which the save check reads as short.
+   */
+  const typedCents = Math.round(typedTotal * 100);
+  let assignedCents = 0;
 
-  blanks.forEach((i, position) => {
+  // Shares worth nothing take no part, so the last payer is the last of
+  // those that actually receive something.
+  const paying = blanks.filter((i) => (plan.components[i]?.resolvedPercent ?? 0) > 0);
+
+  paying.forEach((i, position) => {
     const component = PERCENT_COMPONENTS[i];
     const share = plan.components[i]?.resolvedPercent ?? 0;
-    if (share <= 0) return;
 
-    const isLast = position === blanks.length - 1;
-    // The last blank absorbs the rounding drift the others left behind.
-    const value = isLast
-      ? round2(Math.max(0, 100 - typedTotal - assigned))
-      : round2(share);
+    const isLast = position === paying.length - 1;
+    // The last payer absorbs the rounding drift the others left behind.
+    const cents = isLast
+      ? Math.max(0, 10000 - typedCents - assignedCents)
+      : Math.round(share * 100);
 
-    assigned += value;
-    filled[component.key] = String(value);
+    assignedCents += cents;
+    filled[component.key] = String(cents / 100);
   });
 
   return filled;
