@@ -271,11 +271,39 @@ export function resolveTerms(
   const plan = computePlan(components, 100);
   const filled: Record<string, string> = { ...terms };
 
+  /*
+   * Rounding each derived share on its own does not add up: seven blank
+   * components each take 100/7 = 14.2857, which rounds to 14.29 and totals
+   * 100.03 -- enough for the save check to reject a form nobody had even
+   * typed in. So every share but the last is rounded, and the last takes
+   * whatever is left, which makes the printed figures sum to exactly 100.
+   */
+  const blanks: number[] = [];
   PERCENT_COMPONENTS.forEach((component, i) => {
-    if (String(terms[component.key] ?? "").trim() !== "") return;
+    if (String(terms[component.key] ?? "").trim() === "") blanks.push(i);
+  });
 
+  const typedTotal = PERCENT_COMPONENTS.reduce((sum, component) => {
+    const raw = terms[component.key];
+    return String(raw ?? "").trim() === "" ? sum : sum + (Number(raw) || 0);
+  }, 0);
+
+  const round2 = (n: number) => Math.round(n * 100) / 100;
+  let assigned = 0;
+
+  blanks.forEach((i, position) => {
+    const component = PERCENT_COMPONENTS[i];
     const share = plan.components[i]?.resolvedPercent ?? 0;
-    if (share > 0) filled[component.key] = String(Math.round(share * 100) / 100);
+    if (share <= 0) return;
+
+    const isLast = position === blanks.length - 1;
+    // The last blank absorbs the rounding drift the others left behind.
+    const value = isLast
+      ? round2(Math.max(0, 100 - typedTotal - assigned))
+      : round2(share);
+
+    assigned += value;
+    filled[component.key] = String(value);
   });
 
   return filled;
