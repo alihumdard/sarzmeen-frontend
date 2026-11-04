@@ -306,16 +306,30 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
   const handleClose = () => router.push("/admin/projects");
   const isLastStep = step === steps.length;
 
+  /*
+   * Moving between steps clears a complaint from an earlier submit.
+   * Nothing re-validates on the way, so a message that was true once
+   * stayed on screen -- "they currently total 85.71%" above a split the
+   * banner beside it called good to go -- with no way to dismiss it
+   * short of reloading the page.
+   */
+  const clearStaleErrors = () => {
+    setFieldErrors({});
+    setError("");
+  };
+
   const goNext = async () => {
     if (isLastStep) {
       await handleSubmit();
       return;
     }
+    clearStaleErrors();
     setStep((s) => Math.min(s + 1, steps.length));
   };
 
   const goBack = () => {
     if (step === 1) { handleClose(); return; }
+    clearStaleErrors();
     setStep((s) => Math.max(s - 1, 1));
   };
 
@@ -534,7 +548,10 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                 <button
                   key={s.id}
                   type="button"
-                  onClick={() => setStep(s.id)}
+                  onClick={() => {
+                    clearStaleErrors();
+                    setStep(s.id);
+                  }}
                   className={["flex w-full items-start gap-2.5 rounded-lg px-3 py-2 text-left transition-colors", active ? "bg-primary/10" : "hover:bg-white"].join(" ")}
                 >
                   <span className={["flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold", active ? "bg-primary text-white" : completed ? "bg-primary/20 text-primary" : "border border-gray-300 bg-white text-gray-400"].join(" ")}>

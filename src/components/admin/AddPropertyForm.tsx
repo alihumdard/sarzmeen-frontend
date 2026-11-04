@@ -285,6 +285,9 @@ export default function AddPropertyForm() {
       handleSubmit();
       return;
     }
+    // A complaint from an earlier submit is not re-checked on the way, so
+    // it would otherwise sit on a step whose fields have since been fixed.
+    setFieldErrors({});
     setStepIndex((s) => Math.min(s + 1, steps.length - 1));
   };
 
@@ -293,6 +296,8 @@ export default function AddPropertyForm() {
       router.push("/admin/properties");
       return;
     }
+    setError("");
+    setFieldErrors({});
     setStepIndex((s) => Math.max(s - 1, 0));
   };
 
@@ -310,7 +315,11 @@ export default function AddPropertyForm() {
                 <button
                   key={s.key}
                   type="button"
-                  onClick={() => setStepIndex(i)}
+                  onClick={() => {
+                    setError("");
+                    setFieldErrors({});
+                    setStepIndex(i);
+                  }}
                   className={[
                     "flex w-full items-start gap-2.5 rounded-lg px-3 py-2 text-left transition-colors",
                     active ? "bg-primary/10" : "hover:bg-white",
