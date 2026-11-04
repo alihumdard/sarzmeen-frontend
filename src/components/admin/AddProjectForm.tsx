@@ -715,7 +715,22 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                   units={units}
                   onUnitsChange={setUnits}
                   terms={terms}
-                  onTermChange={(k, v) => setTerms((cur) => ({ ...cur, [k]: v }))}
+                  onTermChange={(k, v) => {
+                    setTerms((cur) => ({ ...cur, [k]: v }));
+                    /*
+                     * Drop a stale percentage complaint as soon as the
+                     * figures are touched. It was only cleared on a
+                     * successful save, so after one rejected submit the
+                     * old "they currently total 70%" stayed on screen
+                     * while the fields were corrected, and went on
+                     * contradicting the green banner below it.
+                     */
+                    setFieldErrors((cur) => {
+                      if (!cur.paymentTerms) return cur;
+                      const { paymentTerms: _drop, ...rest } = cur;
+                      return rest;
+                    });
+                  }}
                   error={fieldError("paymentTerms")}
                   showStructure={paymentType !== "full_payment"}
                 />
