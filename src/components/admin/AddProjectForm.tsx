@@ -348,8 +348,23 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
     if (payload) {
       const pct = PERCENT_COMPONENTS.reduce((s, c) => s + (Number(settled[c.key]) || 0), 0);
       if (Math.abs(pct - 100) > 0.01) {
+        /*
+         * Name the fields that could not be read as a number. A value the
+         * browser kept but Number() turns into NaN counts as zero, so the
+         * total came up short with every box looking filled and nothing
+         * saying which one to fix.
+         */
+        const unreadable = PERCENT_COMPONENTS.filter((c) => {
+          const raw = settled[c.key];
+          return raw !== undefined && String(raw).trim() !== "" && !Number.isFinite(Number(raw));
+        }).map((c) => c.label);
+
         setFieldErrors({
-          paymentTerms: [`Payment percentages must equal 100%. They currently total ${pct.toFixed(2)}%.`],
+          paymentTerms: [
+            unreadable.length
+              ? `${unreadable.join(" and ")} ${unreadable.length > 1 ? "are" : "is"} not a number, so ${unreadable.length > 1 ? "they count" : "it counts"} as 0. The percentages total ${pct.toFixed(2)}% and must equal 100%.`
+              : `Payment percentages must equal 100%. They currently total ${pct.toFixed(2)}%.`,
+          ],
         });
         setError("The payment plan does not add up to 100%.");
         setStep(3);
@@ -836,22 +851,59 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                   }} />
                 </label>
                 {images.length > 0 && (
-                  <div className="grid grid-cols-4 gap-2">
-                    {images.map((file, i) => (
-                      <div key={i} className="group relative aspect-[4/3] overflow-hidden rounded-md bg-gray-100">
-                        <SafeImage src={URL.createObjectURL(file)} alt="" fill sizes="100px" className="object-cover" unoptimized />
-                        <button type="button" onClick={() => setImages(images.filter((_, j) => j !== i))} className="absolute right-1 top-1 hidden rounded bg-red-600 p-1 text-white group-hover:block">
-                          <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M18 6L6 18" /></svg>
-                        </button>
-                        <ImageEditButton
-                          file={file}
-                          onEdited={(cropped) =>
-                            setImages(images.map((f, j) => (j === i ? cropped : f)))
-                          }
-                        />
-                      </div>
-                    ))}
-                  </div>
+                  <>
+                    <p className="text-[12px] text-gray-500">
+                      The first photo is the cover shown in listings. Pick a
+                      different one with &ldquo;Make cover&rdquo;.
+                    </p>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                      {images.map((file, i) => (
+                        <div key={i}>
+                          <div className="group relative aspect-[4/3] overflow-hidden rounded-md bg-gray-100">
+                            <SafeImage src={URL.createObjectURL(file)} alt="" fill sizes="140px" className="object-cover" unoptimized />
+
+                            {/* The first file is what the API makes the cover. */}
+                            {i === 0 && (
+                              <span className="absolute left-1 top-1 rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-white">
+                                COVER
+                              </span>
+                            )}
+
+                            <button
+                              type="button"
+                              aria-label="Remove photo"
+                              onClick={() => setImages(images.filter((_, j) => j !== i))}
+                              className="absolute right-1 top-1 rounded bg-red-600 p-1 text-white"
+                            >
+                              <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                            </button>
+                            <ImageEditButton
+                              file={file}
+                              onEdited={(cropped) =>
+                                setImages(images.map((f, j) => (j === i ? cropped : f)))
+                              }
+                            />
+                          </div>
+
+                          {/*
+                            Cover is decided by position: these upload in
+                            order and the API makes the first one the cover.
+                          */}
+                          {i !== 0 && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setImages([images[i], ...images.filter((_, j) => j !== i)])
+                              }
+                              className="mt-1 w-full rounded border border-gray-200 py-1 text-[10.5px] font-semibold text-gray-600 transition-colors hover:border-primary hover:text-primary"
+                            >
+                              Make cover
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </>
                 )}
 
                 {imageNotice && (

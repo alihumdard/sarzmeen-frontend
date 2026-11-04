@@ -658,28 +658,67 @@ export default function AddPropertyForm() {
               )}
 
               {images.length > 0 && (
-                <div className="mt-3 grid grid-cols-4 gap-2">
-                  {images.map((file, i) => (
-                    <div key={i} className="group relative h-20 overflow-hidden rounded-md bg-gray-100">
-                      <SafeImage src={URL.createObjectURL(file)} alt="" fill sizes="100px" className="object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => setImages((cur) => cur.filter((_, j) => j !== i))}
-                        className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white opacity-0 transition-opacity group-hover:opacity-100"
-                      >
-                        &times;
-                      </button>
-                      <ImageEditButton
-                        file={file}
-                        onEdited={(cropped) =>
-                          setImages((cur) =>
-                            cur.map((f, j) => (j === i ? cropped : f)),
-                          )
-                        }
-                      />
-                    </div>
-                  ))}
-                </div>
+                <>
+                  <p className="mt-3 text-[12px] text-gray-500">
+                    The first photo is the cover buyers see in search results.
+                    Pick a different one with &ldquo;Make cover&rdquo;.
+                  </p>
+
+                  <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {images.map((file, i) => (
+                      <div key={i} className="group">
+                        <div className="relative h-24 overflow-hidden rounded-md bg-gray-100">
+                          <SafeImage src={URL.createObjectURL(file)} alt="" fill sizes="140px" className="object-cover" />
+
+                          {/* The first file is what the API makes the cover. */}
+                          {i === 0 && (
+                            <span className="absolute left-1 top-1 rounded bg-primary px-1.5 py-0.5 text-[9px] font-bold text-white">
+                              COVER
+                            </span>
+                          )}
+
+                          <button
+                            type="button"
+                            aria-label="Remove photo"
+                            onClick={() => setImages((cur) => cur.filter((_, j) => j !== i))}
+                            className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white"
+                          >
+                            &times;
+                          </button>
+
+                          <ImageEditButton
+                            file={file}
+                            onEdited={(cropped) =>
+                              setImages((cur) =>
+                                cur.map((f, j) => (j === i ? cropped : f)),
+                              )
+                            }
+                          />
+                        </div>
+
+                        {/*
+                          Cover is decided by position: the images upload in
+                          this order and the API makes the first one the
+                          cover, so choosing one moves it to the front.
+                        */}
+                        {i !== 0 && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setImages((cur) => [
+                                cur[i],
+                                ...cur.filter((_, j) => j !== i),
+                              ])
+                            }
+                            className="mt-1 w-full rounded border border-gray-200 py-1 text-[10.5px] font-semibold text-gray-600 transition-colors hover:border-primary hover:text-primary"
+                          >
+                            Make cover
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           )}

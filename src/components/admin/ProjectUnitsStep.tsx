@@ -504,6 +504,16 @@ function UnitPreview({ units, terms }: { units: UnitDraft[]; terms: Record<strin
   );
 }
 
+/**
+ * A number field that cannot hold text the rest of the form reads as zero.
+ *
+ * `type="number"` accepts "3,0", "30%" and "30abc" in several browsers: the
+ * box still shows what was typed, but `Number()` gives NaN, so the value
+ * counted as 0 while looking filled. A plan of 10/10/30/30/20 then failed
+ * as "70%" with every field visibly populated, and nothing said which one
+ * was wrong. So the input only ever takes digits and a single dot, and a
+ * decimal comma is read as that dot rather than silently dropped.
+ */
 function Num({
   label,
   value,
@@ -515,16 +525,29 @@ function Num({
   onChange: (value: string) => void;
   placeholder?: string;
 }) {
+  const clean = (raw: string) => {
+    // A comma is how a decimal is often typed here; treat it as the dot.
+    const dotted = raw.replace(/,/g, ".");
+    const digits = dotted.replace(/[^0-9.]/g, "");
+    // Keep only the first dot, so "1.2.3" cannot reach the state.
+    const [head, ...rest] = digits.split(".");
+    return rest.length ? `${head}.${rest.join("")}` : head;
+  };
+
   return (
     <div>
       <label className="mb-1.5 block text-[12px] font-medium text-gray-600">{label}</label>
       <input
-        type="number"
-        min={0}
-        step="any"
+        /*
+         * Deliberately text, not number: a number input hands back "" for a
+         * value it cannot parse, so the character that broke it is invisible
+         * and cannot be corrected here.
+         */
+        type="text"
+        inputMode="decimal"
         autoComplete="off"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange(clean(e.target.value))}
         placeholder={placeholder}
         className={adminInputClass}
       />

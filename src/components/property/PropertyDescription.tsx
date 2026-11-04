@@ -20,13 +20,19 @@ export default function PropertyDescription({
 
           {property.descriptionHtml ? (
             <div
-              className="mt-3 max-w-none text-[13px] leading-[1.85] text-text/80 [&_h2]:mt-5 [&_h2]:text-[15px] [&_h2]:font-bold [&_h2]:text-heading [&_h3]:mt-4 [&_h3]:text-[14px] [&_h3]:font-semibold [&_h3]:text-heading [&_li]:mt-1 [&_ol]:mt-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_p+p]:mt-3 [&_ul]:mt-2 [&_ul]:list-disc [&_ul]:pl-5"
+              /*
+               * break-words and min-w-0: this is whatever the seller
+               * typed, and one long unbroken string -- a pasted URL or a
+               * repeated email -- used to push the column past the screen
+               * and take the whole page sideways with it on a phone.
+               */
+              className="mt-3 min-w-0 max-w-none break-words text-[13px] leading-[1.85] text-text/80 [&_*]:max-w-full [&_h2]:mt-5 [&_h2]:text-[15px] [&_h2]:font-bold [&_h2]:text-heading [&_h3]:mt-4 [&_h3]:text-[14px] [&_h3]:font-semibold [&_h3]:text-heading [&_li]:mt-1 [&_ol]:mt-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_p+p]:mt-3 [&_ul]:mt-2 [&_ul]:list-disc [&_ul]:pl-5"
               dangerouslySetInnerHTML={{ __html: property.descriptionHtml }}
             />
           ) : (
             <div className="mt-3 space-y-3">
               {property.descriptionParagraphs.map((paragraph, i) => (
-                <p key={i} className="text-[13px] leading-[1.85] text-text/80">
+                <p key={i} className="break-words text-[13px] leading-[1.85] text-text/80">
                   {paragraph}
                 </p>
               ))}

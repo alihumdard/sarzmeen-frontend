@@ -271,6 +271,22 @@ export default function EditPropertyPage() {
     }
   };
 
+  /*
+   * The cover is the photo shown in search results. The page marked which
+   * one it was but offered no way to change it, so a listing was stuck with
+   * whichever image happened to upload first.
+   */
+  const makeCover = async (imageId: number) => {
+    try {
+      await api(`/my/properties/${propertyId}/images/${imageId}/cover`, {
+        method: "PATCH",
+      });
+      loadProperty();
+    } catch {
+      setError("Could not set that image as the cover.");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -496,25 +512,39 @@ export default function EditPropertyPage() {
             <h3 className="mb-3 text-sm font-semibold text-gray-800">Images ({property.images.length})</h3>
             <div className="grid grid-cols-2 gap-2">
               {property.images.map((img) => (
-                <div key={img.id} className="group relative aspect-[4/3] overflow-hidden rounded-md bg-gray-100">
-                  <SafeImage src={img.url} alt="" fill sizes="120px" className="object-cover" />
-                  {img.isCover && (
-                    <span className="absolute left-1 top-1 rounded bg-primary px-1.5 py-0.5 text-[9px] font-semibold text-white">
-                      Cover
-                    </span>
+                <div key={img.id}>
+                  <div className="group relative aspect-[4/3] overflow-hidden rounded-md bg-gray-100">
+                    <SafeImage src={img.url} alt="" fill sizes="120px" className="object-cover" />
+                    {img.isCover && (
+                      <span className="absolute left-1 top-1 rounded bg-primary px-1.5 py-0.5 text-[9px] font-semibold text-white">
+                        Cover
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      aria-label="Delete image"
+                      onClick={() => deleteImage(img.id)}
+                      className="absolute right-1 top-1 rounded bg-red-600 p-1 text-white"
+                    >
+                      <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M6 6l12 12M18 6L6 18" />
+                      </svg>
+                    </button>
+                    <StoredImageEditButton
+                      url={img.url}
+                      onCropped={(file) => replaceImage(img.id, file)}
+                    />
+                  </div>
+
+                  {!img.isCover && (
+                    <button
+                      type="button"
+                      onClick={() => makeCover(img.id)}
+                      className="mt-1 w-full rounded border border-gray-200 py-1 text-[10.5px] font-semibold text-gray-600 transition-colors hover:border-primary hover:text-primary"
+                    >
+                      Make cover
+                    </button>
                   )}
-                  <button
-                    onClick={() => deleteImage(img.id)}
-                    className="absolute right-1 top-1 hidden rounded bg-red-600 p-1 text-white group-hover:block"
-                  >
-                    <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M6 6l12 12M18 6L6 18" />
-                    </svg>
-                  </button>
-                  <StoredImageEditButton
-                    url={img.url}
-                    onCropped={(file) => replaceImage(img.id, file)}
-                  />
                 </div>
               ))}
             </div>

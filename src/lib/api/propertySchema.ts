@@ -53,8 +53,7 @@ export function groupsFor(
   typeSlug: string,
   purpose: string,
 ): Array<{ name: string; group: SchemaGroup }> {
-  const definition = schema.types[typeSlug];
-  if (!definition) return [];
+  const definition = schema.types[typeSlug] ?? fallbackDefinition(schema);
 
   const names = Object.entries(schema.groups)
     .filter(([name, group]) => {
@@ -79,5 +78,36 @@ export function showsCore(
   typeSlug: string,
   field: string,
 ): boolean {
-  return schema.types[typeSlug]?.core.includes(field) ?? false;
+  const definition = schema.types[typeSlug] ?? fallbackDefinition(schema);
+  return definition.core.includes(field);
+}
+
+/**
+ * What to show for a type the schema has no entry for.
+ *
+ * The schema is a fixed config keyed by slug, but an admin can add a
+ * property type through the panel at any time. Such a type used to render
+ * step 2 with no fields at all and no explanation, which read as a broken
+ * page -- the listing could not describe itself and the form looked dead.
+ *
+ * A generic set is wrong for some types (a plot has no bedrooms) but it is
+ * always better than nothing, and the seller can leave what does not apply
+ * blank. Giving a new type its own entry in config/property_schema.php is
+ * still the right fix; this only stops the form breaking until then.
+ */
+export function hasSchemaEntry(
+  schema: PropertySchema,
+  typeSlug: string,
+): boolean {
+  return Boolean(schema.types[typeSlug]);
+}
+
+function fallbackDefinition(schema: PropertySchema): SchemaType {
+  return {
+    core: ['carParking', 'furnishing', 'propertyCondition'],
+    // Only groups the schema actually defines, so nothing renders undefined.
+    groups: ['building', 'buildingAmenities', 'utilities', 'comfort'].filter(
+      (name) => name in schema.groups,
+    ),
+  };
 }

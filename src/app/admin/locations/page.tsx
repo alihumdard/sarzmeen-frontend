@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { useAuth } from "@/context/AuthContext";
 import AdminFilterBar from "@/components/admin/AdminFilterBar";
 import AdminTable, { AdminTableColumn } from "@/components/admin/AdminTable";
 import AdminPagination from "@/components/admin/AdminPagination";
@@ -24,6 +25,16 @@ const typeBadgeClasses: Record<string, string> = {
 };
 
 export default function LocationsPage() {
+  /*
+   * Locations are shared by every account, so renaming or removing one
+   * reaches other people's listings. An agent may add a missing area but
+   * only an admin may change or delete an existing row -- the API enforces
+   * the same split, so showing these buttons to anyone else would only
+   * offer an action that comes back 403.
+   */
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -254,28 +265,31 @@ export default function LocationsPage() {
       key: "actions",
       label: "Actions",
       align: "right",
-      render: (loc) => (
-        <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
-          <button
-            type="button"
-            aria-label="Edit Location"
-            title="Edit location"
-            onClick={() => openEditModal(loc)}
-            className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-400 transition-colors hover:border-primary/40 hover:text-primary"
-          >
-            <EditIcon />
-          </button>
-          <button
-            type="button"
-            aria-label="Delete Location"
-            title="Delete location"
-            onClick={() => setConfirmDelete(loc)}
-            className="flex h-8 w-8 items-center justify-center rounded-md border border-red-100 bg-red-50 text-red-500 transition-colors hover:bg-red-100"
-          >
-            <TrashIcon />
-          </button>
-        </div>
-      ),
+      render: (loc) =>
+        isAdmin ? (
+          <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              aria-label="Edit Location"
+              title="Edit location"
+              onClick={() => openEditModal(loc)}
+              className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-400 transition-colors hover:border-primary/40 hover:text-primary"
+            >
+              <EditIcon />
+            </button>
+            <button
+              type="button"
+              aria-label="Delete Location"
+              title="Delete location"
+              onClick={() => setConfirmDelete(loc)}
+              className="flex h-8 w-8 items-center justify-center rounded-md border border-red-100 bg-red-50 text-red-500 transition-colors hover:bg-red-100"
+            >
+              <TrashIcon />
+            </button>
+          </div>
+        ) : (
+          <span className="text-[11.5px] text-muted">&mdash;</span>
+        ),
     },
   ];
 
