@@ -59,8 +59,7 @@ export default function ProjectFloorPlans({ project }: Props) {
                   {plan.pdf && (
                     <a
                       href={plan.pdf}
-                      target="_blank"
-                      rel="noreferrer"
+                      download
                       className="mt-2 inline-block text-[11.5px] font-semibold text-primary hover:underline"
                     >
                       Download PDF
@@ -83,10 +82,15 @@ export default function ProjectFloorPlans({ project }: Props) {
                 className="flex items-center justify-between gap-3 px-4 py-3"
               >
                 <span className="text-[12.5px] text-heading">{doc.title}</span>
+                {/*
+                  `download` rather than a new tab: a PDF opened in the
+                  viewer is not what "Download" promises, and the buyer
+                  then has to save it a second time. Same origin as the
+                  page, so the browser honours the attribute.
+                */}
                 <a
                   href={doc.url}
-                  target="_blank"
-                  rel="noreferrer"
+                  download
                   className="shrink-0 text-[11.5px] font-semibold text-primary hover:underline"
                 >
                   Download
