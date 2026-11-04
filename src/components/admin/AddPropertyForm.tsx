@@ -350,7 +350,13 @@ export default function AddPropertyForm() {
           )}
         </div>
 
-        <div className="p-6">
+        {/*
+          min-w-0: a grid child defaults to min-content width, so one
+          wide thing inside -- a long unbroken string in the description
+          -- used to stretch this column and push the step list off the
+          screen, taking every label with it.
+        */}
+        <div className="min-w-0 p-6">
           {(error || firstError) && (
             <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-[12px] text-red-700">
               {firstError ?? error}

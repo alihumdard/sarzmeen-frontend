@@ -110,7 +110,12 @@ export default function AdminLayout({
           </div>
         )}
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-7">
+        {/*
+          min-w-0: a flex child defaults to min-content width, so
+          anything wide inside stretched the whole page sideways
+          instead of scrolling within its own container.
+        */}
+        <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-7">
           {children}
         </main>
 

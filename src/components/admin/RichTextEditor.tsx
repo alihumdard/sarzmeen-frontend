@@ -41,8 +41,14 @@ export default function RichTextEditor({
     immediatelyRender: false,
     editorProps: {
       attributes: {
+        /*
+         * break-words: this holds whatever the seller types, and one long
+         * unbroken string -- a pasted URL, a repeated email -- used to push
+         * the editor past its container and drag the whole form sideways,
+         * taking every label and field off screen with it.
+         */
         class:
-          `prose prose-sm max-w-none ${minHeightClass} px-5 py-4 focus:outline-none text-[13.5px] leading-7 text-gray-800 ` +
+          `prose prose-sm max-w-none break-words ${minHeightClass} px-5 py-4 focus:outline-none text-[13.5px] leading-7 text-gray-800 ` +
           "prose-headings:text-gray-900 prose-headings:font-bold prose-h2:text-xl prose-h2:mt-6 prose-h2:mb-3 " +
           "prose-h3:text-[17px] prose-h3:mt-5 prose-h3:mb-2 prose-p:my-2 " +
           "prose-a:text-primary prose-a:no-underline hover:prose-a:underline " +
@@ -68,7 +74,7 @@ export default function RichTextEditor({
   const words = editor.getText().trim() ? editor.getText().trim().split(/\s+/).length : 0;
 
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white transition-shadow focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/10">
+    <div className="min-w-0 overflow-hidden rounded-lg border border-gray-200 bg-white transition-shadow focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/10">
       <Toolbar editor={editor} />
       <EditorContent editor={editor} />
       <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50/50 px-4 py-1.5 text-[10px] text-gray-400">
