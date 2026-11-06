@@ -336,6 +336,15 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
   const fieldError = (key: string) => fieldErrors[key]?.[0];
 
   const handleSubmit = async () => {
+    /*
+     * Start every save from a clean slate. The percentage complaint used to
+     * be cleared only once a save got past it, so a message naming the old
+     * total ("they currently total 70%") stayed on screen while the figures
+     * were corrected and re-saved, and read as a fresh rejection of values
+     * that already added up.
+     */
+    clearStaleErrors();
+
     const missing: Record<string, string[]> = {};
     if (!name.trim()) missing.name = ["The name field is required."];
     if (!slug.trim()) missing.slug = ["The slug field is required."];
@@ -380,7 +389,11 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
               : `Payment percentages must equal 100%. They currently total ${pct.toFixed(2)}%.`,
           ],
         });
-        setError("The payment plan does not add up to 100%.");
+        setError(
+          unreadable.length
+            ? `${unreadable.join(" and ")} ${unreadable.length > 1 ? "are" : "is"} not a number, so ${unreadable.length > 1 ? "they count" : "it counts"} as 0. The percentages total ${pct.toFixed(2)}% and must equal 100%.`
+            : `Payment percentages must equal 100%. They currently total ${pct.toFixed(2)}%.`,
+        );
         setStep(3);
         return;
       }
@@ -621,7 +634,7 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                     </select>
                   </Field>
                   <Field label="Payment Type" required error={fieldError("paymentType")}>
-                    <select autoComplete="off" value={paymentType} onChange={(e) => setPaymentType(e.target.value)} className={adminSelectClass}>
+                    <select autoComplete="off" value={paymentType} onChange={(e) => { setPaymentType(e.target.value); clearStaleErrors(); }} className={adminSelectClass}>
                       {PAYMENT_TYPES.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
                   </Field>
@@ -748,7 +761,12 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
                       return rest;
                     });
                   }}
-                  error={fieldError("paymentTerms")}
+                  /*
+                   * No error here: the step prints its own live running
+                   * total just under the fields, so passing the submit
+                   * message down as well showed the same sentence twice,
+                   * once above the step and once inside it.
+                   */
                   showStructure={paymentType !== "full_payment"}
                 />
               </div>
