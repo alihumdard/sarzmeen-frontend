@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import PageBanner from "@/components/layout/PageBanner";
-import {
-  CameraIcon,
-  ChartIcon,
-  CheckIcon,
-  DocumentIcon,
-  GlobeIcon,
-  HandshakeIcon,
-  SmartSearchIcon,
-} from "@/components/ui/Icons";
+import { iconFor } from "@/components/services/serviceIcons";
+import { CheckIcon } from "@/components/ui/Icons";
 import {
   servicesCta,
   servicesIntro,
@@ -18,18 +12,43 @@ import {
 import { getPublicServices } from "@/lib/api/services";
 import type { Service } from "@/types/service";
 
+/** Services to a page. Four keeps the run short enough to scroll. */
+const PAGE_SIZE = 4;
+
 export const metadata: Metadata = {
   title: "Services — Property Dealing, Payment Plans, SEO & Websites",
   description:
     "Property dealing, payment plan creation, SEO, website development, photography and investment advisory from the Sarzameen team in Lahore.",
 };
 
-export default async function ServicesPage() {
+export default async function ServicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string | string[] }>;
+}) {
   /*
    * The services are admin-managed, so a failed fetch should leave the rest
    * of the page standing rather than taking it down with an error screen.
    */
-  const services = await getPublicServices().catch(() => []);
+  const all = await getPublicServices().catch(() => []);
+
+  const sp = await searchParams;
+  const raw = Array.isArray(sp.page) ? sp.page[0] : sp.page;
+  const requested = Math.max(1, Number(raw) || 1);
+
+  const lastPage = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
+
+  /*
+   * A page past the end would render an empty run under a heading that says
+   * there are services, so send the reader to the last real page instead.
+   */
+  if (requested > lastPage && all.length > 0) {
+    redirect(lastPage === 1 ? "/services" : `/services?page=${lastPage}`);
+  }
+
+  const page = Math.min(requested, lastPage);
+  const start = (page - 1) * PAGE_SIZE;
+  const services = all.slice(start, start + PAGE_SIZE);
 
   return (
     <main>
@@ -91,11 +110,16 @@ export default async function ServicesPage() {
                 <ServiceRow
                   key={service.id}
                   service={service}
-                  index={index}
+                  /* Numbering runs across pages: page 2 starts at 05. */
+                  index={start + index}
                   isLast={index === services.length - 1}
                 />
               ))}
             </div>
+
+            {lastPage > 1 && (
+              <ServicePager page={page} lastPage={lastPage} total={all.length} />
+            )}
           </div>
         </section>
       )}
@@ -155,8 +179,7 @@ function ServiceRow({
   index: number;
   isLast: boolean;
 }) {
-  /* Fall back rather than crash if a row carries an icon key we do not have. */
-  const Icon = icons[service.icon] ?? HandshakeIcon;
+  const Icon = iconFor(service.icon);
 
   const step = String(index + 1).padStart(2, "0");
 
@@ -228,21 +251,88 @@ function ServiceRow({
             </li>
           ))}
         </ul>
+
+        <Link
+          href={`/services/${service.slug}`}
+          className="mt-5 inline-flex items-center gap-1.5 text-[12.5px] font-bold text-primary transition-colors hover:text-primary-dark"
+        >
+          Read more about {service.title}
+          <svg
+            className="h-3.5 w-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </Link>
         </div>
       </article>
     </div>
   );
 }
 
-/* Drawn in the shared icon library, so they match the rest of the site. */
-const icons: Record<
-  Service["icon"],
-  React.ComponentType<{ className?: string }>
-> = {
-  handshake: HandshakeIcon,
-  document: DocumentIcon,
-  search: SmartSearchIcon,
-  globe: GlobeIcon,
-  camera: CameraIcon,
-  chart: ChartIcon,
-};
+/**
+ * Page links for the services run. Plain links rather than a client
+ * component, so the list keeps working without JavaScript and each page
+ * stays its own URL.
+ */
+function ServicePager({
+  page,
+  lastPage,
+  total,
+}: {
+  page: number;
+  lastPage: number;
+  total: number;
+}) {
+  const href = (n: number) => (n === 1 ? "/services" : `/services?page=${n}`);
+  const pages = Array.from({ length: lastPage }, (_, i) => i + 1);
+
+  const linkClass =
+    "inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-3 text-[12px] font-semibold transition-colors";
+
+  return (
+    <nav
+      aria-label="Services pages"
+      className="mt-8 flex flex-col items-center gap-3"
+    >
+      <div className="flex flex-wrap items-center justify-center gap-1.5">
+        {page > 1 && (
+          <Link href={href(page - 1)} className={`${linkClass} border-border bg-white text-text hover:border-primary/40 hover:text-primary`}>
+            Previous
+          </Link>
+        )}
+
+        {pages.map((n) => (
+          <Link
+            key={n}
+            href={href(n)}
+            aria-current={n === page ? "page" : undefined}
+            className={
+              n === page
+                ? `${linkClass} border-primary bg-primary text-white`
+                : `${linkClass} border-border bg-white text-text hover:border-primary/40 hover:text-primary`
+            }
+          >
+            {n}
+          </Link>
+        ))}
+
+        {page < lastPage && (
+          <Link href={href(page + 1)} className={`${linkClass} border-border bg-white text-text hover:border-primary/40 hover:text-primary`}>
+            Next
+          </Link>
+        )}
+      </div>
+
+      <p className="text-[11.5px] text-muted">
+        Page {page} of {lastPage} — {total} services in all
+      </p>
+    </nav>
+  );
+}
