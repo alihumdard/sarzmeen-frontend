@@ -190,6 +190,23 @@ export default function ServicesPage() {
       align: "right",
       render: (service) => (
         <div className="flex items-center justify-end gap-1.5">
+          {/*
+           * A hidden service has no public page, so the link would 404.
+           * The button is left out rather than shown and broken.
+           */}
+          {service.status === "published" && (
+            <a
+              href={`/services/${service.slug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`View ${service.title} on the site`}
+              title="View on the site"
+              className="flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-400 transition-colors hover:border-primary/40 hover:text-primary"
+            >
+              <EyeIcon />
+            </a>
+          )}
+
           <button
             type="button"
             aria-label={`Edit ${service.title}`}
@@ -365,6 +382,23 @@ function PlusIcon() {
       strokeLinecap="round"
     >
       <path d="M12 5v14M5 12h14" />
+    </svg>
+  );
+}
+
+function EyeIcon() {
+  return (
+    <svg
+      className="h-3.5 w-3.5"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+      <circle cx="12" cy="12" r="2.5" />
     </svg>
   );
 }
