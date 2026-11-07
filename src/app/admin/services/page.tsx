@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import AdminFilterBar from "@/components/admin/AdminFilterBar";
 import AdminModal from "@/components/admin/AdminModal";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminPagination from "@/components/admin/AdminPagination";
 import AdminTable, {
   type AdminTableColumn,
 } from "@/components/admin/AdminTable";
@@ -17,6 +18,8 @@ import {
 } from "@/lib/api/services";
 import type { Service, ServiceInput } from "@/types/service";
 
+const PER_PAGE = 10;
+
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +27,7 @@ export default function ServicesPage() {
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [page, setPage] = useState(1);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Service | null>(null);
@@ -76,6 +80,17 @@ export default function ServicesPage() {
         .includes(term);
     });
   }, [services, search, statusFilter]);
+
+  /*
+   * Clamped rather than reset: deleting the last row of the final page would
+   * otherwise leave the table empty on a page that no longer exists.
+   */
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const currentPage = Math.min(page, totalPages);
+  const visible = filtered.slice(
+    (currentPage - 1) * PER_PAGE,
+    currentPage * PER_PAGE,
+  );
 
   const stats = useMemo(
     () => ({
@@ -237,7 +252,10 @@ export default function ServicesPage() {
       <AdminFilterBar
         searchPlaceholder="Search services by title or summary..."
         searchValue={search}
-        onSearchChange={setSearch}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(1);
+        }}
         filters={[
           {
             label: "All Statuses",
@@ -246,22 +264,36 @@ export default function ServicesPage() {
               { label: "Published", value: "published" },
               { label: "Hidden", value: "hidden" },
             ],
-            onChange: setStatusFilter,
+            onChange: (value) => {
+              setStatusFilter(value);
+              setPage(1);
+            },
           },
         ]}
         onReset={() => {
           setSearch("");
           setStatusFilter("");
+          setPage(1);
         }}
       />
 
       <AdminTable
         columns={columns}
-        data={filtered}
+        data={visible}
         loading={loading}
         rowKey={(service) => service.id}
         emptyMessage="No services match these filters."
       />
+
+      {filtered.length > 0 && (
+        <AdminPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filtered.length}
+          itemsPerPage={PER_PAGE}
+          onPageChange={setPage}
+        />
+      )}
 
       {/* Keyed so each open starts from the right record's values. */}
       <ServiceFormModal
