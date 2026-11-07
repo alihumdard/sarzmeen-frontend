@@ -11,12 +11,12 @@ import {
   SmartSearchIcon,
 } from "@/components/ui/Icons";
 import {
-  services,
   servicesCta,
   servicesIntro,
   servicesStats,
-  type Service,
 } from "@/constants/servicesContent";
+import { getPublicServices } from "@/lib/api/services";
+import type { Service } from "@/types/service";
 
 export const metadata: Metadata = {
   title: "Services — Property Dealing, Payment Plans, SEO & Websites",
@@ -24,7 +24,13 @@ export const metadata: Metadata = {
     "Property dealing, payment plan creation, SEO, website development, photography and investment advisory from the Sarzameen team in Lahore.",
 };
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  /*
+   * The services are admin-managed, so a failed fetch should leave the rest
+   * of the page standing rather than taking it down with an error screen.
+   */
+  const services = await getPublicServices().catch(() => []);
+
   return (
     <main>
       <PageBanner
@@ -77,20 +83,22 @@ export default function ServicesPage() {
       </section>
 
       {/* Each service as a numbered row, read top to bottom. */}
-      <section className="bg-surface py-10 sm:py-14">
-        <div className="container-page">
-          <div className="flex flex-col">
-            {services.map((service, index) => (
-              <ServiceRow
-                key={service.id}
-                service={service}
-                index={index}
-                isLast={index === services.length - 1}
-              />
-            ))}
+      {services.length > 0 && (
+        <section className="bg-surface py-10 sm:py-14">
+          <div className="container-page">
+            <div className="flex flex-col">
+              {services.map((service, index) => (
+                <ServiceRow
+                  key={service.id}
+                  service={service}
+                  index={index}
+                  isLast={index === services.length - 1}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Closing call to action */}
       <section className="bg-surface pb-12 sm:pb-16">
@@ -147,7 +155,8 @@ function ServiceRow({
   index: number;
   isLast: boolean;
 }) {
-  const Icon = icons[service.icon];
+  /* Fall back rather than crash if a row carries an icon key we do not have. */
+  const Icon = icons[service.icon] ?? HandshakeIcon;
 
   const step = String(index + 1).padStart(2, "0");
 

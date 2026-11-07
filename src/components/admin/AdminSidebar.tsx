@@ -24,6 +24,7 @@ type IconName =
   | "blog"
   | "media"
   | "testimonial"
+  | "services"
   | "faq"
   | "home"
   | "roles"
@@ -186,6 +187,13 @@ const menuGroups: MenuGroup[] = [
         implemented: true,
       },
       {
+        label: "Services",
+        href: "/admin/services",
+        anyPermission: ["services.manage"],
+        icon: "services",
+        implemented: true,
+      },
+      {
         label: "FAQs",
         href: "/admin/faqs",
         anyPermission: ["faqs.manage"],
@@ -337,6 +345,14 @@ function AdminIcon({
         <svg {...commonProps}>
           <path d="M6 5.5h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-4 3v-3H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" />
           <path d="M8 10h8M8 13h5" />
+        </svg>
+      );
+
+    case "services":
+      return (
+        <svg {...commonProps}>
+          <path d="M3 7h18M3 12h18M3 17h10" />
+          <circle cx="18" cy="17" r="2.5" />
         </svg>
       );
 
