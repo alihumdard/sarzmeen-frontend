@@ -249,21 +249,41 @@ export function yearlyBreakdown(plan: PlanSummary): Array<{ year: number; amount
  * resolves them with the same engine the form displays, so what was shown
  * is what is saved.
  */
+/**
+ * Whether a field carries a percentage to honour.
+ *
+ * Only a value that reads as a number counts. A saved plan can arrive with
+ * nulls where the API left a component unset, and a field can hold something
+ * no number can be made of -- a stray "." mid-type, or text the browser
+ * restored. Treating any of those as a typed figure pinned the component at
+ * zero and left nothing to share out the remaining percentage, so a plan the
+ * form showed as complete was refused for totalling 0%.
+ */
+export function typedPercent(raw: unknown): number | null {
+  if (raw === null || raw === undefined) return null;
+
+  /* A comma is how a decimal is often typed here, as the input treats it. */
+  const text = String(raw).trim().replace(/,/g, ".");
+  if (text === "") return null;
+
+  const value = Number(text);
+  return Number.isFinite(value) ? value : null;
+}
+
 export function resolveTerms(
   terms: Record<string, string>,
 ): Record<string, string> {
   const components: PlanComponent[] = PERCENT_COMPONENTS.map((c) => {
-    const raw = terms[c.key];
-    const typed = raw !== undefined && String(raw).trim() !== "";
+    const typed = typedPercent(terms[c.key]);
     const countKey = "countKey" in c ? (c.countKey as string) : null;
 
     return {
       key: c.key as PlanComponent["key"],
       label: c.label,
-      percent: typed ? Number(raw) : undefined,
+      percent: typed ?? undefined,
       count: countKey ? Math.max(1, Number(terms[countKey]) || 1) : 1,
       frequency: "once" as const,
-      pinned: typed ? ("percent" as const) : ("none" as const),
+      pinned: typed === null ? ("none" as const) : ("percent" as const),
     };
   });
 
@@ -280,12 +300,11 @@ export function resolveTerms(
    */
   const blanks: number[] = [];
   PERCENT_COMPONENTS.forEach((component, i) => {
-    if (String(terms[component.key] ?? "").trim() === "") blanks.push(i);
+    if (typedPercent(terms[component.key]) === null) blanks.push(i);
   });
 
   const typedTotal = PERCENT_COMPONENTS.reduce((sum, component) => {
-    const raw = terms[component.key];
-    return String(raw ?? "").trim() === "" ? sum : sum + (Number(raw) || 0);
+    return sum + (typedPercent(terms[component.key]) ?? 0);
   }, 0);
 
   /*

@@ -5,6 +5,7 @@ import {
   PERCENT_COMPONENTS,
   formatExact,
   formatPKR,
+  typedPercent,
 } from "@/lib/paymentPlan";
 import {
   computePlan,
@@ -130,17 +131,18 @@ export default function ProjectUnitsStep({
    */
   const shared = useMemo(() => {
     const components: PlanComponent[] = PERCENT_COMPONENTS.map((c) => {
-      const raw = terms[c.key];
-      const typed = raw !== undefined && String(raw).trim() !== "";
+      /* Same reading of a field as the save does, so the running total
+         below cannot disagree with the one the save checks. */
+      const typed = typedPercent(terms[c.key]);
       const countKey = "countKey" in c ? (c.countKey as string) : null;
 
       return {
         key: c.key as PlanComponent["key"],
         label: c.label,
-        percent: typed ? Number(raw) : undefined,
+        percent: typed ?? undefined,
         count: countKey ? Math.max(1, Number(terms[countKey]) || 1) : 1,
         frequency: "once" as const,
-        pinned: typed ? ("percent" as const) : ("none" as const),
+        pinned: typed === null ? ("none" as const) : ("percent" as const),
       };
     });
 
@@ -149,7 +151,7 @@ export default function ProjectUnitsStep({
   }, [terms]);
 
   const percentTotal = useMemo(
-    () => PERCENT_COMPONENTS.reduce((sum, c) => sum + (Number(terms[c.key]) || 0), 0),
+    () => PERCENT_COMPONENTS.reduce((sum, c) => sum + (typedPercent(terms[c.key]) ?? 0), 0),
     [terms],
   );
 
@@ -436,17 +438,16 @@ function UnitPreview({ units, terms }: { units: UnitDraft[]; terms: Record<strin
       const totalPrice = Number(u.area) * Number(u.ratePerSqft);
 
       const components: PlanComponent[] = PERCENT_COMPONENTS.map((c) => {
-        const raw = terms[c.key];
-        const typed = raw !== undefined && String(raw).trim() !== "";
+        const typed = typedPercent(terms[c.key]);
         const countKey = "countKey" in c ? (c.countKey as string) : null;
 
         return {
           key: c.key as PlanComponent["key"],
           label: c.label,
-          percent: typed ? Number(raw) : undefined,
+          percent: typed ?? undefined,
           count: countKey ? Math.max(1, Number(terms[countKey]) || 1) : 1,
           frequency: "once" as const,
-          pinned: typed ? ("percent" as const) : ("none" as const),
+          pinned: typed === null ? ("none" as const) : ("percent" as const),
         };
       });
 

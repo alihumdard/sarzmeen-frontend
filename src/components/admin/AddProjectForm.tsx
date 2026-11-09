@@ -382,18 +382,27 @@ export default function AddProjectForm({ projectId }: { projectId?: string } = {
           return raw !== undefined && String(raw).trim() !== "" && !Number.isFinite(Number(raw));
         }).map((c) => c.label);
 
-        setFieldErrors({
-          paymentTerms: [
-            unreadable.length
-              ? `${unreadable.join(" and ")} ${unreadable.length > 1 ? "are" : "is"} not a number, so ${unreadable.length > 1 ? "they count" : "it counts"} as 0. The percentages total ${pct.toFixed(2)}% and must equal 100%.`
-              : `Payment percentages must equal 100%. They currently total ${pct.toFixed(2)}%.`,
-          ],
-        });
-        setError(
-          unreadable.length
-            ? `${unreadable.join(" and ")} ${unreadable.length > 1 ? "are" : "is"} not a number, so ${unreadable.length > 1 ? "they count" : "it counts"} as 0. The percentages total ${pct.toFixed(2)}% and must equal 100%.`
-            : `Payment percentages must equal 100%. They currently total ${pct.toFixed(2)}%.`,
-        );
+        /*
+         * Every box holding a zero is the one case the figures cannot be
+         * derived out of: nothing is left blank to absorb the remaining
+         * 100%, so saying "they total 0%" leaves the admin no idea what to
+         * change. Say what to do instead.
+         */
+        const allZero =
+          pct === 0 &&
+          PERCENT_COMPONENTS.every((c) => {
+            const raw = settled[c.key];
+            return raw !== undefined && String(raw).trim() !== "";
+          });
+
+        const message = unreadable.length
+          ? `${unreadable.join(" and ")} ${unreadable.length > 1 ? "are" : "is"} not a number, so ${unreadable.length > 1 ? "they count" : "it counts"} as 0. The percentages total ${pct.toFixed(2)}% and must equal 100%.`
+          : allZero
+            ? "Every percentage is 0, so the plan pays nothing. Clear the boxes you want worked out for you, or type figures that add up to 100%."
+            : `Payment percentages must equal 100%. They currently total ${pct.toFixed(2)}%.`;
+
+        setFieldErrors({ paymentTerms: [message] });
+        setError(message);
         setStep(3);
         return;
       }
