@@ -720,9 +720,14 @@ export default function AdminSidebar({
     <div className="flex h-full min-h-0 flex-col">
       {/* Logo */}
       <div className="flex h-[72px] shrink-0 items-center border-b border-white/10 px-5">
+        {/*
+          The logo leads to the public site, the way a site's logo does
+          everywhere else. The dashboard has its own link in the menu below.
+        */}
         <Link
-          href="/admin"
+          href="/"
           onClick={onClose}
+          title="Go to the website"
           className="flex items-center gap-2"
         >
           <Image
