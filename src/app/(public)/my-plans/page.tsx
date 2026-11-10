@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import PrintablePlan from "@/components/tools/PrintablePlan";
 import { useAuth } from "@/context/AuthContext";
-import { formatPKR } from "@/lib/paymentPlan";
+import { formatExact, formatPKR } from "@/lib/paymentPlan";
 import { buildPlanDocument, type PlanDocument } from "@/lib/savedPlanDocument";
 import {
   deleteSavedPlan,
@@ -404,8 +404,10 @@ function planAsText(plan: SavedPlan, doc: PlanDocument): string {
   for (const c of doc.plan.components) {
     if (c.resolvedTotal <= 0.005) continue;
     lines.push(
+      /* The per-instalment figure is written out in full: rounding a small
+         one to the nearest lac prints "PKR 0 x 1020". */
       c.count > 1
-        ? `- ${c.label}: ${formatPKR(c.resolvedEach)} × ${c.count} = ${formatPKR(c.resolvedTotal)}`
+        ? `- ${c.label}: ${formatExact(c.resolvedEach)} × ${c.count} = ${formatPKR(c.resolvedTotal)}`
         : `- ${c.label}: ${formatPKR(c.resolvedTotal)} (one payment)`,
     );
   }
