@@ -341,7 +341,8 @@
  * the export. Everything else on the page is hidden while printing.
  * ------------------------------------------------------------------ */
 
-.printable-plan {
+.printable-plan,
+.printable-stack {
   display: none;
 }
 
@@ -379,6 +380,31 @@
     font-size: 10pt;
     /* Keep the ink honest on a mono printer. */
     background: #fff;
+  }
+
+  /*
+   * Several statements printed in one go: the stack takes the absolute
+   * placement, and each statement inside it flows normally so the second
+   * follows the first instead of being painted on top of it.
+   */
+  .printable-stack {
+    visibility: visible;
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  .printable-stack .printable-plan {
+    position: static;
+    width: auto;
+  }
+
+  /* One plan per sheet, so two buyers' plans never share a page. */
+  .printable-stack .printable-plan + .printable-plan {
+    break-before: page;
+    page-break-before: always;
   }
 
   .pp-head {
