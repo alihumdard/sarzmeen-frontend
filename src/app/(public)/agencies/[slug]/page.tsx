@@ -14,7 +14,9 @@ import {
   UsersIcon,
   VerifiedTickIcon,
 } from "@/components/ui/Icons";
+import PropertyCard from "@/components/property/PropertyCard";
 import { serverApi } from "@/lib/api/server";
+import type { Property } from "@/types/property";
 
 type AgencyData = {
   id: string;
@@ -69,13 +71,19 @@ export async function generateMetadata({ params }: AgencyPageProps): Promise<Met
 export default async function AgencyPage({ params }: AgencyPageProps) {
   const { slug } = await params;
 
-  let agency: AgencyData;
-  try {
-    const res = await serverApi<{ data: AgencyData }>(`/agencies/${slug}`);
-    agency = res.data;
-  } catch {
-    notFound();
-  }
+  // Both key only on the slug, so they are fetched together.
+  const [agencyResult, listingsResult] = await Promise.all([
+    serverApi<{ data: AgencyData }>(`/agencies/${slug}`).catch(() => null),
+    /* A failed listings call leaves the profile standing without them. */
+    serverApi<{ data: Property[] }>(
+      `/properties?agency=${slug}&per_page=8`,
+    ).catch(() => ({ data: [] as Property[] })),
+  ]);
+
+  if (!agencyResult) notFound();
+
+  const agency: AgencyData = agencyResult.data;
+  const listings: Property[] = listingsResult.data;
 
   const totalListings = agency.propertiesForSale + agency.propertiesForRent;
   const yearsActive = agency.establishedYear
@@ -313,6 +321,38 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* What the agency has on the market, its own and its agents'. */}
+      {listings.length > 0 && (
+        <section className="bg-white py-10 sm:py-12">
+          <div className="container-page">
+            <h2 className="text-[19px] font-bold text-heading">
+              Listings by {agency.name}
+            </h2>
+            <p className="mt-1 text-[13px] text-muted">
+              {totalListings === 1
+                ? "1 property on the market"
+                : `${totalListings} properties on the market`}
+            </p>
+
+            <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+              {listings.map((property) => (
+                <PropertyCard key={property.id} property={property} />
+              ))}
+            </div>
+
+            {/* More than this page holds: send them to the full, filterable list. */}
+            {totalListings > listings.length && (
+              <Link
+                href={`/properties?agency=${agency.slug}`}
+                className="mt-6 inline-flex h-11 items-center rounded-md border border-border bg-white px-6 text-[13px] font-semibold text-heading transition-colors hover:border-primary hover:text-primary"
+              >
+                See all {totalListings} listings
+              </Link>
+            )}
           </div>
         </section>
       )}
