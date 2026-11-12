@@ -6,6 +6,7 @@ import { iconFor } from "@/components/services/serviceIcons";
 import { CheckIcon } from "@/components/ui/Icons";
 import { servicesCta } from "@/constants/servicesContent";
 import { getPublicService, getPublicServices } from "@/lib/api/services";
+import { SUMMARY_HERO_LIMIT } from "@/types/service";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -49,8 +50,8 @@ export default async function ServiceDetailPage({ params }: Params) {
          * whole text still reads in full below.
          */
         description={
-          service.summary.length > 180
-            ? `${service.summary.slice(0, 180).trimEnd()}…`
+          service.summary.length > SUMMARY_HERO_LIMIT
+            ? `${service.summary.slice(0, SUMMARY_HERO_LIMIT).trimEnd()}…`
             : service.summary
         }
         crumbs={[

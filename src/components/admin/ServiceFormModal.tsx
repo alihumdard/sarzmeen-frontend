@@ -9,6 +9,7 @@ import {
 } from "@/components/admin/AdminFormField";
 import {
   SERVICE_ICONS,
+  SUMMARY_HERO_LIMIT,
   type Service,
   type ServiceIcon,
   type ServiceInput,
@@ -263,10 +264,33 @@ export default function ServiceFormModal({
             placeholder="One or two sentences describing the service."
             className={adminTextareaClass}
           />
-          <p className="mt-1 text-[10.5px] text-gray-400">
-            Printed over the photograph at the top, so keep it to a line or
-            two.
-          </p>
+          {/*
+            A count rather than a cap. Going over costs an ellipsis in the
+            hero, not a broken page, and one service written before this
+            field already runs to 736 characters — a hard limit would trap
+            whoever next opens it for an unrelated edit.
+          */}
+          <div className="mt-1 flex items-baseline justify-between gap-3">
+            <p className="text-[10.5px] text-gray-400">
+              Printed over the photograph at the top.
+            </p>
+            <span
+              className={`shrink-0 text-[10.5px] tabular-nums ${
+                form.summary.trim().length > SUMMARY_HERO_LIMIT
+                  ? "font-semibold text-amber-600"
+                  : "text-gray-400"
+              }`}
+            >
+              {form.summary.trim().length} / {SUMMARY_HERO_LIMIT}
+            </span>
+          </div>
+          {form.summary.trim().length > SUMMARY_HERO_LIMIT && (
+            <p className="mt-1 text-[10.5px] text-amber-600">
+              The hero will show the first {SUMMARY_HERO_LIMIT} characters
+              and end with an ellipsis. The full text still reads on the
+              service&apos;s own page.
+            </p>
+          )}
         </div>
 
         <div>
