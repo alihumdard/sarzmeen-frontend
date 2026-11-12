@@ -10,6 +10,21 @@ import { SUMMARY_HERO_LIMIT } from "@/types/service";
 
 type Params = { params: Promise<{ slug: string }> };
 
+/**
+ * What the banner shows of a summary, cut at a word so the line does not
+ * end mid-word. A summary only a little over the limit keeps its last
+ * whole word rather than losing half of one.
+ */
+function heroSummary(summary: string): string {
+  if (summary.length <= SUMMARY_HERO_LIMIT) return summary;
+
+  const cut = summary.slice(0, SUMMARY_HERO_LIMIT);
+  const lastSpace = cut.lastIndexOf(" ");
+
+  /* A single word longer than the limit has no space to cut at. */
+  return `${(lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
+}
+
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const service = await getPublicService(slug);
@@ -49,11 +64,7 @@ export default async function ServiceDetailPage({ params }: Params) {
          * enough filled the banner and buried the image behind it. The
          * whole text still reads in full below.
          */
-        description={
-          service.summary.length > SUMMARY_HERO_LIMIT
-            ? `${service.summary.slice(0, SUMMARY_HERO_LIMIT).trimEnd()}…`
-            : service.summary
-        }
+        description={heroSummary(service.summary)}
         crumbs={[
           { label: "Home", href: "/" },
           { label: "Services", href: "/services" },

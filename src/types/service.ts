@@ -20,13 +20,14 @@ export type ServiceIcon = (typeof SERVICE_ICONS)[number];
 /**
  * How much of a summary the hero shows before clipping it.
  *
- * Measured against the banner itself: on a phone this is three lines of
- * the hero's 14px type, which sits over the photograph without burying
- * it. Past it the text runs to four lines and crowds the image. The admin
- * form counts against the same number, so what it warns about and what
- * the page does cannot drift apart.
+ * Measured on a phone, where the banner is tightest: this is two lines of
+ * the hero's 14px type under the title, which leaves the photograph
+ * readable behind it. Three lines already crowd the image, and a title
+ * that wraps to two lines makes that worse. The admin form counts against
+ * the same number, so what it warns about and what the page does cannot
+ * drift apart.
  */
-export const SUMMARY_HERO_LIMIT = 170;
+export const SUMMARY_HERO_LIMIT = 80;
 
 export type Service = {
   id: string;
