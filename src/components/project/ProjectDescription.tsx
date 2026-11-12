@@ -13,8 +13,15 @@ export default function ProjectDescription({ project }: ProjectDescriptionProps)
         Project Description
       </h2>
 
+      {/*
+        break-words: a description typed without spaces is one long word,
+        which otherwise runs past the column and over the panel beside it.
+      */}
       {project.descriptionParagraphs.map((paragraph) => (
-        <p key={paragraph} className="mt-3 text-[13px] leading-relaxed text-text">
+        <p
+          key={paragraph}
+          className="mt-3 break-words text-[13px] leading-relaxed text-text"
+        >
           {paragraph}
         </p>
       ))}
@@ -28,7 +35,7 @@ export default function ProjectDescription({ project }: ProjectDescriptionProps)
             className="flex items-start gap-2.5 rounded-md bg-primary-light/50 px-3 py-2.5"
           >
             <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            <span className="text-[13px] font-medium leading-relaxed text-heading">
+            <span className="min-w-0 break-words text-[13px] font-medium leading-relaxed text-heading">
               {highlight}
             </span>
           </li>

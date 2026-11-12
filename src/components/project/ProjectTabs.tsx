@@ -79,15 +79,21 @@ export default function ProjectTabs({ project }: ProjectTabsProps) {
 
       <div role="tabpanel" className="p-5">
         {active === "Overview" && (
+          /*
+           * min-w-0 on each column: a grid child defaults to min-width:auto,
+           * so it refuses to shrink below its longest unbroken word. An
+           * unspaced description then pushed this column over the amenities
+           * beside it instead of wrapping.
+           */
           <div className="grid gap-8 lg:grid-cols-3 lg:divide-x lg:divide-border lg:gap-0">
-            <div className="space-y-6">
+            <div className="min-w-0 space-y-6">
               <ProjectDescription project={project} />
               <ProjectSpecifications project={project} />
             </div>
-            <div className="lg:px-6">
+            <div className="min-w-0 lg:px-6">
               <ProjectAmenities project={project} />
             </div>
-            <div className="lg:pl-6">
+            <div className="min-w-0 lg:pl-6">
               <PropertyLocation property={project} />
             </div>
           </div>
