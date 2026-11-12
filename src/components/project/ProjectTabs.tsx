@@ -27,15 +27,27 @@ const BASE_TABS = ["Overview", "Amenities", "Location", "Payment Plan"];
 export default function ProjectTabs({ project }: ProjectTabsProps) {
   const [active, setActive] = useState("Overview");
 
+  /*
+   * This one tab carries both floor plans and downloadable documents, so its
+   * label has to say which of the two is actually inside. Calling it "Floor
+   * Plans" above a lone brochure sent buyers hunting through Overview for a
+   * download that was sitting one tab away.
+   */
+  const hasPlans = (project.floorPlans?.length ?? 0) > 0;
+  const hasDocs = (project.documents?.length ?? 0) > 0;
+  const filesTab = hasPlans
+    ? hasDocs
+      ? "Floor Plans & Documents"
+      : "Floor Plans"
+    : "Documents";
+
   // Only surface a tab once it has something to show.
   const tabs = [
     "Overview",
     ...((project.units?.length ?? 0) > 0 ? ["Inventory"] : []),
     ...((project.towers?.length ?? 0) > 0 ? ["Towers"] : []),
     ...BASE_TABS.slice(1),
-    ...((project.floorPlans?.length ?? 0) > 0 || (project.documents?.length ?? 0) > 0
-      ? ["Floor Plans"]
-      : []),
+    ...(hasPlans || hasDocs ? [filesTab] : []),
     ...(project.developerProfile ? ["Developer"] : []),
     ...((project.faqs?.length ?? 0) > 0 ? ["FAQs"] : []),
   ];
@@ -95,7 +107,7 @@ export default function ProjectTabs({ project }: ProjectTabsProps) {
 
         {active === "Payment Plan" && <ProjectPaymentPlan project={project} />}
 
-        {active === "Floor Plans" && <ProjectFloorPlans project={project} />}
+        {active === filesTab && <ProjectFloorPlans project={project} />}
 
         {active === "Developer" && <ProjectDeveloper project={project} />}
 
