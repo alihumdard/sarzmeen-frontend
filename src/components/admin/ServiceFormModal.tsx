@@ -37,6 +37,7 @@ const emptyForm: ServiceInput = {
   title: "",
   outcome: "",
   summary: "",
+  description: "",
   points: [""],
   icon: "handshake",
   status: "published",
@@ -68,6 +69,7 @@ export default function ServiceFormModal({
           title: service.title,
           outcome: service.outcome,
           summary: service.summary,
+          description: service.description ?? "",
           /* Always leave one empty line to type into. */
           points: service.points.length ? service.points : [""],
           icon: service.icon,
@@ -146,6 +148,7 @@ export default function ServiceFormModal({
         title: form.title.trim(),
         outcome: form.outcome.trim(),
         summary: form.summary.trim(),
+        description: form.description.trim(),
         points,
       });
       onClose();
@@ -245,7 +248,7 @@ export default function ServiceFormModal({
             className={adminInputClass}
           />
           <p className="mt-1 text-[10.5px] text-gray-400">
-            The short line in the green pill above the description.
+            The short line in the green pill above the summary.
           </p>
         </div>
 
@@ -260,6 +263,27 @@ export default function ServiceFormModal({
             placeholder="One or two sentences describing the service."
             className={adminTextareaClass}
           />
+          <p className="mt-1 text-[10.5px] text-gray-400">
+            Printed over the photograph at the top, so keep it to a line or
+            two.
+          </p>
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-[12px] font-semibold text-gray-700">
+            Description
+          </label>
+          <textarea
+            value={form.description}
+            onChange={(e) => update("description", e.target.value)}
+            rows={6}
+            placeholder="The fuller account, as long as it needs to be."
+            className={adminTextareaClass}
+          />
+          <p className="mt-1 text-[10.5px] text-gray-400">
+            Shown on the service&apos;s own page, below the pill. Leave it
+            empty and the summary is used there instead.
+          </p>
         </div>
 
         <div>

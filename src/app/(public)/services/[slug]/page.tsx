@@ -43,7 +43,16 @@ export default async function ServiceDetailPage({ params }: Params) {
     <main>
       <PageBanner
         title={service.title}
-        description={service.summary}
+        /*
+         * Clipped: this sits over a photograph, and a summary typed long
+         * enough filled the banner and buried the image behind it. The
+         * whole text still reads in full below.
+         */
+        description={
+          service.summary.length > 180
+            ? `${service.summary.slice(0, 180).trimEnd()}…`
+            : service.summary
+        }
         crumbs={[
           { label: "Home", href: "/" },
           { label: "Services", href: "/services" },
@@ -62,9 +71,22 @@ export default async function ServiceDetailPage({ params }: Params) {
                 {service.outcome}
               </span>
 
-              <p className="mt-5 text-[14px] leading-7 text-muted">
-                {service.summary}
-              </p>
+              {/*
+                The fuller text when there is one, falling back to the
+                summary so every service written before this field keeps
+                reading the way it did. Split on blank lines, since this is
+                typed into a textarea rather than a rich-text editor.
+              */}
+              {(service.description?.trim() || service.summary)
+                .split(/\n\s*\n/)
+                .map((paragraph, i) => (
+                  <p
+                    key={i}
+                    className="mt-5 whitespace-pre-line break-words text-[14px] leading-7 text-muted"
+                  >
+                    {paragraph.trim()}
+                  </p>
+                ))}
 
               <h2 className="mt-9 text-[19px] font-bold text-heading">
                 What you get

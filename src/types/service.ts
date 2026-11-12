@@ -23,7 +23,10 @@ export type Service = {
   title: string;
   /** One-line result, printed above the title on the card. */
   outcome: string;
+  /** The short line, printed in the hero and above the points. */
   summary: string;
+  /** The fuller account for the service's own page; falls back to summary. */
+  description?: string | null;
   /** What the client actually receives. */
   points: string[];
   icon: ServiceIcon;
@@ -40,6 +43,7 @@ export type ServiceInput = {
   title: string;
   outcome: string;
   summary: string;
+  description: string;
   points: string[];
   icon: ServiceIcon;
   status: ServiceStatus;
