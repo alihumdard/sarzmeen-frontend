@@ -96,7 +96,7 @@ export default async function ServiceDetailPage({ params }: Params) {
               */}
               {service.description?.trim() ? (
                 <div
-                  className="mt-5 min-w-0 max-w-none break-words text-[14px] leading-7 text-muted [&_*]:max-w-full [&_h2]:mt-6 [&_h2]:text-[16px] [&_h2]:font-bold [&_h2]:text-heading [&_h3]:mt-5 [&_h3]:text-[15px] [&_h3]:font-semibold [&_h3]:text-heading [&_li]:mt-1 [&_ol]:mt-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_p+p]:mt-4 [&_strong]:text-heading [&_ul]:mt-3 [&_ul]:list-disc [&_ul]:pl-5"
+                  className="mt-5 min-w-0 max-w-none break-words text-[14px] leading-7 text-muted [&_*]:max-w-full [&_a]:font-medium [&_a]:text-primary [&_a]:underline [&_blockquote]:mt-4 [&_blockquote]:border-l-2 [&_blockquote]:border-primary/30 [&_blockquote]:pl-4 [&_blockquote]:italic [&_h2]:mt-6 [&_h2]:text-[16px] [&_h2]:font-bold [&_h2]:text-heading [&_h3]:mt-5 [&_h3]:text-[15px] [&_h3]:font-semibold [&_h3]:text-heading [&_hr]:my-6 [&_hr]:border-border [&_img]:mt-4 [&_img]:rounded-lg [&_li]:mt-1 [&_ol]:mt-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_p+p]:mt-4 [&_pre]:mt-4 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-surface [&_pre]:p-3 [&_strong]:text-heading [&_ul]:mt-3 [&_ul]:list-disc [&_ul]:pl-5"
                   dangerouslySetInnerHTML={{ __html: service.description }}
                 />
               ) : (
