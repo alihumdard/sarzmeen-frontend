@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import AdminModal from "@/components/admin/AdminModal";
+import RichTextEditor from "@/components/admin/RichTextEditor";
 import {
   adminInputClass,
   adminSelectClass,
@@ -53,6 +54,16 @@ function slugify(value: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 120);
+}
+
+/**
+ * Whether rich-text markup holds any text at all.
+ *
+ * An editor left untouched still reports markup — "<p></p>", a stray
+ * break — so an empty string is not what an empty field produces.
+ */
+function htmlIsEmpty(html: string): boolean {
+  return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim() === "";
 }
 
 export default function ServiceFormModal({
@@ -149,7 +160,12 @@ export default function ServiceFormModal({
         title: form.title.trim(),
         outcome: form.outcome.trim(),
         summary: form.summary.trim(),
-        description: form.description.trim(),
+        /*
+         * The editor emits "<p></p>" for an empty document, which is not
+         * an empty string: left as is, a service with no description
+         * would count as having one and never fall back to its summary.
+         */
+        description: htmlIsEmpty(form.description) ? "" : form.description.trim(),
         points,
       });
       onClose();
@@ -297,12 +313,15 @@ export default function ServiceFormModal({
           <label className="mb-1.5 block text-[12px] font-semibold text-gray-700">
             Description
           </label>
-          <textarea
+          {/* The same editor a project description uses, so this text can
+              carry headings and lists rather than arriving on the public
+              page as one unbroken block. Shorter here, inside a modal. */}
+          <RichTextEditor
             value={form.description}
-            onChange={(e) => update("description", e.target.value)}
-            rows={6}
+            onChange={(html) => update("description", html)}
             placeholder="The fuller account, as long as it needs to be."
-            className={adminTextareaClass}
+            maxLength={20000}
+            minHeightClass="min-h-[160px]"
           />
           <p className="mt-1 text-[10.5px] text-gray-400">
             Shown on the service&apos;s own page, below the pill. Leave it

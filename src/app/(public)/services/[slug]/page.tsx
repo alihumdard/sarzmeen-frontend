@@ -84,21 +84,31 @@ export default async function ServiceDetailPage({ params }: Params) {
               </span>
 
               {/*
-                The fuller text when there is one, falling back to the
-                summary so every service written before this field keeps
-                reading the way it did. Split on blank lines, since this is
-                typed into a textarea rather than a rich-text editor.
+                The description comes from the rich-text editor as HTML,
+                cleaned server-side against the listing allow-list. A
+                service written before the editor holds plain text, and
+                one with no description at all falls back to its summary;
+                both still read as paragraphs.
+
+                break-words and max-w-full on the children: this is typed
+                by hand, and one long unbroken string — a pasted URL — used
+                to take the whole page sideways on a phone.
               */}
-              {(service.description?.trim() || service.summary)
-                .split(/\n\s*\n/)
-                .map((paragraph, i) => (
+              {service.description?.trim() ? (
+                <div
+                  className="mt-5 min-w-0 max-w-none break-words text-[14px] leading-7 text-muted [&_*]:max-w-full [&_h2]:mt-6 [&_h2]:text-[16px] [&_h2]:font-bold [&_h2]:text-heading [&_h3]:mt-5 [&_h3]:text-[15px] [&_h3]:font-semibold [&_h3]:text-heading [&_li]:mt-1 [&_ol]:mt-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_p+p]:mt-4 [&_strong]:text-heading [&_ul]:mt-3 [&_ul]:list-disc [&_ul]:pl-5"
+                  dangerouslySetInnerHTML={{ __html: service.description }}
+                />
+              ) : (
+                service.summary.split(/\n\s*\n/).map((paragraph, i) => (
                   <p
                     key={i}
                     className="mt-5 whitespace-pre-line break-words text-[14px] leading-7 text-muted"
                   >
                     {paragraph.trim()}
                   </p>
-                ))}
+                ))
+              )}
 
               <h2 className="mt-9 text-[19px] font-bold text-heading">
                 What you get
