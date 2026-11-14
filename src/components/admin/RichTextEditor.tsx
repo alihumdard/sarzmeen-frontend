@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
+/* ProseMirror's parser, not the browser's: this reads HTML into the
+   editor's own document model. */
+import { DOMParser } from "@tiptap/pm/model";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import ImageExt from "@tiptap/extension-image";
@@ -19,6 +22,34 @@ type Props = {
   /** Tailwind min-height for the writing area; shorter inside a modal. */
   minHeightClass?: string;
 };
+
+/**
+ * The video id out of whatever YouTube link was pasted.
+ *
+ * Covers watch URLs, share links, embeds and shorts, and a bare id —
+ * which is what people often copy from the share dialog. Mirrors the
+ * same reading the API does, so a link the editor accepts is one the
+ * server will keep.
+ */
+function youtubeId(url: string): string | null {
+  const text = url.trim();
+  if (text === "") return null;
+
+  const patterns = [
+    /youtu\.be\/([A-Za-z0-9_-]{11})/,
+    /youtube\.com\/watch\?(?:.*&)?v=([A-Za-z0-9_-]{11})/,
+    /youtube\.com\/embed\/([A-Za-z0-9_-]{11})/,
+    /youtube\.com\/shorts\/([A-Za-z0-9_-]{11})/,
+    /youtube\.com\/live\/([A-Za-z0-9_-]{11})/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) return match[1];
+  }
+
+  return /^[A-Za-z0-9_-]{11}$/.test(text) ? text : null;
+}
 
 export default function RichTextEditor({
   value,
@@ -40,6 +71,34 @@ export default function RichTextEditor({
     content: value,
     immediatelyRender: false,
     editorProps: {
+      /*
+       * A pasted YouTube address becomes the video rather than a link to
+       * it. Tiptap's autolink turns any pasted URL into an anchor, so a
+       * writer who pasted a video got a bare blue line of text and had no
+       * reason to think the toolbar button would do anything different.
+       */
+      handlePaste: (view, event) => {
+        const text = event.clipboardData?.getData("text/plain")?.trim();
+        if (!text) return false;
+
+        const id = youtubeId(text);
+        if (!id) return false;
+
+        event.preventDefault();
+
+        const html =
+          `<iframe src="https://www.youtube.com/embed/${id}" width="560" height="315" ` +
+          `frameborder="0" allowfullscreen title="YouTube video"></iframe><p></p>`;
+
+        const { state, dispatch } = view;
+        const parsed = DOMParser.fromSchema(state.schema).parse(
+          new window.DOMParser().parseFromString(html, "text/html").body,
+        );
+
+        dispatch(state.tr.replaceSelectionWith(parsed).scrollIntoView());
+
+        return true;
+      },
       attributes: {
         /*
          * break-words: this holds whatever the seller types, and one long
@@ -88,34 +147,6 @@ export default function RichTextEditor({
       </div>
     </div>
   );
-}
-
-/**
- * The video id out of whatever YouTube link was pasted.
- *
- * Covers watch URLs, share links, embeds and shorts, and a bare id —
- * which is what people often copy from the share dialog. Mirrors the
- * same reading the API does, so a link the editor accepts is one the
- * server will keep.
- */
-function youtubeId(url: string): string | null {
-  const text = url.trim();
-  if (text === "") return null;
-
-  const patterns = [
-    /youtu\.be\/([A-Za-z0-9_-]{11})/,
-    /youtube\.com\/watch\?(?:.*&)?v=([A-Za-z0-9_-]{11})/,
-    /youtube\.com\/embed\/([A-Za-z0-9_-]{11})/,
-    /youtube\.com\/shorts\/([A-Za-z0-9_-]{11})/,
-    /youtube\.com\/live\/([A-Za-z0-9_-]{11})/,
-  ];
-
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
-    if (match) return match[1];
-  }
-
-  return /^[A-Za-z0-9_-]{11}$/.test(text) ? text : null;
 }
 
 function Toolbar({ editor }: { editor: Editor }) {
