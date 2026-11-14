@@ -399,14 +399,36 @@
   /*
    * Plans flow one after another rather than taking a sheet each: one
    * fills about half a page, so a page apiece spent half the paper on
-   * white. break-inside keeps a plan whole, so it moves to the next
-   * sheet only when it would otherwise be cut in half.
+   * white.
+   *
+   * The plan itself is allowed to span a page boundary — holding it whole
+   * is what sent each one to its own sheet, since a plan that will not
+   * fit in what is left of a page is pushed past all of it. Its parts are
+   * held together instead, so a break can only land between them.
    */
   .printable-stack .printable-plan {
     position: static;
     width: auto;
+  }
+
+  /*
+   * Rows and the small blocks, not the schedule itself: a long schedule
+   * held whole is as large as a plan held whole, and gets pushed past the
+   * rest of the page in the same way. It may split between rows.
+   */
+  .printable-stack .pp-head,
+  .printable-stack .pp-summary,
+  .printable-stack .pp-foot,
+  .printable-stack tr {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  /* A heading with its table stranded on the next sheet reads as a fault. */
+  .printable-stack h1,
+  .printable-stack h2 {
+    break-after: avoid;
+    page-break-after: avoid;
   }
 
   .printable-stack .printable-plan + .printable-plan {
