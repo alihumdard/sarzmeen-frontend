@@ -47,14 +47,9 @@ export default function StatCard({
         in step with it.
       */}
       <div
-        className={[
-          "pointer-events-none absolute inset-x-0 top-0 h-[3px]",
-          iconClassName.replace(/bg-\S+/g, ""),
-        ].join(" ")}
+        className={["card-band", iconClassName.replace(/bg-\S+/g, "")].join(" ")}
         aria-hidden="true"
-      >
-        <div className="h-full w-full bg-current opacity-80" />
-      </div>
+      />
 
       {/* A faint wash of the icon's colour, so the cards are not flat white. */}
       <div

@@ -193,6 +193,60 @@
 }
 
 /*
+ * The coloured band across the top of a dashboard card, with a highlight
+ * running along it.
+ *
+ * `.card-band` on a `relative` element paints the band in currentColor,
+ * so a card sets its own colour with a text utility and the band follows
+ * — no second value to keep in step with the icon.
+ *
+ * The sweep is a child rather than a second pseudo element, so the band
+ * can clip it. It stops for anyone who has asked for less motion.
+ */
+.card-band {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 3px;
+  overflow: hidden;
+  background: currentColor;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.card-band::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  width: 40%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.85),
+    transparent
+  );
+  animation: band-sweep 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-band::after {
+    animation: none;
+  }
+}
+
+@keyframes band-sweep {
+  0% {
+    transform: translateX(-120%);
+  }
+  /* A pause at the far side, so it reads as a passing highlight rather
+     than something spinning on a loop. */
+  60%,
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+/*
  * Animated gradient-border glow for dark premium cards (review cards).
  * Apply `.shine-border` to a `relative`, rounded element — the pseudo
  * element paints a soft moving highlight along the 1px border only
