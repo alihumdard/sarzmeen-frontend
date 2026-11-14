@@ -183,6 +183,21 @@ export default function AdminVideosPage() {
                   /guides/{video.slug}
                 </p>
 
+                {/* Who posted it. A guide the site wrote and a walkthrough
+                    an agency posted looked identical here, so there was no
+                    telling which of them was yours to edit. */}
+                {video.owner && (
+                  <p className="mt-1.5 inline-flex max-w-full items-center gap-1 self-start rounded-full bg-amber-50 px-2 py-0.5 text-[10.5px] font-medium text-amber-700">
+                    <svg className="h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <span className="truncate">
+                      {video.owner.kind === "agent" ? "Agent" : "Agency"}: {video.owner.name}
+                    </span>
+                  </p>
+                )}
+
                 <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-500">
                   <span>
                     {video.views.toLocaleString()}{" "}

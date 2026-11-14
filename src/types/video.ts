@@ -16,6 +16,17 @@ export type Video = {
   featured: boolean;
   views: number;
   sortOrder: number;
+  /**
+   * The agent or agency that posted it, absent for the site's own.
+   *
+   * Their videos stay off the public guides page; this is what tells
+   * them apart in the admin list.
+   */
+  owner?: {
+    kind: "agent" | "agency";
+    name: string;
+    slug: string | null;
+  } | null;
   publishedAt: string | null;
   metaTitle: string | null;
   metaDescription: string | null;
