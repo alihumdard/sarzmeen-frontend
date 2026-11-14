@@ -362,10 +362,10 @@ function AdminDashboard() {
       </section>
 
       {/* Distribution Charts */}
-      {/* Three across from lg: at two columns the third wrapped onto a
-          row of its own and opened a half-empty column beside it, and a
-          1366px screen never reaches the wider breakpoints. */}
-      <section className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {/* Two columns, the right one stacking its two panels: the type
+          list on the left is tall enough that a single chart beside it
+          leaves half a column of white. */}
+      <section className="grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
         <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
           <h2 className="mb-5 text-[13px] font-semibold text-gray-800">Properties by Type</h2>
           {typeChartSegments.length > 0 ? (
@@ -374,34 +374,36 @@ function AdminDashboard() {
             <p className="py-12 text-center text-[12px] text-gray-400">No data yet</p>
           )}
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
-          <h2 className="mb-5 text-[13px] font-semibold text-gray-800">Properties by Status</h2>
-          {statusChartSegments.length > 0 ? (
-            <DonutChart segments={statusChartSegments} />
-          ) : (
-            <p className="py-12 text-center text-[12px] text-gray-400">No data yet</p>
-          )}
-        </div>
-
-        {/*
-          What people came to look at. Only properties were counted
-          before, so there was no telling whether the projects were being
-          read or the blog opened at all.
-
-          Its own panel rather than sharing one: this counts views, the
-          other two count properties, and a figure of 1,252 beside one of
-          30 in the same card invites them to be read together.
-        */}
-        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
-          <div className="mb-5 flex items-baseline justify-between gap-3">
-            <h2 className="text-[13px] font-semibold text-gray-800">Page Views by Type</h2>
-            <span className="text-[11px] text-gray-400">Last 30 days</span>
+        <div className="flex flex-col gap-5">
+          <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+            <h2 className="mb-5 text-[13px] font-semibold text-gray-800">Properties by Status</h2>
+            {statusChartSegments.length > 0 ? (
+              <DonutChart segments={statusChartSegments} />
+            ) : (
+              <p className="py-12 text-center text-[12px] text-gray-400">No data yet</p>
+            )}
           </div>
-          {viewsChartSegments.length > 0 ? (
-            <DonutChart segments={viewsChartSegments} />
-          ) : (
-            <p className="py-12 text-center text-[12px] text-gray-400">No views recorded yet</p>
-          )}
+
+          {/*
+            What people came to look at. Only properties were counted
+            before, so there was no telling whether the projects were
+            being read or the blog opened at all.
+
+            A panel of its own rather than a second chart inside the one
+            above: this counts views, that counts properties, and 1,252
+            beside 30 in one card invites them to be read together.
+          */}
+          <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+            <div className="mb-5 flex items-baseline justify-between gap-3">
+              <h2 className="text-[13px] font-semibold text-gray-800">Page Views by Type</h2>
+              <span className="text-[11px] text-gray-400">Last 30 days</span>
+            </div>
+            {viewsChartSegments.length > 0 ? (
+              <DonutChart segments={viewsChartSegments} />
+            ) : (
+              <p className="py-12 text-center text-[12px] text-gray-400">No views recorded yet</p>
+            )}
+          </div>
         </div>
       </section>
 
