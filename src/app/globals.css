@@ -412,18 +412,13 @@
   }
 
   /*
-   * The tables stay whole. Splitting the schedule put half its rows on
-   * one sheet and half on the next, with a total line above the rows it
-   * was meant to total — worse to read than a half-empty page.
-   *
-   * The plan itself may still span a boundary, so a second plan can start
-   * on a page the first did not fill; the break lands between its blocks
-   * rather than inside one.
+   * A plan is never split. Letting the break fall between its blocks put
+   * one plan's heading and summary at the foot of a sheet with its
+   * schedule on the next, and splitting the schedule itself put a total
+   * line above the rows it was meant to total. Either reads as a fault;
+   * a page that ends early does not.
    */
-  .printable-stack .pp-head,
-  .printable-stack .pp-summary,
-  .printable-stack .pp-schedule,
-  .printable-stack .pp-foot {
+  .printable-stack .printable-plan {
     break-inside: avoid;
     page-break-inside: avoid;
   }
