@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 /* ProseMirror's parser, not the browser's: this reads HTML into the
    editor's own document model. */
-import { DOMParser } from "@tiptap/pm/model";
+import { VideoEmbed, youtubeId } from "@/components/admin/editorVideo";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import ImageExt from "@tiptap/extension-image";
@@ -22,34 +22,6 @@ type Props = {
   /** Tailwind min-height for the writing area; shorter inside a modal. */
   minHeightClass?: string;
 };
-
-/**
- * The video id out of whatever YouTube link was pasted.
- *
- * Covers watch URLs, share links, embeds and shorts, and a bare id —
- * which is what people often copy from the share dialog. Mirrors the
- * same reading the API does, so a link the editor accepts is one the
- * server will keep.
- */
-function youtubeId(url: string): string | null {
-  const text = url.trim();
-  if (text === "") return null;
-
-  const patterns = [
-    /youtu\.be\/([A-Za-z0-9_-]{11})/,
-    /youtube\.com\/watch\?(?:.*&)?v=([A-Za-z0-9_-]{11})/,
-    /youtube\.com\/embed\/([A-Za-z0-9_-]{11})/,
-    /youtube\.com\/shorts\/([A-Za-z0-9_-]{11})/,
-    /youtube\.com\/live\/([A-Za-z0-9_-]{11})/,
-  ];
-
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
-    if (match) return match[1];
-  }
-
-  return /^[A-Za-z0-9_-]{11}$/.test(text) ? text : null;
-}
 
 export default function RichTextEditor({
   value,
@@ -69,6 +41,7 @@ export default function RichTextEditor({
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Placeholder.configure({ placeholder: placeholder || "Start writing your blog post..." }),
       Highlight,
+      VideoEmbed,
     ],
     content: value,
     immediatelyRender: false,
@@ -88,16 +61,14 @@ export default function RichTextEditor({
 
         event.preventDefault();
 
-        const html =
-          `<iframe src="https://www.youtube.com/embed/${id}" width="560" height="315" ` +
-          `frameborder="0" allowfullscreen title="YouTube video"></iframe><p></p>`;
-
+        /* Through the view: the editor instance is still being built
+           here, so its chain API is not available yet. */
         const { state, dispatch } = view;
-        const parsed = DOMParser.fromSchema(state.schema).parse(
-          new window.DOMParser().parseFromString(html, "text/html").body,
-        );
+        const node = state.schema.nodes.videoEmbed.create({
+          src: `https://www.youtube.com/embed/${id}`,
+        });
 
-        dispatch(state.tr.replaceSelectionWith(parsed).scrollIntoView());
+        dispatch(state.tr.replaceSelectionWith(node).scrollIntoView());
 
         return true;
       },
@@ -184,9 +155,14 @@ function VideoField({
     editor
       .chain()
       .focus()
-      .insertContent(
-        `<iframe src="https://www.youtube.com/embed/${id}" width="560" height="315" frameborder="0" allowfullscreen title="YouTube video"></iframe><p></p>`,
-      )
+      .insertContent([
+        {
+          type: "videoEmbed",
+          attrs: { src: `https://www.youtube.com/embed/${id}` },
+        },
+        /* A paragraph after it, or there is nowhere to type next. */
+        { type: "paragraph" },
+      ])
       .run();
 
     onClose();
