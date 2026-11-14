@@ -371,6 +371,8 @@ function AdminDashboard() {
             <p className="py-12 text-center text-[12px] text-gray-400">No data yet</p>
           )}
         </div>
+        {/* Two charts in one panel: the status donut alone left the
+            right-hand column half empty beside the taller type list. */}
         <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
           <h2 className="mb-5 text-[13px] font-semibold text-gray-800">Properties by Status</h2>
           {statusChartSegments.length > 0 ? (
@@ -378,21 +380,21 @@ function AdminDashboard() {
           ) : (
             <p className="py-12 text-center text-[12px] text-gray-400">No data yet</p>
           )}
-        </div>
 
-        {/* What people came to look at. Only properties were counted
-            before, so there was no telling whether the projects were
-            being read or the blog opened at all. */}
-        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
-          <div className="mb-5 flex items-baseline justify-between gap-3">
-            <h2 className="text-[13px] font-semibold text-gray-800">Page Views by Type</h2>
-            <span className="text-[11px] text-gray-400">Last 30 days</span>
+          {/* What people came to look at. Only properties were counted
+              before, so there was no telling whether the projects were
+              being read or the blog opened at all. */}
+          <div className="mt-6 border-t border-gray-100 pt-5">
+            <div className="mb-5 flex items-baseline justify-between gap-3">
+              <h2 className="text-[13px] font-semibold text-gray-800">Page Views by Type</h2>
+              <span className="text-[11px] text-gray-400">Last 30 days</span>
+            </div>
+            {viewsChartSegments.length > 0 ? (
+              <DonutChart segments={viewsChartSegments} />
+            ) : (
+              <p className="py-12 text-center text-[12px] text-gray-400">No views recorded yet</p>
+            )}
           </div>
-          {viewsChartSegments.length > 0 ? (
-            <DonutChart segments={viewsChartSegments} />
-          ) : (
-            <p className="py-12 text-center text-[12px] text-gray-400">No views recorded yet</p>
-          )}
         </div>
       </section>
 
