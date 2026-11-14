@@ -412,14 +412,18 @@
   }
 
   /*
-   * Rows and the small blocks, not the schedule itself: a long schedule
-   * held whole is as large as a plan held whole, and gets pushed past the
-   * rest of the page in the same way. It may split between rows.
+   * The tables stay whole. Splitting the schedule put half its rows on
+   * one sheet and half on the next, with a total line above the rows it
+   * was meant to total — worse to read than a half-empty page.
+   *
+   * The plan itself may still span a boundary, so a second plan can start
+   * on a page the first did not fill; the break lands between its blocks
+   * rather than inside one.
    */
   .printable-stack .pp-head,
   .printable-stack .pp-summary,
-  .printable-stack .pp-foot,
-  .printable-stack tr {
+  .printable-stack .pp-schedule,
+  .printable-stack .pp-foot {
     break-inside: avoid;
     page-break-inside: avoid;
   }
@@ -431,9 +435,14 @@
     page-break-after: avoid;
   }
 
+  /*
+   * Tight: two plans and the rule between them come to a little over a
+   * sheet at 10mm, which sent the second to a page of its own and left
+   * the first half blank.
+   */
   .printable-stack .printable-plan + .printable-plan {
-    margin-top: 10mm;
-    padding-top: 8mm;
+    margin-top: 6mm;
+    padding-top: 5mm;
     border-top: 1px dashed #c9d4cf;
   }
 
