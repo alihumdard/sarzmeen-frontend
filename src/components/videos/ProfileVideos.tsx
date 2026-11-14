@@ -32,7 +32,7 @@ export default function ProfileVideos({
   const [first, ...rest] = videos;
 
   return (
-    <section className="bg-white py-8 sm:py-10">
+    <section className="bg-white pt-9 pb-12">
       <div className="container-page">
         <h2 className="text-[19px] font-bold text-heading">{heading}</h2>
         <p className="mt-1 text-[13px] text-muted">

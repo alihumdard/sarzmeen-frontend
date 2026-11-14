@@ -305,9 +305,9 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
 
       {/* Team */}
       {agency.agents && agency.agents.length > 0 && (
-        <section className="bg-white py-10">
+        <section className="bg-white pt-9">
           <div className="container-page">
-            <h2 className="text-[22px] font-bold text-heading">
+            <h2 className="text-[19px] font-bold text-heading">
               Our Team
               <span className="ml-2 text-[14px] font-medium text-muted">
                 ({agency.agents.length} {agency.agents.length === 1 ? "member" : "members"})
@@ -357,7 +357,7 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
 
       {/* What the agency has on the market, its own and its agents'. */}
       {listings.length > 0 && (
-        <section className="bg-white py-10 sm:py-12">
+        <section className="bg-white pt-9">
           <div className="container-page">
             <h2 className="text-[19px] font-bold text-heading">
               Listings by {agency.name}
