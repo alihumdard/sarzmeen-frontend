@@ -133,7 +133,7 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
         image="/images/agents-banner.jpg"
       />
 
-      <section className="bg-surface py-8 sm:py-10">
+      <section className="bg-surface pt-8 pb-9 sm:pt-10">
         <div className="container-page">
           <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]">
             {/* Agency profile */}

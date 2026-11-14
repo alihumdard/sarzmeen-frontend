@@ -102,7 +102,7 @@ export default async function AgentPage({ params }: AgentPageProps) {
         image="/images/agents-banner.jpg"
       />
 
-      <section className="bg-surface py-8 sm:py-10">
+      <section className="bg-surface pt-8 pb-9 sm:pt-10">
         <div className="container-page">
           {/* items-start: grid children stretch to the tallest by default,
               so the shorter card was padded out with empty white rather
