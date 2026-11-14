@@ -224,11 +224,15 @@ function AdminDashboard() {
     [overview],
   );
 
-  /* Guarded: every bar would be NaN wide on an empty list. */
-  const viewsMax = useMemo(
-    () => Math.max(1, ...viewsByType.map((v) => v.count)),
-    [viewsByType],
-  );
+  const viewsChartSegments = useMemo(() => {
+    const total = viewsByType.reduce((sum, v) => sum + v.count, 0) || 1;
+    return viewsByType.map((v, i) => ({
+      label: v.label,
+      value: Math.round((v.count / total) * 100),
+      count: v.count,
+      color: CHART_COLORS[i % CHART_COLORS.length],
+    }));
+  }, [viewsByType]);
 
   return (
     <div className="space-y-6">
@@ -375,45 +379,21 @@ function AdminDashboard() {
             <p className="py-12 text-center text-[12px] text-gray-400">No data yet</p>
           )}
         </div>
-      </section>
 
-      {/* What people came to look at. Only properties were counted
-          before, so there was no telling whether the projects were being
-          read or the blog opened at all. */}
-      <section className="rounded-lg border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
-        <div className="mb-4 flex items-baseline justify-between gap-3">
-          <h2 className="text-[13px] font-semibold text-gray-800">
-            Page Views by Type
-          </h2>
-          <span className="text-[11px] text-gray-400">Last 30 days</span>
+        {/* What people came to look at. Only properties were counted
+            before, so there was no telling whether the projects were
+            being read or the blog opened at all. */}
+        <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+          <div className="mb-5 flex items-baseline justify-between gap-3">
+            <h2 className="text-[13px] font-semibold text-gray-800">Page Views by Type</h2>
+            <span className="text-[11px] text-gray-400">Last 30 days</span>
+          </div>
+          {viewsChartSegments.length > 0 ? (
+            <DonutChart segments={viewsChartSegments} />
+          ) : (
+            <p className="py-12 text-center text-[12px] text-gray-400">No views recorded yet</p>
+          )}
         </div>
-
-        {viewsByType.length > 0 ? (
-          <ul className="space-y-2.5">
-            {viewsByType.map(({ kind, label, count }) => (
-              <li key={kind} className="flex items-center gap-3">
-                <span className="w-[86px] shrink-0 text-[12px] text-gray-600">
-                  {label}
-                </span>
-                {/* The bar is read against the busiest kind, so the
-                    smallest is still visible rather than a sliver. */}
-                <span className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-gray-100">
-                  <span
-                    className="block h-full rounded-full bg-primary"
-                    style={{ width: `${Math.max(3, Math.round((count / viewsMax) * 100))}%` }}
-                  />
-                </span>
-                <span className="w-[62px] shrink-0 text-right text-[12px] font-semibold tabular-nums text-gray-800">
-                  {count.toLocaleString()}
-                </span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="py-8 text-center text-[12px] text-gray-400">
-            No views recorded yet
-          </p>
-        )}
       </section>
 
       {/* Recent Inquiries */}
