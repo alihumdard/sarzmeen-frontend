@@ -299,10 +299,11 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
             </h2>
             <p className="mt-1 text-[13px] text-muted">Agents working under {agency.name}</p>
 
-            {/* auto-fill with a cap: a fixed four-column grid held three
-                empty columns open beside a lone agent. Columns are made as
-                they are filled, up to four across. */}
-            <div className="mt-6 grid gap-5 [grid-template-columns:repeat(auto-fill,minmax(230px,1fr))] lg:[grid-template-columns:repeat(auto-fill,minmax(230px,max-content))]">
+            {/* auto-fit, not auto-fill: a fixed four-column grid held three
+                empty columns open beside a lone agent, and auto-fill keeps
+                making empty ones. auto-fit collapses the tracks nothing
+                lands in, so one agent takes one card's width. */}
+            <div className="mt-6 grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(230px,max-content))]">
               {agency.agents.map((member) => (
                 <div
                   key={member.id}
