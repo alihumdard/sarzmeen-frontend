@@ -9,6 +9,7 @@ import AdminFormField, {
 import { useAuth } from "@/context/AuthContext";
 import { updatePassword, updateProfile } from "@/lib/api/profile";
 import AgencyLogoCard from "@/components/admin/AgencyLogoCard";
+import AgentProfileCard from "@/components/admin/AgentProfileCard";
 
 export default function ProfilePage() {
   const { user, refresh } = useAuth();
@@ -117,8 +118,9 @@ function ProfileForm({
         breadcrumbs={[{ label: "Account" }, { label: "My Profile" }]}
       />
 
-      {/* Renders nothing unless this account owns an agency. */}
+      {/* Each renders nothing unless the account is of that kind. */}
       {user.role === "agency" && <AgencyLogoCard />}
+      {user.role === "agent" && <AgentProfileCard />}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
         {/* Details */}

@@ -20,6 +20,8 @@ export default function AgencyLogoCard() {
   const [loading, setLoading] = useState(true);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [description, setDescription] = useState("");
+  const [savingAbout, setSavingAbout] = useState(false);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +33,9 @@ export default function AgencyLogoCard() {
 
     getAgencyProfile()
       .then((res) => {
-        if (active) setAgency(res.data);
+        if (!active) return;
+        setAgency(res.data);
+        setDescription(res.data.description ?? "");
       })
       .catch(() => {
         // An account with no agency record simply has nothing to show here.
@@ -73,6 +77,24 @@ export default function AgencyLogoCard() {
       setError((err as Error).message || "Could not upload that logo.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const saveAbout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (savingAbout) return;
+
+    setSavingAbout(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const res = await updateAgencyProfile({ description });
+      setAgency(res.data);
+      setNotice("Your description is live on your agency page.");
+    } catch (err) {
+      setError((err as Error).message || "Could not save that description.");
+    } finally {
+      setSavingAbout(false);
     }
   };
 
@@ -145,6 +167,35 @@ export default function AgencyLogoCard() {
           {error}
         </p>
       )}
+
+      {/* The API already accepted a description; nothing on the site could
+          send it, so the paragraph on the public page stayed empty. */}
+      <form onSubmit={saveAbout} className="mt-6 border-t border-gray-200 pt-5">
+        <h3 className="text-sm font-semibold text-gray-800">About the agency</h3>
+        <p className="mt-1 text-[12px] text-gray-500">
+          The paragraph buyers read at the top of your agency page.
+        </p>
+
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={5}
+          maxLength={5000}
+          placeholder="Who you are, the areas you cover, what you are known for."
+          className="mt-3 w-full rounded-md border border-gray-200 px-3 py-2 text-[12.5px] text-gray-800 outline-none transition-colors focus:border-primary"
+        />
+        <p className="mt-1 text-[10.5px] text-gray-400">
+          {description.trim().length} / 5000
+        </p>
+
+        <button
+          type="submit"
+          disabled={savingAbout}
+          className="mt-3 h-10 rounded-md bg-primary px-5 text-[12.5px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+        >
+          {savingAbout ? "Saving…" : "Save description"}
+        </button>
+      </form>
     </section>
   );
 }
