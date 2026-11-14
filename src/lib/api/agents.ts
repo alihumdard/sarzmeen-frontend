@@ -21,6 +21,15 @@ export type AgentListItem = {
 export type AgentDetail = AgentListItem & {
   propertiesForSale: number;
   propertiesForRent: number;
+  /* Their own videos; kept out of the site's video library. */
+  videos?: {
+    id: string;
+    title: string;
+    description?: string;
+    youtubeId: string;
+    embedUrl: string;
+    thumbnail: string;
+  }[];
 };
 
 type PaginatedResponse<T> = {

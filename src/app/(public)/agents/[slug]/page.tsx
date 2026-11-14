@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageBanner from "@/components/layout/PageBanner";
 import PropertyCard from "@/components/property/PropertyCard";
+import ProfileVideos from "@/components/videos/ProfileVideos";
 import {
   AwardIcon,
   BuildingIcon,
@@ -258,6 +259,11 @@ export default async function AgentPage({ params }: AgentPageProps) {
           )}
         </div>
       </section>
+
+      <ProfileVideos
+        videos={agent.videos ?? []}
+        heading={`Videos by ${agent.name}`}
+      />
     </main>
   );
 }

@@ -15,6 +15,7 @@ import {
   VerifiedTickIcon,
 } from "@/components/ui/Icons";
 import PropertyCard from "@/components/property/PropertyCard";
+import ProfileVideos from "@/components/videos/ProfileVideos";
 import { serverApi } from "@/lib/api/server";
 import type { Property } from "@/types/property";
 
@@ -44,6 +45,15 @@ type AgencyData = {
   };
   propertiesForSale: number;
   propertiesForRent: number;
+  /* Its own videos; kept out of the site's video library. */
+  videos?: Array<{
+    id: string;
+    title: string;
+    description?: string;
+    youtubeId: string;
+    embedUrl: string;
+    thumbnail: string;
+  }>;
   agents?: Array<{
     id: string;
     slug: string;
@@ -370,6 +380,11 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
           </div>
         </section>
       )}
+
+      <ProfileVideos
+        videos={agency.videos ?? []}
+        heading={`Videos by ${agency.name}`}
+      />
     </main>
   );
 }
