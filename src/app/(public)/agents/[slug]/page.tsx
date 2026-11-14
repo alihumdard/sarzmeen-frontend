@@ -109,7 +109,10 @@ export default async function AgentPage({ params }: AgentPageProps) {
               than ending where its content does. */}
           <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]">
             {/* Profile, bio and stats */}
-            <div className="rounded-lg border border-border bg-white p-6">
+            {/* min-w-0: a grid child will not shrink below its longest
+                unbroken word, so an unspaced bio widened this card until
+                it pushed the page sideways. */}
+            <div className="min-w-0 rounded-lg border border-border bg-white p-6">
               <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
                 <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full ring-2 ring-primary-light">
                   {agent.avatar ? (
@@ -145,8 +148,11 @@ export default async function AgentPage({ params }: AgentPageProps) {
                 </div>
               </div>
 
+              {/* break-words: typed by hand, and one long unbroken string
+                  -- a pasted address repeated -- pushed the card past the
+                  screen and took the whole page sideways with it. */}
               {agent.bio && (
-                <p className="mt-5 border-t border-border pt-5 text-[13px] leading-relaxed text-text">
+                <p className="mt-5 break-words border-t border-border pt-5 text-[13px] leading-relaxed text-text">
                   {agent.bio}
                 </p>
               )}

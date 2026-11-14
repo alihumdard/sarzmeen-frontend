@@ -137,7 +137,10 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
         <div className="container-page">
           <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]">
             {/* Agency profile */}
-            <div className="rounded-lg border border-border bg-white p-6">
+            {/* min-w-0: a grid child will not shrink below its longest
+                unbroken word, so an unspaced bio widened this card until
+                it pushed the page sideways. */}
+            <div className="min-w-0 rounded-lg border border-border bg-white p-6">
               <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
                 <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full ring-2 ring-primary-light">
                   {agency.logo ? (
@@ -173,8 +176,11 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
                 </div>
               </div>
 
+              {/* break-words: typed by hand, and one long unbroken string
+                  -- a pasted address repeated -- pushed the card past the
+                  screen and took the whole page sideways with it. */}
               {agency.description && (
-                <p className="mt-5 border-t border-border pt-5 text-[13px] leading-relaxed text-text">
+                <p className="mt-5 break-words border-t border-border pt-5 text-[13px] leading-relaxed text-text">
                   {agency.description}
                 </p>
               )}
