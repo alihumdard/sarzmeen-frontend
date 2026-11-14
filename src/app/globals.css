@@ -415,12 +415,59 @@
    * A plan is never split. Letting the break fall between its blocks put
    * one plan's heading and summary at the foot of a sheet with its
    * schedule on the next, and splitting the schedule itself put a total
-   * line above the rows it was meant to total. Either reads as a fault;
-   * a page that ends early does not.
+   * line above the rows it was meant to total. Either reads as a fault.
+   *
+   * It prints whole, and the spacing below is tightened so that two
+   * whole plans still fit on one sheet.
    */
   .printable-stack .printable-plan {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  /*
+   * Tighter rows when several are printed together. At the single-plan
+   * spacing a pair came to a little over one sheet, so the second was
+   * pushed to a page of its own and the first was left half blank. A
+   * plan on its own keeps the roomier setting.
+   */
+  .printable-stack .pp-summary th,
+  .printable-stack .pp-summary td,
+  .printable-stack .pp-schedule th,
+  .printable-stack .pp-schedule td {
+    padding: 2.5pt 6pt;
+  }
+
+  .printable-stack .pp-title {
+    margin-top: 9pt;
+  }
+
+  .printable-stack .pp-schedule {
+    margin-top: 7pt;
+  }
+
+  .printable-stack .pp-note {
+    margin-top: 6pt;
+  }
+
+  .printable-stack .pp-foot {
+    margin-top: 6pt;
+    padding-top: 3pt;
+  }
+
+  .printable-stack .pp-subtitle {
+    margin-top: 2pt;
+  }
+
+  /*
+   * The estimate note and the marketplace footer repeat on every plan,
+   * which on a stack of them is the same two lines three times over and
+   * the difference between two plans fitting on a sheet and one. They
+   * are kept on the last plan, where they still close the document.
+   */
+  .printable-stack .printable-plan:not(:last-child) .pp-note,
+  .printable-stack .printable-plan:not(:last-child) .pp-foot {
+    display: none;
   }
 
   /* A heading with its table stranded on the next sheet reads as a fault. */
@@ -436,8 +483,8 @@
    * the first half blank.
    */
   .printable-stack .printable-plan + .printable-plan {
-    margin-top: 6mm;
-    padding-top: 5mm;
+    margin-top: 3mm;
+    padding-top: 2.5mm;
     border-top: 1px dashed #c9d4cf;
   }
 
