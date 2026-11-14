@@ -396,15 +396,23 @@
     width: 100%;
   }
 
+  /*
+   * Plans flow one after another rather than taking a sheet each: one
+   * fills about half a page, so a page apiece spent half the paper on
+   * white. break-inside keeps a plan whole, so it moves to the next
+   * sheet only when it would otherwise be cut in half.
+   */
   .printable-stack .printable-plan {
     position: static;
     width: auto;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
-  /* One plan per sheet, so two buyers' plans never share a page. */
   .printable-stack .printable-plan + .printable-plan {
-    break-before: page;
-    page-break-before: always;
+    margin-top: 10mm;
+    padding-top: 8mm;
+    border-top: 1px dashed #c9d4cf;
   }
 
   .pp-head {
