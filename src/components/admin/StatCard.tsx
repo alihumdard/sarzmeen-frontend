@@ -37,6 +37,25 @@ export default function StatCard({
         className,
       ].join(" ")}
     >
+      {/*
+        A band of the card's own colour across the top. A wall of white
+        cards gives the eye nothing to tell them apart by, and the icon
+        alone is too small to do it.
+
+        currentColor through the icon's text class, so the band follows
+        whatever colour the card was given without a second prop to keep
+        in step with it.
+      */}
+      <div
+        className={[
+          "pointer-events-none absolute inset-x-0 top-0 h-[3px]",
+          iconClassName.replace(/bg-\S+/g, ""),
+        ].join(" ")}
+        aria-hidden="true"
+      >
+        <div className="h-full w-full bg-current opacity-80" />
+      </div>
+
       {/* A faint wash of the icon's colour, so the cards are not flat white. */}
       <div
         className={[
