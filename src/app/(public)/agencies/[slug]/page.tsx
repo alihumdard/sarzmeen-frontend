@@ -90,9 +90,15 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
     ? new Date().getFullYear() - agency.establishedYear
     : null;
 
+  /* Only the figures the agency has: a nought takes a third of the row to
+     say nothing, and reads as a failing rather than as a new agency. */
   const stats = [
-    { Icon: UsersIcon, value: agency.totalAgents, label: "Team Members" },
-    { Icon: BuildingIcon, value: totalListings, label: "Active Listings" },
+    ...(agency.totalAgents
+      ? [{ Icon: UsersIcon, value: agency.totalAgents, label: "Team Members" }]
+      : []),
+    ...(totalListings
+      ? [{ Icon: BuildingIcon, value: totalListings, label: "Active Listings" }]
+      : []),
     ...(yearsActive !== null
       ? [{ Icon: AwardIcon, value: `${yearsActive}+`, label: "Years Active" }]
       : []),
@@ -163,9 +169,12 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
                 </p>
               )}
 
-              <div className="mt-5 grid grid-cols-3 gap-4 border-t border-border pt-5">
+              {/* With nothing to show, the divider above would open a gap
+                  rather than separate anything. */}
+              {stats.length > 0 && (
+              <div className="mt-5 grid gap-4 border-t border-border pt-5 sm:grid-cols-3">
                 {stats.map(({ Icon, value, label }) => (
-                  <div key={label} className="flex flex-col items-center gap-1.5 text-center sm:flex-row sm:gap-3 sm:text-left">
+                  <div key={label} className="flex items-center gap-3 text-left">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
                       <Icon className="h-5 w-5" />
                     </span>
@@ -176,6 +185,7 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
                   </div>
                 ))}
               </div>
+              )}
             </div>
 
             {/* Owner and contact */}
@@ -289,7 +299,10 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
             </h2>
             <p className="mt-1 text-[13px] text-muted">Agents working under {agency.name}</p>
 
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {/* auto-fill with a cap: a fixed four-column grid held three
+                empty columns open beside a lone agent. Columns are made as
+                they are filled, up to four across. */}
+            <div className="mt-6 grid gap-5 [grid-template-columns:repeat(auto-fill,minmax(230px,1fr))] lg:[grid-template-columns:repeat(auto-fill,minmax(230px,max-content))]">
               {agency.agents.map((member) => (
                 <div
                   key={member.id}

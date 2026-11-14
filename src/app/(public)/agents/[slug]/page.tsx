@@ -52,22 +52,41 @@ export default async function AgentPage({ params }: AgentPageProps) {
   const agent: AgentDetail = agentResult.data;
   const listings: Property[] = listingsResult.data;
 
+  /*
+   * Only the figures the agent actually has. "0+ Years Experience" beside
+   * "0+ Deals Closed" takes a third of the card each to say nothing, and
+   * reads worse than leaving them out: a new agent looks like a failed one.
+   */
+  const activeListings = agent.propertiesForSale + agent.propertiesForRent;
+
   const stats = [
-    {
-      Icon: AwardIcon,
-      value: `${agent.yearsExperience ?? 0}+`,
-      label: "Years Experience",
-    },
-    {
-      Icon: HandshakeIcon,
-      value: `${agent.dealsClosed ?? 0}+`,
-      label: "Deals Closed",
-    },
-    {
-      Icon: VerifiedTickIcon,
-      value: agent.propertiesForSale + agent.propertiesForRent,
-      label: "Active Listings",
-    },
+    ...(agent.yearsExperience
+      ? [
+          {
+            Icon: AwardIcon,
+            value: `${agent.yearsExperience}+`,
+            label: "Years Experience",
+          },
+        ]
+      : []),
+    ...(agent.dealsClosed
+      ? [
+          {
+            Icon: HandshakeIcon,
+            value: `${agent.dealsClosed}+`,
+            label: "Deals Closed",
+          },
+        ]
+      : []),
+    ...(activeListings
+      ? [
+          {
+            Icon: VerifiedTickIcon,
+            value: activeListings,
+            label: "Active Listings",
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -84,7 +103,10 @@ export default async function AgentPage({ params }: AgentPageProps) {
 
       <section className="bg-surface py-8 sm:py-10">
         <div className="container-page">
-          <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+          {/* items-start: grid children stretch to the tallest by default,
+              so the shorter card was padded out with empty white rather
+              than ending where its content does. */}
+          <div className="grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]">
             {/* Profile, bio and stats */}
             <div className="rounded-lg border border-border bg-white p-6">
               <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:text-left">
@@ -128,19 +150,23 @@ export default async function AgentPage({ params }: AgentPageProps) {
                 </p>
               )}
 
-              <div className="mt-5 grid grid-cols-3 gap-4 border-t border-border pt-5">
-                {stats.map(({ Icon, value, label }) => (
-                  <div key={label} className="flex flex-col items-center gap-1.5 text-center sm:flex-row sm:items-center sm:gap-3 sm:text-left">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <div>
-                      <p className="text-[18px] font-bold text-heading">{value}</p>
-                      <p className="text-[11px] text-muted">{label}</p>
+              {/* With nothing to show, the divider above would open a gap
+                  rather than separate anything. */}
+              {stats.length > 0 && (
+                <div className="mt-5 grid gap-4 border-t border-border pt-5 sm:grid-cols-3">
+                  {stats.map(({ Icon, value, label }) => (
+                    <div key={label} className="flex items-center gap-3 text-left">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <div>
+                        <p className="text-[18px] font-bold text-heading">{value}</p>
+                        <p className="text-[11px] text-muted">{label}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Contact details */}
