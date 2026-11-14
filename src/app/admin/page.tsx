@@ -364,8 +364,12 @@ function AdminDashboard() {
       {/* Distribution Charts */}
       {/* Two columns, the right one stacking its two panels: the type
           list on the left is tall enough that a single chart beside it
-          leaves half a column of white. */}
-      <section className="grid grid-cols-1 items-start gap-5 lg:grid-cols-2">
+          leaves half a column of white.
+
+          No items-start, so the right column takes the row's full height
+          and its two panels share it — otherwise the column ended short
+          of the list beside it, or ran past it. */}
+      <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
           <h2 className="mb-5 text-[13px] font-semibold text-gray-800">Properties by Type</h2>
           {typeChartSegments.length > 0 ? (
@@ -375,7 +379,7 @@ function AdminDashboard() {
           )}
         </div>
         <div className="flex flex-col gap-5">
-          <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+          <div className="flex-1 rounded-lg border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
             <h2 className="mb-5 text-[13px] font-semibold text-gray-800">Properties by Status</h2>
             {statusChartSegments.length > 0 ? (
               <DonutChart segments={statusChartSegments} />
@@ -393,7 +397,7 @@ function AdminDashboard() {
             above: this counts views, that counts properties, and 1,252
             beside 30 in one card invites them to be read together.
           */}
-          <div className="rounded-lg border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+          <div className="flex-1 rounded-lg border border-gray-200 bg-white p-5 shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
             <div className="mb-5 flex items-baseline justify-between gap-3">
               <h2 className="text-[13px] font-semibold text-gray-800">Page Views by Type</h2>
               <span className="text-[11px] text-gray-400">Last 30 days</span>
