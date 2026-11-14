@@ -225,7 +225,7 @@
     rgba(255, 255, 255, 0.85),
     transparent
   );
-  animation: band-sweep 2.8s ease-in-out infinite;
+  animation: band-sweep 2.4s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -234,14 +234,13 @@
   }
 }
 
+/* No pause at either end: it runs continuously, the way a loading
+   shimmer does, rather than passing and waiting. */
 @keyframes band-sweep {
-  0% {
+  from {
     transform: translateX(-120%);
   }
-  /* A pause at the far side, so it reads as a passing highlight rather
-     than something spinning on a loop. */
-  60%,
-  100% {
+  to {
     transform: translateX(320%);
   }
 }
