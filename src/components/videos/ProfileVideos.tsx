@@ -11,7 +11,6 @@ export type ProfileVideo = {
   embedUrl: string;
   thumbnail: string;
   link?: string | null;
-  tags?: string[];
 };
 
 /**
@@ -72,19 +71,6 @@ export default function ProfileVideos({
               <p className="mt-1 break-words text-[12.5px] leading-relaxed text-muted">
                 {playing.description}
               </p>
-            )}
-
-            {playing.tags && playing.tags.length > 0 && (
-              <div className="mt-2.5 flex flex-wrap gap-1.5">
-                {playing.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-primary-light px-2.5 py-1 text-[11px] font-medium text-primary"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
             )}
 
             {playing.link && (
