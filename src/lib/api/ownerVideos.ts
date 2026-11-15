@@ -18,6 +18,9 @@ export type OwnerVideo = {
   youtubeUrl: string;
   embedUrl: string;
   thumbnail: string;
+  /** Where the video leads — the listing it walks through, say. */
+  link: string | null;
+  tags: string[];
 };
 
 export type VideoOwnerKind = "agent" | "agency";
@@ -26,6 +29,8 @@ export type OwnerVideoInput = {
   title: string;
   description?: string;
   youtubeUrl: string;
+  link?: string;
+  tags?: string[];
 };
 
 export async function listOwnerVideos(

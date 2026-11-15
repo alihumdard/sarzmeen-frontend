@@ -10,6 +10,8 @@ export type ProfileVideo = {
   youtubeId: string;
   embedUrl: string;
   thumbnail: string;
+  link?: string | null;
+  tags?: string[];
 };
 
 /**
@@ -71,6 +73,35 @@ export default function ProfileVideos({
               <p className="mt-1 break-words text-[12.5px] leading-relaxed text-muted">
                 {playing.description}
               </p>
+            )}
+
+            {playing.tags && playing.tags.length > 0 && (
+              <div className="mt-2.5 flex flex-wrap gap-1.5">
+                {playing.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="rounded-full bg-primary-light px-2.5 py-1 text-[11px] font-medium text-primary"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {playing.link && (
+              /* rel on an outbound link the owner typed: it is not the
+                 site vouching for wherever it goes. */
+              <a
+                href={playing.link}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="mt-3 inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-primary hover:underline"
+              >
+                Open the listing
+                <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M7 17 17 7M9 7h8v8" />
+                </svg>
+              </a>
             )}
           </div>
 

@@ -26,6 +26,9 @@ export default function OwnerVideosCard({ kind }: { kind: VideoOwnerKind }) {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [description, setDescription] = useState("");
+  const [link, setLink] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagDraft, setTagDraft] = useState("");
 
   const [adding, setAdding] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
@@ -69,15 +72,25 @@ export default function OwnerVideosCard({ kind }: { kind: VideoOwnerKind }) {
     setNotice(null);
 
     try {
+      /* A tag left in the box, never committed with Enter, is still a
+         tag the writer meant to add. */
+      const pending = tagDraft.trim();
+      const allTags = pending && !tags.includes(pending) ? [...tags, pending] : tags;
+
       const res = await createOwnerVideo(kind, {
         title: title.trim(),
         description: description.trim(),
         youtubeUrl: url.trim(),
+        link: link.trim() || undefined,
+        tags: allTags.length ? allTags : undefined,
       });
       setVideos([...videos, res.data]);
       setTitle("");
       setUrl("");
       setDescription("");
+      setLink("");
+      setTags([]);
+      setTagDraft("");
       setNotice("Added. It is live on your public page.");
     } catch (err) {
       const e2 = err as Error & { errors?: Record<string, string[]> };
@@ -106,6 +119,16 @@ export default function OwnerVideosCard({ kind }: { kind: VideoOwnerKind }) {
     } finally {
       setRemoving(null);
     }
+  };
+
+  const addTag = () => {
+    const tag = tagDraft.trim();
+    if (!tag || tags.includes(tag) || tags.length >= 10) {
+      setTagDraft("");
+      return;
+    }
+    setTags([...tags, tag]);
+    setTagDraft("");
   };
 
   return (
@@ -140,6 +163,11 @@ export default function OwnerVideosCard({ kind }: { kind: VideoOwnerKind }) {
                 {video.description && (
                   <p className="mt-0.5 line-clamp-1 text-[11.5px] text-muted">
                     {video.description}
+                  </p>
+                )}
+                {video.tags.length > 0 && (
+                  <p className="mt-1 truncate text-[10.5px] text-primary">
+                    {video.tags.join(" · ")}
                   </p>
                 )}
               </div>
@@ -179,6 +207,57 @@ export default function OwnerVideosCard({ kind }: { kind: VideoOwnerKind }) {
             />
           </AdminFormField>
         </div>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <AdminFormField label="Link (optional)">
+            <input
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              placeholder="https://… the listing or project this is about"
+              className={adminInputClass}
+            />
+          </AdminFormField>
+
+          <AdminFormField label="Tags (optional)">
+            <input
+              value={tagDraft}
+              onChange={(e) => setTagDraft(e.target.value)}
+              onKeyDown={(e) => {
+                /* Enter commits the tag rather than submitting the form,
+                   which would save the video half-filled. */
+                if (e.key === "Enter" || e.key === ",") {
+                  e.preventDefault();
+                  addTag();
+                }
+              }}
+              onBlur={addTag}
+              disabled={tags.length >= 10}
+              placeholder={tags.length >= 10 ? "Ten is the most" : "Type and press Enter"}
+              className={adminInputClass}
+            />
+          </AdminFormField>
+        </div>
+
+        {tags.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center gap-1 rounded-full bg-primary-light px-2.5 py-1 text-[11px] font-medium text-primary"
+              >
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => setTags(tags.filter((t) => t !== tag))}
+                  aria-label={`Remove ${tag}`}
+                  className="text-primary/60 transition-colors hover:text-primary"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
 
         <div className="mt-4">
           <AdminFormField label="Description (optional)">
