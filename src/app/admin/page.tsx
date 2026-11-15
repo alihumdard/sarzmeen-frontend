@@ -25,6 +25,15 @@ type DashboardStats = {
   rejectedAccounts: number;
 };
 
+type TopBlog = {
+  id: string;
+  slug: string;
+  title: string;
+  category: string | null;
+  publishedAt: string | null;
+  views: number;
+};
+
 type TopProperty = {
   id: string;
   slug: string;
@@ -97,9 +106,12 @@ function AdminDashboard() {
   const [period, setPeriod] = useState("30");
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [topProperties, setTopProperties] = useState<TopProperty[]>([]);
+  const [topBlogs, setTopBlogs] = useState<TopBlog[]>([]);
   const [recentInquiries, setRecentInquiries] = useState<RecentInquiry[]>([]);
   const [recentBlogs, setRecentBlogs] = useState<RecentBlog[]>([]);
   const [viewsTrend, setViewsTrend] = useState<TrendPoint[]>([]);
+  const [blogTrend, setBlogTrend] = useState<TrendPoint[]>([]);
+  const [blogViewsTotal, setBlogViewsTotal] = useState(0);
   const [propertiesByType, setPropertiesByType] = useState<PropertiesByType[]>([]);
   const [overview, setOverview] = useState<Record<string, unknown> | null>(null);
 
@@ -109,6 +121,27 @@ function AdminDashboard() {
       setStats(res.data);
     } catch {
       // fallback
+    }
+  }, []);
+
+  const loadBlogTrend = useCallback(async () => {
+    try {
+      const res = await api<{ data: TrendPoint[]; total: number }>(
+        "/admin/analytics/blog-views-trend?days=30",
+      );
+      setBlogTrend(res.data);
+      setBlogViewsTotal(res.total);
+    } catch {
+      /* The chart simply stays empty; the rest of the page is fine. */
+    }
+  }, []);
+
+  const loadTopBlogs = useCallback(async () => {
+    try {
+      const res = await api<{ data: TopBlog[] }>("/admin/analytics/top-blogs?limit=5");
+      setTopBlogs(res.data);
+    } catch {
+      /* The section simply stays empty; the rest of the page is fine. */
     }
   }, []);
 
@@ -169,6 +202,8 @@ function AdminDashboard() {
   useEffect(() => {
     loadStats();
     loadTopProperties();
+    loadTopBlogs();
+    loadBlogTrend();
     loadRecentInquiries();
     loadRecentBlogs();
     loadPropertiesByType();
@@ -191,6 +226,18 @@ function AdminDashboard() {
       values: viewsTrend.map((p) => Number(p.count)),
     };
   }, [viewsTrend]);
+
+  const blogChart = useMemo(() => {
+    if (blogTrend.length === 0) {
+      return { labels: [] as string[], values: [] as number[] };
+    }
+    return {
+      labels: blogTrend.map((p) =>
+        new Date(p.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      ),
+      values: blogTrend.map((p) => Number(p.count)),
+    };
+  }, [blogTrend]);
 
   const typeChartSegments = useMemo(() => {
     const total = propertiesByType.reduce((s, p) => s + p.count, 0) || 1;
@@ -462,6 +509,64 @@ function AdminDashboard() {
       </section>
 
       {/* Blogs + Quick Actions + System Overview */}
+      {/* Blog readership. The page reported views of properties in three
+          places and of posts in none, so there was no telling which
+          articles were being read. */}
+      <section className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+          <div className="card-band text-violet-500" aria-hidden="true" />
+          <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+            <div>
+              <h2 className="text-[13px] font-semibold text-gray-800">Blog Views</h2>
+              <p className="mt-0.5 text-[11px] text-gray-400">Last 30 days</p>
+            </div>
+            <span className="text-[18px] font-bold leading-none text-gray-900">
+              {blogViewsTotal.toLocaleString()}
+            </span>
+          </div>
+          <div className="px-5 pb-3 pt-4">
+            {blogChart.labels.length > 0 ? (
+              <AreaLineChart data={blogChart.values} labels={blogChart.labels} />
+            ) : (
+              <p className="py-12 text-center text-[12px] text-gray-400">No view data yet</p>
+            )}
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+          <div className="card-band text-orange-500" aria-hidden="true" />
+          <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+            <h2 className="text-[13px] font-semibold text-gray-800">Top Blogs</h2>
+            <Link href="/admin/blogs" className="text-[11px] font-semibold text-primary hover:underline">
+              View All
+            </Link>
+          </div>
+          <ul className="divide-y divide-gray-100">
+            {topBlogs.length === 0 && (
+              <li className="px-5 py-8 text-center text-[12px] text-gray-400">
+                No blog views yet
+              </li>
+            )}
+            {topBlogs.map((blog, index) => (
+              <li key={blog.id} className="flex items-center gap-3 px-5 py-3">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-violet-500 text-[10px] font-bold text-white">
+                  {index + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[12px] font-semibold text-gray-800">{blog.title}</p>
+                  <p className="mt-0.5 text-[11px] text-gray-500">
+                    {blog.category ?? "Uncategorised"}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right text-[10px] text-gray-400">
+                  Views: {blog.views.toLocaleString()}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
       <section className="grid grid-cols-1 gap-5 xl:grid-cols-[1.3fr_1fr_1fr]">
         <div className="relative overflow-hidden rounded-lg border border-gray-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
           <div className="card-band text-violet-500" aria-hidden="true" />
