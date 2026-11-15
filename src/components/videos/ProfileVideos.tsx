@@ -41,7 +41,6 @@ export default function ProfileVideos({
   if (videos.length === 0) return null;
 
   const playing = videos.find((v) => v.id === playingId) ?? videos[0];
-  const rest = videos.filter((v) => v.id !== playing.id);
 
   return (
     <section className="bg-white pt-9 pb-12">
@@ -105,14 +104,26 @@ export default function ProfileVideos({
             )}
           </div>
 
-          {rest.length > 0 && (
+          {videos.length > 1 && (
             <ul className="flex flex-col gap-3">
-              {rest.map((video) => (
+              {videos.map((video) => {
+                /* The whole list stays, with the one playing marked:
+                   lifting it out left nothing to show which was on, and
+                   the list shuffled under the hand on every pick. */
+                const isPlaying = video.id === playing.id;
+
+                return (
                 <li key={video.id}>
                   <button
                     type="button"
                     onClick={() => setPlayingId(video.id)}
-                    className="flex w-full items-center gap-3 rounded-lg border border-border p-2.5 text-left transition-colors hover:border-primary/40 hover:bg-surface"
+                    aria-current={isPlaying ? "true" : undefined}
+                    className={[
+                      "flex w-full items-center gap-3 rounded-lg border p-2.5 text-left transition-colors",
+                      isPlaying
+                        ? "border-primary bg-primary-light/40"
+                        : "border-border hover:border-primary/40 hover:bg-surface",
+                    ].join(" ")}
                   >
                     <span className="relative h-[54px] w-24 shrink-0 overflow-hidden rounded bg-surface">
                       <SafeImage
@@ -126,25 +137,47 @@ export default function ProfileVideos({
                       />
                       {/* A play mark, so a thumbnail reads as something to
                           start rather than a picture. */}
-                      <span className="absolute inset-0 flex items-center justify-center bg-black/25">
+                      <span
+                        className={[
+                          "absolute inset-0 flex items-center justify-center",
+                          isPlaying ? "bg-primary/35" : "bg-black/25",
+                        ].join(" ")}
+                      >
                         <svg
                           className="h-5 w-5 text-white drop-shadow"
                           viewBox="0 0 24 24"
                           fill="currentColor"
                           aria-hidden="true"
                         >
-                          <path d="M8 5v14l11-7z" />
+                          {isPlaying ? (
+                            <path d="M6 5h4v14H6zM14 5h4v14h-4z" />
+                          ) : (
+                            <path d="M8 5v14l11-7z" />
+                          )}
                         </svg>
                       </span>
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="line-clamp-2 text-[12.5px] font-medium text-heading">
+                      <span
+                        className={[
+                          "line-clamp-2 text-[12.5px]",
+                          isPlaying
+                            ? "font-semibold text-primary"
+                            : "font-medium text-heading",
+                        ].join(" ")}
+                      >
                         {video.title}
                       </span>
+                      {isPlaying && (
+                        <span className="mt-0.5 block text-[10.5px] font-medium text-primary/70">
+                          Now playing
+                        </span>
+                      )}
                     </span>
                   </button>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
         </div>
