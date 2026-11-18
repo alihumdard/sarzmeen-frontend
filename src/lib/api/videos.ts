@@ -48,3 +48,20 @@ export async function updateVideo(
 export async function deleteVideo(id: string): Promise<void> {
   await api(`/admin/videos/${id}`, { method: "DELETE" });
 }
+
+/**
+ * Approve or turn down an owner's video.
+ *
+ * Only an owner's enters review — the site's own guides are added by the
+ * person who would be approving them.
+ */
+export async function reviewVideo(
+  id: string,
+  action: "approve" | "reject",
+  note?: string,
+): Promise<void> {
+  await api(`/admin/videos/${id}/${action}`, {
+    method: "POST",
+    body: note ? { note } : undefined,
+  });
+}

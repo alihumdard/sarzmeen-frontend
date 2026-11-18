@@ -5,7 +5,9 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminConfirmDialog from "@/components/admin/AdminConfirmDialog";
 import VideoFormModal from "@/components/admin/VideoFormModal";
 import SafeImage from "@/components/ui/SafeImage";
-import { deleteVideo, listAdminVideos } from "@/lib/api/videos";
+import { deleteVideo, listAdminVideos,
+  reviewVideo,
+} from "@/lib/api/videos";
 import type { Video } from "@/types/video";
 
 export default function AdminVideosPage() {
@@ -20,6 +22,7 @@ export default function AdminVideosPage() {
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Video | null>(null);
+  const [reviewing, setReviewing] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<Video | null>(null);
 
   const load = useCallback(async () => {
@@ -68,6 +71,37 @@ export default function AdminVideosPage() {
       active = false;
     };
   }, [status, appliedSearch]);
+
+  /**
+   * Approve or turn down an owner's video.
+   *
+   * A rejection has to carry a reason: "rejected" with nothing said
+   * leaves the owner guessing at what to change.
+   */
+  async function review(video: Video, action: "approve" | "reject") {
+    let note: string | null = null;
+
+    if (action === "reject") {
+      note = window.prompt("Why is this being turned down? The owner will see this.");
+      if (note === null) return;
+      if (!note.trim()) {
+        setError("A rejection needs a reason.");
+        return;
+      }
+    }
+
+    setReviewing(video.id);
+    setError(null);
+
+    try {
+      await reviewVideo(video.id, action, note ?? undefined);
+      await load();
+    } catch (err) {
+      setError((err as Error).message || "Could not review that video.");
+    } finally {
+      setReviewing(null);
+    }
+  }
 
   async function handleDelete() {
     if (!deleting) return;
@@ -196,6 +230,29 @@ export default function AdminVideosPage() {
                       {video.owner.kind === "agent" ? "Agent" : "Agency"}: {video.owner.name}
                     </span>
                   </p>
+                )}
+
+                {/* Review, where the video is: an owner's goes up only
+                    once somebody here has looked at it. */}
+                {video.owner && video.status === "pending" && (
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => void review(video, "approve")}
+                      disabled={reviewing === video.id}
+                      className="h-7 rounded-md bg-emerald-600 px-3 text-[11px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-40"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void review(video, "reject")}
+                      disabled={reviewing === video.id}
+                      className="h-7 rounded-md border border-red-200 px-3 text-[11px] font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:opacity-40"
+                    >
+                      Reject
+                    </button>
+                  </div>
                 )}
 
                 <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-500">

@@ -23,6 +23,7 @@ type IconName =
   | "inquiry"
   | "blog"
   | "media"
+  | "video"
   | "testimonial"
   | "services"
   | "faq"
@@ -139,6 +140,18 @@ const menuGroups: MenuGroup[] = [
         anyPermission: ["inquiries.view.any"],
         icon: "report",
         implemented: true,
+      },
+      {
+        /*
+         * Their own videos, where the rest of their work is. It lived
+         * inside the profile page, which is not where anyone looks for a
+         * section of its own.
+         */
+        label: "My Videos",
+        href: "/admin/my-videos",
+        icon: "video",
+        implemented: true,
+        roles: ["agency", "agent"],
       },
       {
         label: "Report to Admin",
@@ -331,6 +344,13 @@ function AdminIcon({
         </svg>
       );
 
+    case "video":
+      return (
+        <svg {...commonProps}>
+          <rect x="2.5" y="5" width="19" height="14" rx="3" />
+          <path d="M10 9.5v5l4.5-2.5z" fill="currentColor" stroke="none" />
+        </svg>
+      );
     case "media":
       return (
         <svg {...commonProps}>

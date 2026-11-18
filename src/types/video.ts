@@ -1,4 +1,13 @@
-export type VideoStatus = "draft" | "published";
+/**
+ * The site's own guides are only ever draft or published; an owner's
+ * video also waits for review, and may be turned down.
+ */
+export type VideoStatus =
+  | "draft"
+  | "pending"
+  | "published"
+  | "rejected"
+  | "archived";
 
 export type Video = {
   id: string;

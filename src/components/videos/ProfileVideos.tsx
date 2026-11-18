@@ -11,6 +11,7 @@ export type ProfileVideo = {
   embedUrl: string;
   thumbnail: string;
   link?: string | null;
+  category?: { id: string; name: string; slug: string } | null;
 };
 
 /**
@@ -36,10 +37,26 @@ export default function ProfileVideos({
   heading: string;
 }) {
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [category, setCategory] = useState<string>("all");
 
   if (videos.length === 0) return null;
 
-  const playing = videos.find((v) => v.id === playingId) ?? videos[0];
+  /* The categories these videos actually fall under, in the order they
+     first appear — an owner's grouping, not an alphabetical list. */
+  const categories: { id: string; name: string }[] = [];
+  for (const video of videos) {
+    if (video.category && !categories.some((c) => c.id === video.category!.id)) {
+      categories.push({ id: video.category.id, name: video.category.name });
+    }
+  }
+
+  const shown =
+    category === "all"
+      ? videos
+      : videos.filter((v) => v.category?.id === category);
+
+  const playing =
+    shown.find((v) => v.id === playingId) ?? shown[0] ?? videos[0];
 
   return (
     <section className="bg-white pt-9 pb-12">
@@ -48,6 +65,30 @@ export default function ProfileVideos({
         <p className="mt-1 text-[13px] text-muted">
           {videos.length === 1 ? "1 video" : `${videos.length} videos`}
         </p>
+
+        {categories.length > 1 && (
+          <div className="mt-4 flex flex-wrap gap-1.5">
+            {[{ id: "all", name: "All" }, ...categories].map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => {
+                  setCategory(tab.id);
+                  /* Let the first of the new set take the frame rather
+                     than leaving one playing that is no longer listed. */
+                  setPlayingId(null);
+                }}
+                className={`rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors ${
+                  category === tab.id
+                    ? "bg-primary text-white"
+                    : "bg-surface text-muted hover:text-heading"
+                }`}
+              >
+                {tab.name}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.6fr_1fr]">
           <div className="min-w-0">
@@ -90,9 +131,9 @@ export default function ProfileVideos({
             )}
           </div>
 
-          {videos.length > 1 && (
+          {shown.length > 1 && (
             <ul className="flex flex-col gap-3">
-              {videos.map((video) => {
+              {shown.map((video) => {
                 /* The whole list stays, with the one playing marked:
                    lifting it out left nothing to show which was on, and
                    the list shuffled under the hand on every pick. */
