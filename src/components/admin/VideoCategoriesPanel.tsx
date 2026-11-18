@@ -26,6 +26,8 @@ export default function VideoCategoriesPanel() {
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState("");
+  /* Which chip has its menu open; only ever one. */
+  const [menuId, setMenuId] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -42,6 +44,15 @@ export default function VideoCategoriesPanel() {
       active = false;
     };
   }, []);
+
+  /* A click anywhere else closes an open chip menu, the way a menu
+     is expected to behave. */
+  useEffect(() => {
+    if (!menuId) return;
+    const close = () => setMenuId(null);
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
+  }, [menuId]);
 
   const fail = (err: unknown, fallback: string) => {
     const e = err as Error & { errors?: Record<string, string[]> };
@@ -137,63 +148,7 @@ export default function VideoCategoriesPanel() {
             </p>
           )}
 
-          {categories.length > 0 && (
-            <ul className="mt-4 space-y-2">
-              {categories.map((category) => (
-                <li
-                  key={category.id}
-                  className="flex items-center gap-2 rounded-md border border-gray-100 px-3 py-2"
-                >
-                  {editingId === category.id ? (
-                    <input
-                      autoFocus
-                      value={editingName}
-                      onChange={(e) => setEditingName(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          void rename(category.id);
-                        }
-                        if (e.key === "Escape") setEditingId(null);
-                      }}
-                      onBlur={() => void rename(category.id)}
-                      maxLength={80}
-                      className="h-8 min-w-0 flex-1 rounded border border-gray-200 px-2 text-[12.5px] outline-none focus:border-primary"
-                    />
-                  ) : (
-                    <>
-                      <span className="min-w-0 flex-1 truncate text-[12.5px] text-gray-800">
-                        {category.name}
-                      </span>
-                      <span className="shrink-0 text-[11px] text-gray-400">
-                        {category.videoCount}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingId(category.id);
-                          setEditingName(category.name);
-                        }}
-                        className="shrink-0 text-[11.5px] font-semibold text-primary hover:underline"
-                      >
-                        Rename
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => void remove(category)}
-                        disabled={busy}
-                        className="shrink-0 text-[11.5px] font-semibold text-red-500 hover:underline disabled:opacity-40"
-                      >
-                        Remove
-                      </button>
-                    </>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <form onSubmit={add} className="mt-4 flex flex-wrap items-center gap-2">
+          <form onSubmit={add} className="mt-3 flex flex-wrap items-center gap-2">
             <input
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
@@ -209,6 +164,80 @@ export default function VideoCategoriesPanel() {
               Add
             </button>
           </form>
+          {categories.length > 0 && (
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {categories.map((category) => (
+                <li key={category.id} className="relative">
+                  {editingId === category.id ? (
+                    <input
+                      autoFocus
+                      value={editingName}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          void rename(category.id);
+                        }
+                        if (e.key === "Escape") setEditingId(null);
+                      }}
+                      onBlur={() => void rename(category.id)}
+                      maxLength={80}
+                      size={Math.max(editingName.length, 8)}
+                      className="h-8 rounded-full border border-primary px-3 text-[12.5px] outline-none"
+                    />
+                  ) : (
+                    <div className="flex h-8 items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 pl-3 pr-1.5">
+                      <span className="max-w-[180px] truncate text-[12.5px] text-gray-800">
+                        {category.name}
+                      </span>
+                      <span className="text-[11px] text-gray-400">
+                        {category.videoCount}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMenuId(menuId === category.id ? null : category.id);
+                        }}
+                        aria-label={`Options for ${category.name}`}
+                        className="flex h-6 w-6 items-center justify-center rounded-full text-[13px] leading-none text-gray-400 hover:bg-gray-200 hover:text-gray-700"
+                      >
+                        &#8943;
+                      </button>
+                    </div>
+                  )}
+
+                  {menuId === category.id && editingId !== category.id && (
+                    <div className="absolute left-0 top-9 z-20 w-36 overflow-hidden rounded-md border border-gray-200 bg-white py-1 shadow-lg">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingId(category.id);
+                          setEditingName(category.name);
+                          setMenuId(null);
+                        }}
+                        className="block w-full px-3 py-1.5 text-left text-[12px] text-gray-700 hover:bg-gray-50"
+                      >
+                        Rename
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuId(null);
+                          void remove(category);
+                        }}
+                        disabled={busy}
+                        className="block w-full px-3 py-1.5 text-left text-[12px] text-red-600 hover:bg-red-50 disabled:opacity-40"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+
         </div>
       )}
     </section>
