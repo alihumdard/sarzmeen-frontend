@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminConfirmDialog from "@/components/admin/AdminConfirmDialog";
 import VideoFormModal from "@/components/admin/VideoFormModal";
+import VideoCategoriesPanel from "@/components/admin/VideoCategoriesPanel";
 import SafeImage from "@/components/ui/SafeImage";
 import { deleteVideo, listAdminVideos,
   reviewVideo,
@@ -118,8 +119,8 @@ export default function AdminVideosPage() {
   return (
     <div>
       <AdminPageHeader
-        title="Video Guides"
-        description="How-to videos shown on the public Video Guides page."
+        title="Sarzameen X Tube"
+        description="Videos on the public Sarzameen X Tube page — the site's own, and those agencies and agents have submitted."
         action={
           <button
             type="button"
@@ -133,6 +134,10 @@ export default function AdminVideosPage() {
           </button>
         }
       />
+
+      <div className="mb-4">
+        <VideoCategoriesPanel />
+      </div>
 
       {/* Filters */}
       <div className="mb-4 flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 sm:flex-row sm:items-center">
@@ -149,8 +154,11 @@ export default function AdminVideosPage() {
           className="h-10 w-full rounded-md border border-gray-300 px-3 text-[12px] outline-none focus:border-primary sm:w-40"
         >
           <option value="">All statuses</option>
+          <option value="pending">In review</option>
           <option value="published">Published</option>
           <option value="draft">Draft</option>
+          <option value="rejected">Rejected</option>
+          <option value="archived">Archived</option>
         </select>
 
         <span className="text-[12px] text-gray-500 sm:ml-auto">
@@ -170,7 +178,7 @@ export default function AdminVideosPage() {
             No guides yet
           </p>
           <p className="mt-1 text-[12px] text-gray-500">
-            Add a YouTube link and it will appear on the Video Guides page.
+            Add a YouTube link and it will appear on Sarzameen X Tube.
           </p>
         </div>
       ) : (
@@ -313,7 +321,7 @@ export default function AdminVideosPage() {
         onCancel={() => setDeleting(null)}
         onConfirm={handleDelete}
         title="Delete this guide?"
-        message={`"${deleting?.title ?? ""}" will be removed from the Video Guides page.`}
+        message={`"${deleting?.title ?? ""}" will be removed from Sarzameen X Tube.`}
         confirmLabel="Delete"
         variant="danger"
       />

@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
 import PageBanner from "@/components/layout/PageBanner";
-import VideoCard from "@/components/guides/VideoCard";
+import TubeBrowser from "@/components/guides/TubeBrowser";
 import { serverApi } from "@/lib/api/server";
 import type { Video } from "@/types/video";
+import type { VideoCategoryGroup } from "@/types/video";
 
 export const metadata: Metadata = {
-  title: "Video Guides — How to Use Sarzameen.com",
+  title: "Sarzameen X Tube — Property Videos & Guides",
   description:
-    "Step-by-step video guides: how to list a property, manage your listings, build a payment plan and get the most out of Sarzameen.com.",
+    "Property walkthroughs, area guides and how-to videos from Sarzameen.com and the agencies and agents listing with us.",
 };
 
 async function getVideos(): Promise<Video[]> {
   try {
-    const res = await serverApi<{ data: Video[] }>("/videos?per_page=24", 60);
+    const res = await serverApi<{ data: Video[] }>("/videos?per_page=48", 60);
     return res.data;
   } catch {
     // The page should still render if the API is briefly unreachable.
@@ -20,40 +21,39 @@ async function getVideos(): Promise<Video[]> {
   }
 }
 
-export default async function MediaPage() {
-  const videos = await getVideos();
+async function getCategoryGroups(): Promise<VideoCategoryGroup[]> {
+  try {
+    const res = await serverApi<{ data: VideoCategoryGroup[] }>(
+      "/videos/categories",
+      60,
+    );
+    return res.data;
+  } catch {
+    return [];
+  }
+}
+
+export default async function TubePage() {
+  /* Both at once: the categories are a filter over the same videos, and
+     fetching them in turn would delay the page for no reason. */
+  const [videos, groups] = await Promise.all([
+    getVideos(),
+    getCategoryGroups(),
+  ]);
 
   return (
     <main>
       <PageBanner
-        title="Video Guides"
-        description="Short videos showing you how to use Sarzameen.com, step by step."
-        crumbs={[{ label: "Home", href: "/" }, { label: "Video Guides" }]}
+        title="Sarzameen X Tube"
+        description="Property walkthroughs, area guides and how-to videos — from us and from the agencies listing with us."
+        crumbs={[{ label: "Home", href: "/" }, { label: "Sarzameen X Tube" }]}
         contentMaxWidth="720px"
         image="/images/city-lahore-skyline.jpg"
       />
 
       <section className="bg-surface py-10">
         <div className="container-page">
-          {videos.length === 0 ? (
-            <p className="rounded-xl border border-border bg-white py-16 text-center text-[13px] text-muted">
-              No guides have been published yet. Add one from Admin &rarr;
-              Video Guides.
-            </p>
-          ) : (
-            <>
-              <p className="mb-5 text-[13px] text-muted">
-                <span className="font-bold text-heading">{videos.length}</span>{" "}
-                {videos.length === 1 ? "guide" : "guides"}
-              </p>
-
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {videos.map((video) => (
-                  <VideoCard key={video.id} video={video} />
-                ))}
-              </div>
-            </>
-          )}
+          <TubeBrowser videos={videos} groups={groups} />
         </div>
       </section>
     </main>

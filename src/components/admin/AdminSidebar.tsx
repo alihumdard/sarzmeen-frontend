@@ -173,7 +173,7 @@ const menuGroups: MenuGroup[] = [
         implemented: true,
       },
       {
-        label: "Video Guides",
+        label: "Sarzameen X Tube",
         href: "/admin/guides",
         anyPermission: ["blogs.manage"],
         icon: "media",

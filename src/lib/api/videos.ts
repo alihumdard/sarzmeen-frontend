@@ -65,3 +65,39 @@ export async function reviewVideo(
     body: note ? { note } : undefined,
   });
 }
+
+/**
+ * The site's own video categories.
+ *
+ * An agency's groupings are theirs, managed from their own section, so
+ * only the site's come back here.
+ */
+export type AdminVideoCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  videoCount: number;
+};
+
+export async function listVideoCategories(): Promise<{
+  data: AdminVideoCategory[];
+}> {
+  return api("/admin/video-categories");
+}
+
+export async function createVideoCategory(
+  name: string,
+): Promise<{ data: AdminVideoCategory }> {
+  return api("/admin/video-categories", { method: "POST", body: { name } });
+}
+
+export async function renameVideoCategory(
+  id: string,
+  name: string,
+): Promise<{ data: AdminVideoCategory }> {
+  return api(`/admin/video-categories/${id}`, { method: "PUT", body: { name } });
+}
+
+export async function deleteVideoCategory(id: string): Promise<void> {
+  await api(`/admin/video-categories/${id}`, { method: "DELETE" });
+}

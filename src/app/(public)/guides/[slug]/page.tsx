@@ -69,7 +69,7 @@ export default async function VideoPage({ params }: { params: Params }) {
         backHref="/guides"
         crumbs={[
           { label: "Home", href: "/" },
-          { label: "Video Guides", href: "/guides" },
+          { label: "Sarzameen X Tube", href: "/guides" },
           { label: video.title },
         ]}
       />
@@ -120,6 +120,31 @@ export default async function VideoPage({ params }: { params: Params }) {
                   Watch on YouTube
                 </a>
               </div>
+
+              {/* Who posted it, and the way to the rest of their videos —
+                  somebody who liked this one has nowhere else to go
+                  otherwise. */}
+              {video.owner?.href && (
+                <Link
+                  href={video.owner.href}
+                  className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 transition-colors hover:border-primary/40 hover:bg-surface"
+                >
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
+                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-[12.5px] font-semibold text-heading">
+                      {video.owner.name}
+                    </span>
+                    <span className="block text-[11px] text-muted">
+                      See their other videos
+                    </span>
+                  </span>
+                </Link>
+              )}
 
               {video.description && (
                 /* Written in the admin's rich text editor, so it arrives

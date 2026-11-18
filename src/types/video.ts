@@ -28,14 +28,20 @@ export type Video = {
   /**
    * The agent or agency that posted it, absent for the site's own.
    *
-   * Their videos stay off the public guides page; this is what tells
-   * them apart in the admin list.
+   * Their videos appear on Sarzameen X Tube alongside the site's own,
+   * once approved; this is what tells them apart and leads to the rest
+   * of that owner's.
    */
   owner?: {
     kind: "agent" | "agency";
     name: string;
     slug: string | null;
+    /** Their page, where the rest of their videos are. */
+    href?: string | null;
   } | null;
+  tags?: string[];
+  category?: { id: string; name: string; slug: string } | null;
+  categoryId?: string | null;
   publishedAt: string | null;
   metaTitle: string | null;
   metaDescription: string | null;
@@ -49,7 +55,26 @@ export type VideoInput = {
   youtubeUrl: string;
   status: VideoStatus;
   featured?: boolean;
+  categoryId?: string;
+  /** Written to be found by and shown to nobody. */
+  tags?: string[];
   sortOrder?: number;
   metaTitle?: string;
   metaDescription?: string;
+};
+
+/**
+ * The library's categories, grouped by whoever made them.
+ *
+ * The site's own come first; an agency's follow under its name.
+ */
+export type VideoCategoryGroup = {
+  key: string;
+  label: string;
+  categories: {
+    id: string;
+    name: string;
+    slug: string;
+    videoCount: number;
+  }[];
 };

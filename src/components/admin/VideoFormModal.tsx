@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AdminModal from "@/components/admin/AdminModal";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import SafeImage from "@/components/ui/SafeImage";
 import { slugify } from "@/lib/api/categories";
-import { createVideo, updateVideo } from "@/lib/api/videos";
+import {
+  createVideo,
+  listVideoCategories,
+  updateVideo,
+  type AdminVideoCategory,
+} from "@/lib/api/videos";
 import type { Video, VideoInput } from "@/types/video";
 
 type VideoFormModalProps = {
@@ -52,6 +57,36 @@ export default function VideoFormModal({
   const [description, setDescription] = useState(video?.description ?? "");
   const [status, setStatus] = useState(video?.status ?? "draft");
   const [featured, setFeatured] = useState(video?.featured ?? false);
+  const [categoryId, setCategoryId] = useState(video?.categoryId ?? "");
+  const [tags, setTags] = useState<string[]>(video?.tags ?? []);
+  const [tagDraft, setTagDraft] = useState("");
+  const [categories, setCategories] = useState<AdminVideoCategory[]>([]);
+
+  useEffect(() => {
+    let active = true;
+
+    listVideoCategories()
+      .then((res) => {
+        if (active) setCategories(res.data);
+      })
+      .catch(() => {
+        /* The dropdown simply stays empty; the form still works. */
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const addTag = () => {
+    const tag = tagDraft.trim();
+    if (!tag || tags.includes(tag) || tags.length >= 10) {
+      setTagDraft("");
+      return;
+    }
+    setTags([...tags, tag]);
+    setTagDraft("");
+  };
   const [sortOrder, setSortOrder] = useState(String(video?.sortOrder ?? 0));
   const [metaTitle, setMetaTitle] = useState(video?.metaTitle ?? "");
   const [metaDescription, setMetaDescription] = useState(
@@ -79,6 +114,13 @@ export default function VideoFormModal({
         youtubeUrl: url.trim(),
         status: status as VideoInput["status"],
         featured,
+        /* A tag left in the box, never committed with Enter, is still
+           one the writer meant to add. */
+        tags: (() => {
+          const pending = tagDraft.trim();
+          return pending && !tags.includes(pending) ? [...tags, pending] : tags;
+        })(),
+        categoryId: categoryId || undefined,
         sortOrder: Number(sortOrder) || 0,
         metaTitle: metaTitle.trim() || undefined,
         metaDescription: metaDescription.trim() || undefined,
@@ -199,6 +241,71 @@ export default function VideoFormModal({
             minHeightClass="min-h-[160px]"
           />
         </Field>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label="Category"
+            hint={
+              categories.length === 0
+                ? "Add categories from the Categories panel."
+                : undefined
+            }
+          >
+            <select
+              value={categoryId}
+              onChange={(event) => setCategoryId(event.target.value)}
+              disabled={categories.length === 0}
+              className={inputClass}
+            >
+              <option value="">Uncategorised</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="Tags" hint="Type and press Enter. Shown to nobody — they are for search.">
+            <input
+              value={tagDraft}
+              onChange={(event) => setTagDraft(event.target.value)}
+              onKeyDown={(event) => {
+                /* Enter commits the tag rather than submitting the form,
+                   which would save the video half-filled. */
+                if (event.key === "Enter" || event.key === ",") {
+                  event.preventDefault();
+                  addTag();
+                }
+              }}
+              onBlur={addTag}
+              disabled={tags.length >= 10}
+              placeholder={tags.length >= 10 ? "Ten is the most" : "e.g. DHA"}
+              className={inputClass}
+            />
+          </Field>
+        </div>
+
+        {tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary"
+              >
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => setTags(tags.filter((t) => t !== tag))}
+                  aria-label={`Remove ${tag}`}
+                  className="text-primary/60 transition-colors hover:text-primary"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
 
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="Status">
