@@ -175,8 +175,10 @@ export default function OwnerVideoFormModal({
             {/* A lone "Uncategorised" in a dropdown looks like something
                 failed to load; say where categories come from instead. */}
             {categories.length === 0 && (
-              <p className="mt-1 text-[10.5px] text-gray-400">
-                Add categories from the Categories panel to group your videos.
+              <p className="mt-1.5 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] leading-relaxed text-amber-800">
+                You have no categories yet. Close this and use{" "}
+                <span className="font-semibold">Categories &rarr; Manage</span>{" "}
+                above the list to add one, then it will appear here.
               </p>
             )}
           </AdminFormField>
