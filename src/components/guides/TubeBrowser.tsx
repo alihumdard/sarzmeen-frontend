@@ -57,9 +57,9 @@ export default function TubeBrowser({
   return (
     <div>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
-        {/* Categories, grouped by who made them. */}
-        {groups.length > 0 && (
-          <aside className="w-full shrink-0 lg:w-[220px]">
+        <aside className="w-full shrink-0 lg:w-[220px]">
+          {/* Categories, grouped by who made them. */}
+          {groups.length > 0 && (
             <div className="rounded-xl border border-border bg-white p-4">
               <button
                 type="button"
@@ -101,51 +101,51 @@ export default function TubeBrowser({
                 </div>
               ))}
             </div>
+          )}
 
-            <div className="mt-4 rounded-xl border border-border bg-white">
-              <button
-                type="button"
-                onClick={() => setHelpOpen(!helpOpen)}
-                aria-expanded={helpOpen}
-                className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left"
+          <div className="mt-4 rounded-xl border border-border bg-white first:mt-0">
+            <button
+              type="button"
+              onClick={() => setHelpOpen(!helpOpen)}
+              aria-expanded={helpOpen}
+              className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left"
+            >
+              <span className="text-[12px] font-bold text-heading">
+                How to use this page
+              </span>
+              <span
+                aria-hidden="true"
+                className={`text-[11px] text-muted transition-transform ${
+                  helpOpen ? "rotate-180" : ""
+                }`}
               >
-                <span className="text-[12px] font-bold text-heading">
-                  How to use this page
-                </span>
-                <span
-                  aria-hidden="true"
-                  className={`text-[11px] text-muted transition-transform ${
-                    helpOpen ? "rotate-180" : ""
-                  }`}
-                >
-                  &#9662;
-                </span>
-              </button>
+                &#9662;
+              </span>
+            </button>
 
-              {helpOpen && (
-                <ul className="space-y-2.5 border-t border-border px-4 py-3.5 text-[12px] leading-relaxed text-muted">
-                  <li>
-                    <span className="font-semibold text-heading">Search</span> as
-                    you type &mdash; it matches a video&rsquo;s title, its
-                    description and the agency or agent who posted it.
-                  </li>
-                  <li>
-                    <span className="font-semibold text-heading">Categories</span>{" "}
-                    are grouped by who made them: ours first, then each agency
-                    and agent&rsquo;s own.
-                  </li>
-                  <li>
-                    <span className="font-semibold text-heading">
-                      Open a video
-                    </span>{" "}
-                    to watch it and, where an agency or agent posted it, to
-                    reach their profile and the rest of their listings.
-                  </li>
-                </ul>
-              )}
-            </div>
-          </aside>
-        )}
+            {helpOpen && (
+              <ul className="space-y-2.5 border-t border-border px-4 py-3.5 text-[12px] leading-relaxed text-muted">
+                <li>
+                  <span className="font-semibold text-heading">Search</span> as
+                  you type &mdash; it matches a video&rsquo;s title, its
+                  description and the agency or agent who posted it.
+                </li>
+                <li>
+                  <span className="font-semibold text-heading">Categories</span>{" "}
+                  are grouped by who made them: ours first, then each agency and
+                  agent&rsquo;s own.
+                </li>
+                <li>
+                  <span className="font-semibold text-heading">
+                    Open a video
+                  </span>{" "}
+                  to watch it and, where an agency or agent posted it, to reach
+                  their profile and the rest of their listings.
+                </li>
+              </ul>
+            )}
+          </div>
+        </aside>
 
         <div className="min-w-0 flex-1">
           <div className="relative">
