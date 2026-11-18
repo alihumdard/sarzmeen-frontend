@@ -162,6 +162,7 @@ export default function OwnerVideoFormModal({
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
+              disabled={categories.length === 0}
               className={adminSelectClass}
             >
               <option value="">Uncategorised</option>
@@ -171,6 +172,13 @@ export default function OwnerVideoFormModal({
                 </option>
               ))}
             </select>
+            {/* A lone "Uncategorised" in a dropdown looks like something
+                failed to load; say where categories come from instead. */}
+            {categories.length === 0 && (
+              <p className="mt-1 text-[10.5px] text-gray-400">
+                Add categories from the Categories panel to group your videos.
+              </p>
+            )}
           </AdminFormField>
 
           <AdminFormField label="Link (optional)">
