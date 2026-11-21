@@ -63,9 +63,12 @@ export default function TubeBrowser({
             <div className="rounded-xl border border-border bg-white p-4">
               <button
                 type="button"
-                onClick={() => setCategory(null)}
+                onClick={() => {
+                  setCategory(null);
+                  setSearch("");
+                }}
                 className={`w-full rounded-md px-3 py-2 text-left text-[12.5px] font-semibold transition-colors ${
-                  category === null
+                  category === null && !search.trim()
                     ? "bg-primary text-white"
                     : "text-heading hover:bg-surface"
                 }`}
