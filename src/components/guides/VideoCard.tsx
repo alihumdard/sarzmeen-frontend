@@ -12,7 +12,7 @@ export default function VideoCard({ video }: { video: Video }) {
   return (
     <Link
       href={`/guides/${video.slug}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-border bg-white transition-shadow hover:shadow-[0_6px_20px_rgba(15,23,42,0.08)]"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[0_10px_28px_rgba(15,23,42,0.10)]"
     >
       <div className="relative aspect-video overflow-hidden bg-surface">
         <SafeImage
@@ -26,7 +26,7 @@ export default function VideoCard({ video }: { video: Video }) {
 
         {/* Play badge, so a still reads as a video rather than a photo. */}
         <span className="absolute inset-0 flex items-center justify-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm transition-transform duration-200 group-hover:scale-110">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition-all duration-200 group-hover:scale-110 group-hover:bg-primary">
             <svg
               className="ml-0.5 h-5 w-5"
               viewBox="0 0 24 24"
@@ -45,7 +45,7 @@ export default function VideoCard({ video }: { video: Video }) {
         )}
       </div>
 
-      <div className="flex flex-1 flex-col p-4">
+      <div className="flex flex-1 flex-col p-4 pt-3.5">
         <h3 className="line-clamp-2 text-[14px] font-bold leading-snug text-heading transition-colors group-hover:text-primary">
           {video.title}
         </h3>
@@ -62,7 +62,7 @@ export default function VideoCard({ video }: { video: Video }) {
             an anchor inside another cannot be clicked on its own — the
             name is a link on the video's own page instead. */}
         {video.owner && (
-          <p className="mt-2 flex items-center gap-1 text-[11px] font-medium text-primary">
+          <p className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-primary">
             <svg className="h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
@@ -71,7 +71,7 @@ export default function VideoCard({ video }: { video: Video }) {
           </p>
         )}
 
-        <div className="mt-auto flex items-center gap-3 pt-3 text-[11px] text-muted">
+        <div className="mt-auto flex items-center gap-2 border-t border-border/70 pt-2.5 text-[11px] text-muted [&>time]:shrink-0">
           {video.publishedAt && (
             <time dateTime={video.publishedAt}>
               {new Date(video.publishedAt).toLocaleDateString("en-US", {
@@ -82,6 +82,7 @@ export default function VideoCard({ video }: { video: Video }) {
               })}
             </time>
           )}
+          {video.publishedAt && <span aria-hidden="true">&middot;</span>}
           <span>
             {video.views.toLocaleString()}{" "}
             {video.views === 1 ? "view" : "views"}

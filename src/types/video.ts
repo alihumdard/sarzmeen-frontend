@@ -71,6 +71,8 @@ export type VideoInput = {
 export type VideoCategoryGroup = {
   key: string;
   label: string;
+  /** Tells two owners of the same name apart. */
+  kind?: "site" | "agency" | "agent";
   categories: {
     id: string;
     name: string;

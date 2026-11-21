@@ -56,11 +56,11 @@ export default function TubeBrowser({
 
   return (
     <div>
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
-        <aside className="w-full shrink-0 lg:w-[220px]">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
+        <aside className="w-full shrink-0 lg:w-[248px]">
           {/* Categories, grouped by who made them. */}
           {groups.length > 0 && (
-            <div className="rounded-xl border border-border bg-white p-4">
+            <div className="rounded-2xl border border-border bg-white p-4">
               <button
                 type="button"
                 onClick={() => {
@@ -77,9 +77,21 @@ export default function TubeBrowser({
               </button>
 
               {groups.map((group) => (
-                <div key={group.key} className="mt-4">
-                  <p className="px-3 text-[10.5px] font-bold uppercase tracking-wide text-muted">
-                    {group.label}
+                <div
+                  key={group.key}
+                  className="mt-4 border-t border-border pt-3 first-of-type:mt-3"
+                >
+                  {/* Two owners may share a name, so the heading says which
+                      kind each one is rather than repeating the name alone. */}
+                  <p className="flex items-baseline gap-1.5 px-3">
+                    <span className="min-w-0 truncate text-[11px] font-bold uppercase tracking-wide text-heading">
+                      {group.label}
+                    </span>
+                    {group.kind && group.kind !== "site" && (
+                      <span className="shrink-0 text-[9.5px] font-semibold uppercase tracking-wide text-muted">
+                        {group.kind}
+                      </span>
+                    )}
                   </p>
                   <ul className="mt-1.5 space-y-0.5">
                     {group.categories.map((c) => (
@@ -106,7 +118,7 @@ export default function TubeBrowser({
             </div>
           )}
 
-          <div className="mt-4 rounded-xl border border-border bg-white first:mt-0">
+          <div className="mt-4 rounded-2xl border border-border bg-white first:mt-0">
             <button
               type="button"
               onClick={() => setHelpOpen(!helpOpen)}
@@ -151,9 +163,9 @@ export default function TubeBrowser({
         </aside>
 
         <div className="min-w-0 flex-1">
-          <div className="relative">
+          <div className="relative mb-4">
             <svg
-              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
+              className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -170,25 +182,41 @@ export default function TubeBrowser({
               type="search"
               placeholder="Search videos…"
               aria-label="Search videos"
-              className="h-11 w-full rounded-xl border border-border bg-white pl-10 pr-4 text-[13px] text-heading outline-none transition-colors focus:border-primary"
+              className="h-12 w-full rounded-2xl border border-border bg-white pl-11 pr-4 text-[13.5px] text-heading outline-none transition-colors focus:border-primary"
             />
           </div>
 
-          <p className="mb-5 mt-4 text-[13px] text-muted">
-            <span className="font-bold text-heading">{shown.length}</span>{" "}
-            {shown.length === 1 ? "video" : "videos"}
-            {activeName && <> in {activeName}</>}
-            {search.trim() && <> for “{search.trim()}”</>}
-          </p>
+          <div className="mb-5 flex flex-wrap items-center gap-2 text-[13px] text-muted">
+            <p>
+              <span className="font-bold text-heading">{shown.length}</span>{" "}
+              {shown.length === 1 ? "video" : "videos"}
+              {activeName && <> in {activeName}</>}
+              {search.trim() && <> for “{search.trim()}”</>}
+            </p>
+
+            {/* A way back that does not mean hunting for the sidebar. */}
+            {(activeName || search.trim()) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setCategory(null);
+                  setSearch("");
+                }}
+                className="rounded-full border border-border px-2.5 py-0.5 text-[11.5px] font-semibold text-primary transition-colors hover:bg-primary-light"
+              >
+                Clear
+              </button>
+            )}
+          </div>
 
           {shown.length === 0 ? (
-            <p className="rounded-xl border border-border bg-white py-16 text-center text-[13px] text-muted">
+            <p className="rounded-2xl border border-border bg-white py-20 text-center text-[13px] text-muted">
               {videos.length === 0
                 ? "No videos have been published yet."
                 : "Nothing matched. Try another word, or pick a different category."}
             </p>
           ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-x-5 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {shown.map((video) => (
                 <VideoCard key={video.id} video={video} />
               ))}
