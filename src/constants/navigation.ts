@@ -66,6 +66,7 @@ export const mainNavigation: NavItem[] = [
     children: [
       { name: "Payment Plan Calculator", href: "/calculator" },
       { name: "Sarzameen X Tube", href: "/guides" },
+      { name: "Society Maps", href: "/society-maps" },
       { name: "Digital Services", href: "/services" },
     ],
   },

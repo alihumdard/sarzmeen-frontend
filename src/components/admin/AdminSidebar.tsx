@@ -180,6 +180,13 @@ const menuGroups: MenuGroup[] = [
         implemented: true,
       },
       {
+        label: "Society Maps",
+        href: "/admin/society-maps",
+        anyPermission: ["society_maps.manage"],
+        icon: "location",
+        implemented: true,
+      },
+      {
         label: "Homepage CMS",
         href: "/admin/homepage",
         anyPermission: ["settings.manage"],
