@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import SafeImage from "@/components/ui/SafeImage";
 import type { MapCity, SocietyMap } from "@/types/societyMap";
 
@@ -21,9 +20,16 @@ export default function MapBrowser({
   cities: MapCity[];
 }) {
   /* The breadcrumbs and the city list below the grid link in with
-     ?city=, so the chip they name starts chosen. */
-  const params = useSearchParams();
-  const [city, setCity] = useState<string | null>(params.get("city"));
+     ?city=, so the chip they name starts chosen.
+
+     Read once, here, rather than through useSearchParams: that hook
+     would make this page render on the client and leave the cards out
+     of the HTML altogether. On the server there is no window, so it
+     starts unfiltered and settles on the first client render. */
+  const [city, setCity] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return new URLSearchParams(window.location.search).get("city");
+  });
   const [search, setSearch] = useState("");
 
   const shown = useMemo(() => {

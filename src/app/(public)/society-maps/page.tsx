@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import type { Metadata } from "next";
 import PageBanner from "@/components/layout/PageBanner";
 import MapBrowser from "@/components/society-maps/MapBrowser";
@@ -74,15 +73,7 @@ export default async function SocietyMapsPage() {
 
       <section className="bg-surface py-10">
         <div className="container-page">
-          {/* MapBrowser reads ?city= from the URL, which a prerendered
-              page cannot know until it is served. */}
-          <Suspense
-            fallback={
-              <div className="h-96 animate-pulse rounded-2xl bg-white" />
-            }
-          >
-            <MapBrowser maps={maps} cities={cities} />
-          </Suspense>
+          <MapBrowser maps={maps} cities={cities} />
         </div>
       </section>
 
