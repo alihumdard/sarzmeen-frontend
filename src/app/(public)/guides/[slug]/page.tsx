@@ -121,10 +121,11 @@ export default async function VideoPage({ params }: { params: Params }) {
                 </a>
               </div>
 
-              {/* Who posted it, and the way to the rest of their videos —
-                  somebody who liked this one has nowhere else to go
-                  otherwise. */}
-              {video.owner?.href && (
+              {/* Who posted it. Every video names a publisher: an agency
+                  or agent links through to the rest of theirs, and the
+                  site's own say so rather than leaving the space blank,
+                  which reads as a video from nobody. */}
+              {video.owner?.href ? (
                 <Link
                   href={video.owner.href}
                   className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 transition-colors hover:border-primary/40 hover:bg-surface"
@@ -144,6 +145,23 @@ export default async function VideoPage({ params }: { params: Params }) {
                     </span>
                   </span>
                 </Link>
+              ) : (
+                <div className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border px-3.5 py-2">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
+                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                      <path d="M9 21v-7h6v7" />
+                    </svg>
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-[12.5px] font-semibold text-heading">
+                      {video.owner?.name ?? "Sarzameen.com"}
+                    </span>
+                    <span className="block text-[11px] text-muted">
+                      Official Sarzameen guide
+                    </span>
+                  </span>
+                </div>
               )}
 
               {video.description && (
