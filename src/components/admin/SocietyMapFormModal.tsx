@@ -5,6 +5,7 @@ import AdminModal from "@/components/admin/AdminModal";
 import AdminFormField from "@/components/admin/AdminFormField";
 import RichTextEditor from "@/components/admin/RichTextEditor";
 import { listLocations, type Location } from "@/lib/api/locations";
+import { listAdminBlogs, type AdminBlog } from "@/lib/api/adminBlogs";
 import {
   createSocietyMap,
   getAdminSocietyMap,
@@ -44,6 +45,15 @@ export default function SocietyMapFormModal({
   const [removeDocument, setRemoveDocument] = useState(false);
 
   const [locations, setLocations] = useState<Location[]>([]);
+
+  /* Blogs shown at the foot of the map's page. Attached by hand rather
+     than matched on the society's name, which would file a Karachi post
+     under the Lahore society of the same name. */
+  const [blogs, setBlogs] = useState<AdminBlog[]>([]);
+  const [blogIds, setBlogIds] = useState<number[]>(
+    (map?.blogs ?? []).map((b) => Number(b.id)),
+  );
+  const [blogQuery, setBlogQuery] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,6 +65,12 @@ export default function SocietyMapFormModal({
       .catch(() => {
         /* The field then asks for a society that cannot be picked; the
            error below says so when saving fails. */
+      });
+
+    listAdminBlogs("per_page=200&status=published")
+      .then((res) => setBlogs(res.data))
+      .catch(() => {
+        /* The blog picker is then empty; the map still saves. */
       });
   }, [open]);
 
@@ -96,6 +112,23 @@ export default function SocietyMapFormModal({
 
   const chosen = locations.find((l) => Number(l.id) === locationId) ?? null;
 
+  const blogMatches = useMemo(() => {
+    const term = blogQuery.trim().toLowerCase();
+    if (term.length < 2) return [];
+
+    return blogs
+      .filter(
+        (b) =>
+          !blogIds.includes(Number(b.id)) &&
+          b.title.toLowerCase().includes(term),
+      )
+      .slice(0, 6);
+  }, [blogs, blogQuery, blogIds]);
+
+  const attached = blogIds
+    .map((id) => blogs.find((b) => Number(b.id) === id))
+    .filter((b): b is AdminBlog => Boolean(b));
+
   const save = async () => {
     if (saving) return;
 
@@ -119,6 +152,7 @@ export default function SocietyMapFormModal({
       description,
       status,
       featured,
+      blogIds,
       imageFile,
       documentFile,
       removeDocument,
@@ -290,6 +324,62 @@ export default function SocietyMapFormModal({
             onChange={setDescription}
             placeholder="Blocks, plot sizes, location, payment plans…"
           />
+        </AdminFormField>
+
+        <AdminFormField
+          label="Related blogs"
+          hint="Shown at the foot of the map's page. Type at least two letters."
+        >
+          {attached.length > 0 && (
+            <ul className="mb-2 flex flex-wrap gap-1.5">
+              {attached.map((b) => (
+                <li
+                  key={b.id}
+                  className="flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 py-1 pl-3 pr-1.5"
+                >
+                  <span className="max-w-[220px] truncate text-[11.5px] text-gray-800">
+                    {b.title}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setBlogIds(blogIds.filter((id) => id !== Number(b.id)))
+                    }
+                    aria-label={`Remove ${b.title}`}
+                    className="flex h-5 w-5 items-center justify-center rounded-full text-gray-400 hover:bg-gray-200 hover:text-gray-700"
+                  >
+                    &times;
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <input
+            value={blogQuery}
+            onChange={(e) => setBlogQuery(e.target.value)}
+            placeholder="Search a blog post…"
+            className={inputClass}
+          />
+
+          {blogMatches.length > 0 && (
+            <ul className="mt-1 max-h-40 overflow-y-auto rounded-md border border-gray-200 bg-white py-1 shadow-sm">
+              {blogMatches.map((b) => (
+                <li key={b.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBlogIds([...blogIds, Number(b.id)]);
+                      setBlogQuery("");
+                    }}
+                    className="block w-full truncate px-3 py-1.5 text-left text-[12px] text-gray-800 hover:bg-gray-50"
+                  >
+                    {b.title}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </AdminFormField>
 
         <div className="grid gap-4 sm:grid-cols-2">
