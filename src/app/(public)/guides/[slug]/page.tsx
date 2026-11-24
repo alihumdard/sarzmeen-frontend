@@ -146,7 +146,13 @@ export default async function VideoPage({ params }: { params: Params }) {
                   </span>
                 </Link>
               ) : (
-                <div className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border px-3.5 py-2">
+                /* The site has no profile page of its own, so this leads
+                   to the library — which is where the rest of its guides
+                   are, the same promise the owner link makes. */
+                <Link
+                  href="/guides"
+                  className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 transition-colors hover:border-primary/40 hover:bg-surface"
+                >
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary">
                     <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -158,10 +164,10 @@ export default async function VideoPage({ params }: { params: Params }) {
                       {video.owner?.name ?? "Sarzameen.com"}
                     </span>
                     <span className="block text-[11px] text-muted">
-                      Official Sarzameen guide
+                      See all Sarzameen guides
                     </span>
                   </span>
-                </div>
+                </Link>
               )}
 
               {video.description && (
