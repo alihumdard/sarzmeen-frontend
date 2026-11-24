@@ -114,7 +114,12 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         </ul>
 
         {/* Agent + contact actions. `relative z-20` lifts this above the
-            card's full-bleed photo link. */}
+            card's full-bleed photo link.
+
+            Guarded: a listing fetched without its owner has no agent, and
+            reading a slug off nothing took the whole page down rather
+            than dropping one block. */}
+        {agent ? (
         <div className="relative z-20 mt-auto flex items-center justify-between gap-2 border-t border-border pt-3">
           <Link
             href={`/agents/${agent.slug}`}
@@ -165,6 +170,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             )}
           </div>
         </div>
+        ) : null}
       </div>
     </article>
   );

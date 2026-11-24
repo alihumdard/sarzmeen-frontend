@@ -15,7 +15,7 @@ type MapPayload = {
 
 async function getMap(slug: string): Promise<MapPayload | null> {
   try {
-    return await serverApi<MapPayload>(`/society-maps/${slug}`, 300);
+    return await serverApi<MapPayload>(`/society-maps/${slug}`, 60);
   } catch {
     return null;
   }

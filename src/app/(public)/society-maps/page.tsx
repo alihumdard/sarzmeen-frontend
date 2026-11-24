@@ -14,7 +14,7 @@ async function getMaps(): Promise<SocietyMap[]> {
   try {
     const res = await serverApi<{ data: SocietyMap[] }>(
       "/society-maps?per_page=100",
-      300,
+      60,
     );
     return res.data;
   } catch {
@@ -27,7 +27,7 @@ async function getCities(): Promise<MapCity[]> {
   try {
     const res = await serverApi<{ data: MapCity[] }>(
       "/society-maps/cities",
-      300,
+      60,
     );
     return res.data;
   } catch {
