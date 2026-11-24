@@ -99,13 +99,13 @@ export default function SocietyMapFormModal({
   const save = async () => {
     if (saving) return;
 
-    if (!locationId) {
-      setError("Pick the society this map is of.");
-      return;
-    }
+    const missing: string[] = [];
+    if (!title.trim()) missing.push("a title");
+    if (!locationId) missing.push("a society");
+    if (!map && !imageFile) missing.push("a map image");
 
-    if (!map && !imageFile) {
-      setError("A map image is required.");
+    if (missing.length > 0 || locationId === null) {
+      setError(`Still needed: ${missing.join(", ")}.`);
       return;
     }
 
@@ -199,6 +199,7 @@ export default function SocietyMapFormModal({
               onChange={(e) => {
                 setLocationQuery(e.target.value);
                 setLocationId(null);
+                setError(null);
               }}
               placeholder="Search a society…"
               className={inputClass}
@@ -213,6 +214,7 @@ export default function SocietyMapFormModal({
                       onClick={() => {
                         setLocationId(Number(l.id));
                         setLocationQuery(l.name);
+                        setError(null);
                       }}
                       className="flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-[12px] hover:bg-gray-50"
                     >
@@ -236,7 +238,10 @@ export default function SocietyMapFormModal({
           <input
             type="file"
             accept="image/png,image/jpeg,image/webp"
-            onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+            onChange={(e) => {
+              setImageFile(e.target.files?.[0] ?? null);
+              setError(null);
+            }}
             className="w-full text-[12px] file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-[12px] file:font-semibold file:text-white"
           />
           {map && !imageFile && (
