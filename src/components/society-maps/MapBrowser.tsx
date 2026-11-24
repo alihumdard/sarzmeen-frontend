@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import SafeImage from "@/components/ui/SafeImage";
 import type { MapCity, SocietyMap } from "@/types/societyMap";
 
@@ -19,7 +20,10 @@ export default function MapBrowser({
   maps: SocietyMap[];
   cities: MapCity[];
 }) {
-  const [city, setCity] = useState<string | null>(null);
+  /* The breadcrumbs and the city list below the grid link in with
+     ?city=, so the chip they name starts chosen. */
+  const params = useSearchParams();
+  const [city, setCity] = useState<string | null>(params.get("city"));
   const [search, setSearch] = useState("");
 
   const shown = useMemo(() => {

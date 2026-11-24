@@ -43,3 +43,10 @@ export type SocietyMapInput = {
   metaTitle?: string;
   metaDescription?: string;
 };
+
+/** The most-read maps of one city. */
+export type PopularMapGroup = {
+  city: { id: string; name: string; slug: string };
+  total: number;
+  maps: { id: string; slug: string; title: string; views: number }[];
+};

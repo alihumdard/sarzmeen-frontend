@@ -1,6 +1,7 @@
 import { api } from "./client";
 import type {
   MapCity,
+  PopularMapGroup,
   SocietyMap,
   SocietyMapInput,
 } from "@/types/societyMap";
@@ -29,6 +30,11 @@ export async function listSocietyMaps(params?: {
   const res = await api<Paginated<SocietyMap>>(
     `/society-maps${query ? `?${query}` : ""}`,
   );
+  return res.data;
+}
+
+export async function listPopularMaps(): Promise<PopularMapGroup[]> {
+  const res = await api<{ data: PopularMapGroup[] }>("/society-maps/popular");
   return res.data;
 }
 
