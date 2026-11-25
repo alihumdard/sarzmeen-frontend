@@ -218,14 +218,18 @@ export default function SubmissionReviewPanel({
               </dd>
             </div>
 
-            {submission.contact.email && (
-              <div className="flex gap-2">
-                <dt className="shrink-0 text-gray-400">Email</dt>
-                <dd className="truncate text-gray-800">
-                  {submission.contact.email}
-                </dd>
-              </div>
-            )}
+            <div className="flex gap-2">
+              <dt className="shrink-0 text-gray-400">Email</dt>
+              <dd className="truncate text-gray-800">
+                {submission.contact.email ?? (
+                  /* Without one, the outcome cannot be emailed and
+                     somebody has to ring them instead. */
+                  <span className="text-amber-700">
+                    None — call them with the outcome
+                  </span>
+                )}
+              </dd>
+            </div>
 
             {submission.document && (
               <div className="flex gap-2">
@@ -268,7 +272,7 @@ export default function SubmissionReviewPanel({
           )}
 
           {pending && mode === "idle" && (
-            <div className="mt-3.5 flex items-center gap-2.5">
+            <div className="mt-3.5 flex flex-wrap items-center gap-2.5">
               <button
                 type="button"
                 onClick={() => setMode("approve")}
@@ -283,6 +287,12 @@ export default function SubmissionReviewPanel({
               >
                 Reject
               </button>
+
+              <span className="text-[11.5px] text-gray-400">
+                {submission.contact.email
+                  ? "The sender is emailed either way."
+                  : "No email on file — tell them yourself."}
+              </span>
             </div>
           )}
         </div>

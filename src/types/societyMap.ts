@@ -89,6 +89,8 @@ export type SocietyMapSubmission = {
   status: "pending" | "published" | "rejected";
   statusLabel: string;
   reviewNote: string | null;
+  /** False when no email was given, so somebody must ring instead. */
+  canEmail?: boolean;
   mapSlug: string | null;
   submittedAt: string | null;
 };
