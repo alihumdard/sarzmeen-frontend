@@ -178,9 +178,29 @@ export default function SubmissionReviewPanel({
 
             <div className="flex gap-2">
               <dt className="shrink-0 text-gray-400">From</dt>
-              <dd className="truncate text-gray-800">
-                {submission.contact.name}
-                {submission.contact.role && ` · ${submission.contact.role}`}
+              <dd className="flex min-w-0 items-center gap-1.5 text-gray-800">
+                {submission.contact.photo && (
+                  <a
+                    href={submission.contact.photo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative h-5 w-5 shrink-0 overflow-hidden rounded-full bg-gray-100"
+                    title="Open the photo"
+                  >
+                    <SafeImage
+                      src={submission.contact.photo}
+                      alt={submission.contact.name}
+                      fill
+                      sizes="20px"
+                      className="object-cover"
+                      fallbackText=""
+                    />
+                  </a>
+                )}
+                <span className="truncate">
+                  {submission.contact.name}
+                  {submission.contact.role && ` · ${submission.contact.role}`}
+                </span>
               </dd>
             </div>
 

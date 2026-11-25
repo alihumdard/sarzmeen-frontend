@@ -30,6 +30,7 @@ export default function SubmitMapDialog() {
   const [notes, setNotes] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [documentFile, setDocumentFile] = useState<File | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
 
   const close = () => {
     setOpen(false);
@@ -47,6 +48,7 @@ export default function SubmitMapDialog() {
       setNotes("");
       setImageFile(null);
       setDocumentFile(null);
+      setPhotoFile(null);
     }
   };
 
@@ -75,6 +77,7 @@ export default function SubmitMapDialog() {
         notes: notes.trim() || undefined,
         imageFile,
         documentFile,
+        photoFile,
       });
 
       setReference(res.reference);
@@ -331,6 +334,21 @@ export default function SubmitMapDialog() {
                     />
                   </label>
                 </div>
+
+                <label className="mt-4 block">
+                  <span className="mb-1.5 block text-[12.5px] font-semibold text-heading">
+                    Your photo
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)}
+                    className="w-full text-[12px] file:mr-3 file:rounded-lg file:border-0 file:bg-surface file:px-3.5 file:py-2 file:text-[12px] file:font-semibold file:text-heading"
+                  />
+                  <span className="mt-1 block text-[11px] text-muted">
+                    Optional — helps our team know who they are speaking to.
+                  </span>
+                </label>
 
                 <label className="mt-4 block">
                   <span className="mb-1.5 block text-[12.5px] font-semibold text-heading">

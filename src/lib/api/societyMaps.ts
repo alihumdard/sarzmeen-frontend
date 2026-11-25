@@ -77,6 +77,7 @@ export async function submitSocietyMap(
   if (input.nocAuthority) fd.append("nocAuthority", input.nocAuthority);
   if (input.contactEmail) fd.append("contactEmail", input.contactEmail);
   if (input.contactRole) fd.append("contactRole", input.contactRole);
+  if (input.photoFile) fd.append("photoFile", input.photoFile);
   if (input.notes) fd.append("notes", input.notes);
 
   fd.append("imageFile", input.imageFile);

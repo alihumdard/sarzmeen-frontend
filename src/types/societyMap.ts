@@ -62,6 +62,8 @@ export type SocietyMapSubmissionInput = {
   contactPhone: string;
   contactEmail?: string;
   contactRole?: string;
+  /** Optional photo of the sender, for the reviewer. */
+  photoFile?: File | null;
   notes?: string;
   imageFile: File;
   documentFile?: File | null;
@@ -79,6 +81,7 @@ export type SocietyMapSubmission = {
     phone: string;
     email: string | null;
     role: string | null;
+    photo: string | null;
   };
   notes: string;
   image: string;
