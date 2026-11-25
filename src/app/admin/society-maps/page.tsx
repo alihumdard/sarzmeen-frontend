@@ -4,12 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminConfirmDialog from "@/components/admin/AdminConfirmDialog";
 import SocietyMapFormModal from "@/components/admin/SocietyMapFormModal";
+import SubmissionReviewPanel from "@/components/admin/SubmissionReviewPanel";
 import SafeImage from "@/components/ui/SafeImage";
 import {
   deleteSocietyMap,
   listAdminSocietyMaps,
+  listSubmissions,
 } from "@/lib/api/societyMaps";
-import type { SocietyMap } from "@/types/societyMap";
+import type { SocietyMap, SocietyMapSubmission } from "@/types/societyMap";
 
 export default function AdminSocietyMapsPage() {
   const [maps, setMaps] = useState<SocietyMap[]>([]);
@@ -21,6 +23,15 @@ export default function AdminSocietyMapsPage() {
   /* The value the list is filtered by, a beat behind the input, so a
      request does not go out on every keystroke. */
   const [query, setQuery] = useState("");
+
+  /* Submissions live beside the maps they become, rather than on a page
+     of their own: whoever publishes a map is the person reviewing what
+     was sent in. */
+  const [tab, setTab] = useState<"maps" | "submissions">("maps");
+  const [submissions, setSubmissions] = useState<SocietyMapSubmission[]>([]);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [subStatus, setSubStatus] = useState("pending");
+  const [reloadKey, setReloadKey] = useState(0);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<SocietyMap | null>(null);
@@ -80,6 +91,26 @@ export default function AdminSocietyMapsPage() {
     };
   }, [status, query]);
 
+  useEffect(() => {
+    let active = true;
+
+    (async () => {
+      try {
+        const res = await listSubmissions({ status: subStatus || undefined });
+        if (active) {
+          setSubmissions(res.data);
+          setPendingCount(res.pending);
+        }
+      } catch {
+        /* The tab then shows none; the maps list still works. */
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [subStatus, reloadKey]);
+
   async function handleDelete() {
     if (!deleting) return;
 
@@ -112,6 +143,73 @@ export default function AdminSocietyMapsPage() {
         }
       />
 
+      <div className="mb-4 flex items-center gap-1 border-b border-gray-200">
+        {([
+          ["maps", "Published maps"],
+          ["submissions", "Submissions"],
+        ] as const).map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setTab(key)}
+            className={`relative -mb-px border-b-2 px-4 py-2.5 text-[12.5px] font-semibold transition-colors ${
+              tab === key
+                ? "border-primary text-primary"
+                : "border-transparent text-gray-500 hover:text-gray-800"
+            }`}
+          >
+            {label}
+            {key === "submissions" && pendingCount > 0 && (
+              <span className="ml-1.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10.5px] font-bold text-amber-700">
+                {pendingCount}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {tab === "submissions" ? (
+        <div>
+          <div className="mb-4 flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 sm:flex-row sm:items-center">
+            <select
+              value={subStatus}
+              onChange={(e) => setSubStatus(e.target.value)}
+              className="h-10 w-full rounded-md border border-gray-300 px-3 text-[12px] outline-none focus:border-primary sm:w-44"
+            >
+              <option value="pending">In review</option>
+              <option value="published">Published</option>
+              <option value="rejected">Rejected</option>
+              <option value="">All</option>
+            </select>
+
+            <span className="text-[12px] text-gray-500 sm:ml-auto">
+              {submissions.length}{" "}
+              {submissions.length === 1 ? "submission" : "submissions"}
+            </span>
+          </div>
+
+          {submissions.length === 0 ? (
+            <p className="rounded-lg border border-gray-200 bg-white py-16 text-center text-[13px] text-gray-500">
+              Nothing here. Maps sent in from the public page appear in this
+              tab.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {submissions.map((sub) => (
+                <SubmissionReviewPanel
+                  key={sub.id}
+                  submission={sub}
+                  onDone={() => {
+                    setReloadKey((k) => k + 1);
+                    void load();
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+      <>
       <div className="mb-4 flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 sm:flex-row sm:items-center">
         <input
           value={search}
@@ -224,6 +322,9 @@ export default function AdminSocietyMapsPage() {
             </article>
           ))}
         </div>
+      )}
+
+      </>
       )}
 
       {/* Keyed so each map opens a fresh form rather than one still

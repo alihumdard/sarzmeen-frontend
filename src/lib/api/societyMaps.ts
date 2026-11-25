@@ -4,6 +4,8 @@ import type {
   PopularMapGroup,
   SocietyMap,
   SocietyMapInput,
+  SocietyMapSubmission,
+  SocietyMapSubmissionInput,
 } from "@/types/societyMap";
 
 type Paginated<T> = {
@@ -50,6 +52,39 @@ export async function recordMapDownload(
   return api<{ url: string; filename: string }>(
     `/society-maps/${slug}/download`,
     { method: "POST" },
+  );
+}
+
+/**
+ * Offer a society map for review.
+ *
+ * Open to anybody: the people holding these maps are society offices and
+ * developers, who will not register an account to send one in.
+ */
+export async function submitSocietyMap(
+  input: SocietyMapSubmissionInput,
+): Promise<{ message: string; reference: string }> {
+  const fd = new FormData();
+
+  fd.append("societyName", input.societyName);
+  fd.append("contactName", input.contactName);
+  fd.append("contactPhone", input.contactPhone);
+
+  if (input.cityName) fd.append("cityName", input.cityName);
+  if (input.nocApproved !== null && input.nocApproved !== undefined) {
+    fd.append("nocApproved", input.nocApproved ? "1" : "0");
+  }
+  if (input.nocAuthority) fd.append("nocAuthority", input.nocAuthority);
+  if (input.contactEmail) fd.append("contactEmail", input.contactEmail);
+  if (input.contactRole) fd.append("contactRole", input.contactRole);
+  if (input.notes) fd.append("notes", input.notes);
+
+  fd.append("imageFile", input.imageFile);
+  if (input.documentFile) fd.append("documentFile", input.documentFile);
+
+  return api<{ message: string; reference: string }>(
+    "/society-map-submissions",
+    { method: "POST", body: fd },
   );
 }
 
@@ -137,4 +172,47 @@ export async function updateSocietyMap(
 
 export async function deleteSocietyMap(id: string): Promise<void> {
   await api(`/admin/society-maps/${id}`, { method: "DELETE" });
+}
+
+/* ------------------------------------------------- admin: submissions */
+
+export async function listSubmissions(params?: {
+  status?: string;
+}): Promise<{ data: SocietyMapSubmission[]; pending: number }> {
+  const qs = params?.status ? `?status=${params.status}` : "";
+  const res = await api<{
+    data: SocietyMapSubmission[];
+    meta?: { pending?: number };
+  }>(`/admin/society-map-submissions${qs}`);
+
+  return { data: res.data, pending: res.meta?.pending ?? 0 };
+}
+
+export async function approveSubmission(
+  id: string,
+  input: {
+    locationId: number;
+    title: string;
+    summary?: string;
+    description?: string;
+  },
+): Promise<{ message: string; mapSlug: string }> {
+  return api<{ message: string; mapSlug: string }>(
+    `/admin/society-map-submissions/${id}/approve`,
+    { method: "POST", body: input as unknown as Record<string, unknown> },
+  );
+}
+
+export async function rejectSubmission(
+  id: string,
+  note: string,
+): Promise<void> {
+  await api(`/admin/society-map-submissions/${id}/reject`, {
+    method: "POST",
+    body: { note },
+  });
+}
+
+export async function deleteSubmission(id: string): Promise<void> {
+  await api(`/admin/society-map-submissions/${id}`, { method: "DELETE" });
 }

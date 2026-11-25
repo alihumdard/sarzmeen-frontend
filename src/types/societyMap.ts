@@ -50,3 +50,42 @@ export type PopularMapGroup = {
   total: number;
   maps: { id: string; slug: string; title: string; views: number }[];
 };
+
+/** What a society owner sends in, before an administrator reviews it. */
+export type SocietyMapSubmissionInput = {
+  societyName: string;
+  cityName?: string;
+  /** Their claim about the NOC; null means they did not say. */
+  nocApproved?: boolean | null;
+  nocAuthority?: string;
+  contactName: string;
+  contactPhone: string;
+  contactEmail?: string;
+  contactRole?: string;
+  notes?: string;
+  imageFile: File;
+  documentFile?: File | null;
+};
+
+export type SocietyMapSubmission = {
+  id: string;
+  reference: string;
+  societyName: string;
+  cityName: string | null;
+  nocApproved: boolean | null;
+  nocAuthority: string | null;
+  contact: {
+    name: string;
+    phone: string;
+    email: string | null;
+    role: string | null;
+  };
+  notes: string;
+  image: string;
+  document: string | null;
+  status: "pending" | "published" | "rejected";
+  statusLabel: string;
+  reviewNote: string | null;
+  mapSlug: string | null;
+  submittedAt: string | null;
+};

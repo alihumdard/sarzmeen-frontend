@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import SafeImage from "@/components/ui/SafeImage";
+import SubmitMapDialog from "@/components/society-maps/SubmitMapDialog";
 import type { MapCity, SocietyMap } from "@/types/societyMap";
 
 /**
@@ -87,7 +88,8 @@ export default function MapBrowser({
           </div>
         )}
 
-        <div className="relative">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative min-w-0 flex-1">
           <svg
             className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
             viewBox="0 0 24 24"
@@ -108,6 +110,11 @@ export default function MapBrowser({
             aria-label="Search society maps"
             className="h-12 w-full rounded-2xl border border-border bg-white pl-11 pr-4 text-[13.5px] text-heading outline-none transition-colors focus:border-primary"
           />
+        </div>
+
+        {/* Beside the search: somebody who could not find their society
+            is exactly the person with its map. */}
+        <SubmitMapDialog />
         </div>
       </div>
 
